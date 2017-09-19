@@ -434,7 +434,7 @@ v_hice[:] = hice
 v_snow_thick = f1.createVariable('snow_thick', 'f8', ('time',), zlib=False)
 v_snow_thick.long_name = 'time-averaged thickness of snow cover'
 v_snow_thick.units = 'meter'
-v_snow_thick[:] = hice
+v_snow_thick[:] = snow_thick 
 
 v_tisrf = f1.createVariable('tisrf', 'f8', ('time',), zlib=False)
 v_tisrf.long_name = 'time-averaged temperature of ice surface'

@@ -66,8 +66,8 @@ temp = np.array(f.variables['temp'][:,:,eta,xi])
 temp = temp[:,:,0,0]
 sal = np.array(f.variables['salt'][:,:,eta,xi])
 sal = sal[:,:,0,0]
-ntime = np.array(f.variables['ocean_time'][:])
 
+ntime = np.array(f.variables['ocean_time'][:])
 sigma = np.array(f.variables['s_rho'][:])
 
 kz = np.array(f.variables['AKs'][:,:,eta,xi]) 
@@ -83,6 +83,28 @@ snow_thick = snow_thick[:,0,0]
 tisrf = np.array(f.variables['tisrf'][:,eta,xi]) 
 tisrf = tisrf[:,0,0]
 
+# variables to add
+'''
+Q1_c
+Q1_n
+Q1_p
+
+Q6_c
+Q6_n
+Q6_p
+
+Q7_c
+Q7_n
+Q7_p
+
+R1_c
+R1_n
+R1_p
+
+R2
+R4
+
+'''
 #long_name = "salinity vertical diffusion coefficient"
        
 
@@ -380,7 +402,7 @@ depth2 = - vgrid.z_w[0,:] # interfaces depths
 nc_format = 'NETCDF3_CLASSIC' 
 f1 = Dataset('ROMS_Laptev_Sea_{}.nc'.format(nc_format), mode='w', format= nc_format)
 
-f1.description=" lat=%3.2f,lon=%3.2f file from ROMS data"%(st_lat,st_lon)
+f1.description=" lat=%3.2f,lon=%3.2f file from ROMS data for station (lat=%3.2f,lon=%3.2f)"%(latitude[eta, xi],longitude[eta, xi],st_lat,st_lon)
 f1.source = 'Elizaveta Protsenko (elp@niva.no)'
 
 f1.history = 'Created ' + time.ctime(time.time())

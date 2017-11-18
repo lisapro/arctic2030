@@ -38,7 +38,7 @@ for r in radius:
     mol_bub_list.append(vol_mol_bub(r))
     mol_bub_array=np.array(mol_bub_list)
     
-np.savetxt('mol_vol_res2.dat',mol_bub_array, delimiter=' ')
+np.savetxt('mol_vol_res.dat',mol_bub_array, delimiter=' ')
 
 
 # In[31]:

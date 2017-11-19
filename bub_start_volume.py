@@ -36,12 +36,11 @@ radius = np.arange(0.25,8.25,0.25) # создание набора радиус�
 for r in radius:
     vol_mol_bub=vol_mol_bub(r)
     mol_bub_list.append(vol_mol_bub)
-    mol_bub_array=np.array(mol_bub_list)
-    
+mol_bub_array=np.array(mol_bub_list)
 np.savetxt('mol_vol_res.dat',mol_bub_array, delimiter=' ')
-
-
 # In[31]:
+
+#Если считаем все газовые составляющие(метан, углекислый, кислород):
 met=95 #задаем процентное соотношение газа в пузырьке
 co2=4
 o2=1

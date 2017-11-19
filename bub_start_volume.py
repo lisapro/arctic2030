@@ -34,8 +34,8 @@ def vol_mol_bub(r):
 mol_bub_list =[]
 radius = np.arange(0.25,8.25,0.25) # создание набора радиусов (r, мм) с определенным шагом для подстчета формулой
 for r in radius:
-    vol_mol_bub(r)
-    mol_bub_list.append(vol_mol_bub(r))
+    vol_mol_bub=vol_mol_bub(r)
+    mol_bub_list.append(vol_mol_bub)
     mol_bub_array=np.array(mol_bub_list)
     
 np.savetxt('mol_vol_res.dat',mol_bub_array, delimiter=' ')

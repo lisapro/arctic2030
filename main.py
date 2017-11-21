@@ -61,59 +61,48 @@ itemindex = find_xi_eta(st_lon,st_lat)
 eta = itemindex[0] 
 xi = itemindex[1]
 
+
+
 # Read the data from needed station 
+# 2D
 temp = np.array(f.variables['temp'][:,:,eta,xi])
-temp = temp[:,:,0,0]
-
+#temp = temp[:,:,0,0]
 sal = np.array(f.variables['salt'][:,:,eta,xi])
-sal = sal[:,:,0,0]
-
-ntime = np.array(f.variables['ocean_time'][:])
-sigma = np.array(f.variables['s_rho'][:])
-
+#sal = sal[:,:,0,0]
 kz = np.array(f.variables['AKs'][:,:,eta,xi]) 
-kz = kz[:,:,0,0]
-
+#kz = kz[:,:,0,0]
 rho = np.array(f.variables['rho'][:,:,eta,xi]) 
-rho = rho[:,:,0,0]
+#rho = rho[:,:,0,0]
+DIC = np.array(f.variables['O3_c'][:,:,eta,xi])
+#DIC = DIC[:,:,0,0] #time-averaged carbonate/total dissolved inorganic carbon""
+
+o2 = np.array(f.variables['O2_o'][:,:,eta,xi])
+#o2 = o2[:,:,0,0] 
+Alk = np.array(f.variables['O3_TA'][:,:,eta,xi])
+po4 = np.array(f.variables['N1_p'][:,:,eta,xi])
+no3 = np.array(f.variables['N3_n'][:,:,eta,xi]) 
+nh4 = np.array(f.variables['N4_n'][:,:,eta,xi])  
+Si = np.array(f.variables['N5_s'][:,:,eta,xi]) 
+
+Z4_c = np.array(f.variables['Z4_c'][:,:,eta,xi]) 
+Z5_c = np.array(f.variables['Z5_c'][:,:,eta,xi]) 
+Z5_n = np.array(f.variables['Z5_n'][:,:,eta,xi]) 
+Z5_p = np.array(f.variables['Z5_p'][:,:,eta,xi]) 
+
+Z6_c = np.array(f.variables['Z6_c'][:,:,eta,xi]) 
+Z6_n = np.array(f.variables['Z6_n'][:,:,eta,xi]) 
+Z6_p = np.array(f.variables['Z6_p'][:,:,eta,xi]) 
+
+for var in (sal,temp,kz,rho,DIC,o2,Alk,Si,po4,no3,nh4,Z6_n,Z6_c,Z6_p,
+            Z5_n,Z5_c, Z5_p,Z4_c): 
+    var = var[:,:,0,0]
+# 1d 
+pCO2atm = np.array(f.variables['pCO2atm'][:,eta,xi]) 
+pCO2atm = pCO2atm[:,0,0]
 
 hice = np.array(f.variables['hice'][:,eta,xi]) 
 hice = hice[:,0,0]
 
-snow_thick = np.array(f.variables['snow_thick'][:,eta,xi]) 
-snow_thick = snow_thick[:,0,0]
-
-tisrf = np.array(f.variables['tisrf'][:,eta,xi]) 
-tisrf = tisrf[:,0,0] #time-averaged temperature of ice surface"
-
-
-DIC = np.array(f.variables['O3_c'][:,:,eta,xi])
-DIC = DIC[:,:,0,0] #time-averaged carbonate/total dissolved inorganic carbon""
-
-o2 = np.array(f.variables['O2_o'][:,:,eta,xi])
-o2 = o2[:,:,0,0] 
-
-Alk = np.array(f.variables['O3_TA'][:,:,eta,xi])
-Alk = Alk[:,:,0,0] 
-
-#Akt_bak = np.array(f.variables['Akt_bak'][:,:,eta,xi])
-#Akt_bak = Akt_bak[:,:,0,0]  #"background vertical mixing coefficient for tracers"
-
-po4 = np.array(f.variables['N1_p'][:,:,eta,xi])
-po4 = po4[:,:,0,0] # time-averaged phosphate/phosphorus
-
-no3 = np.array(f.variables['N3_n'][:,:,eta,xi]) 
-no3 = no3[:,:,0,0]
-
-nh4 = np.array(f.variables['N4_n'][:,:,eta,xi])  
-nh4 = nh4[:,:,0,0]
-
-Si = np.array(f.variables['N5_s'][:,:,eta,xi]) 
-Si = Si[:,:,0,0]
-
-pCO2atm = np.array(f.variables['pCO2atm'][:,eta,xi]) 
-pCO2atm = pCO2atm[:,0,0]
- 
 #time-averaged solar shortwave radiation flux 
 swrad = np.array(f.variables['swrad'][:,eta,xi]) 
 swrad = swrad[:,0,0] 
@@ -121,6 +110,17 @@ swrad = swrad[:,0,0]
 #time-averaged solar shortwave radiation flux (under ice)
 swradWm2 = np.array(f.variables['swradWm2'][:,eta,xi]) 
 swradWm2 = swradWm2[:,0,0] 
+
+snow_thick = np.array(f.variables['snow_thick'][:,eta,xi]) 
+snow_thick = snow_thick[:,0,0]
+
+tisrf = np.array(f.variables['tisrf'][:,eta,xi]) 
+tisrf = tisrf[:,0,0] #time-averaged temperature of ice surface"
+
+ntime = np.array(f.variables['ocean_time'][:])
+sigma = np.array(f.variables['s_rho'][:])
+
+
 
 # Read the variables needed to recalculate 
 # depth from sigma values  to meters
@@ -413,7 +413,7 @@ nc_format = 'NETCDF3_CLASSIC'
 
 
 if test == True: 
-    f1 = Dataset('print_nc_all_params.nc'.format(nc_format), mode='w', format= nc_format)
+    f1 = Dataset('Laptev_test.nc'.format(nc_format), mode='w', format= nc_format)
 else:
     f1 = Dataset('ROMS_Laptev_Sea_{}_east.nc'.format(nc_format), mode='w', format= nc_format)
 
@@ -526,11 +526,50 @@ v_Si.units = 'mmol Si/m^3'
 v_Si[:] = Si
 
 
+#mesozooplankton
+v_Z4_c = f1.createVariable('Z4_c', 'f8', ('time','z'), zlib=False)
+v_Z4_c.long_name = 'time-averaged mesozooplankton/carbon'
+v_Z4_c.units = 'mmol C/m^3'
+v_Z4_c[:] = Z4_c
+
+
+#microzooplankton
+v_Z5_c = f1.createVariable('Z5_c', 'f8', ('time','z'), zlib=False)
+v_Z5_c.long_name = 'time-averaged microzooplankton/carbon'
+v_Z5_c.units = 'mmol C/m^3'
+v_Z5_c[:] = Z5_c
+
+v_Z5_n = f1.createVariable('Z5_n', 'f8', ('time','z'), zlib=False)
+v_Z5_n.long_name = 'time-averaged microzooplankton/nitrogen'
+v_Z5_n.units = 'mmol N/m^3'
+v_Z5_n[:] = Z5_n
+
+v_Z5_p = f1.createVariable('Z5_p', 'f8', ('time','z'), zlib=False)
+v_Z5_p.long_name = 'time-averaged microzooplankton/phosphorus'
+v_Z5_p.units = 'mmol P/m^3'
+v_Z5_p[:] = Z5_p
+
+#nanoflagellates
+v_Z6_c = f1.createVariable('Z6_c', 'f8', ('time','z'), zlib=False)
+v_Z6_c.long_name = 'time-averaged nanoflagellates/carbon'
+v_Z6_c.units = 'mmol C/m^3'
+v_Z6_c[:] = Z6_c
+
+v_Z6_n = f1.createVariable('Z6_n', 'f8', ('time','z'), zlib=False)
+v_Z6_n.long_name = 'time-averaged nanoflagellates/nitrogen'
+v_Z6_n.units = 'mmol N/m^3'
+v_Z6_n[:] = Z6_n
+
+v_Z6_p = f1.createVariable('Z6_p', 'f8', ('time','z'), zlib=False)
+v_Z6_p.long_name = 'time-averaged nanoflagellates/phosphorus'
+v_Z6_p.units = 'mmol P/m^3'
+v_Z6_p[:] = Z6_p
+
+
 v_pCO2atm = f1.createVariable('pCO2atm', 'f8', ('time'), zlib=False)
 v_pCO2atm.long_name = 'time-averaged partial pressure of CO2 in air'
 v_pCO2atm.units = 'uatm'
 v_pCO2atm[:] = pCO2atm
-
 
 v_swrad = f1.createVariable('swrad', 'f8', ('time'), zlib=False)
 v_swrad.long_name = 'time-averaged solar shortwave radiation flux'

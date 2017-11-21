@@ -35,6 +35,13 @@ no3 = f.variables['no3'][:][:]
 nh4 = f.variables['no3'][:][:]
 Si = f.variables['Si'][:][:]
 
+Z4_c = (f.variables['Z4_c'][:,:]) 
+Z5_c = (f.variables['Z5_c'][:,:]) 
+Z5_n = (f.variables['Z5_n'][:,:]) 
+Z5_p = (f.variables['Z5_p'][:,:]) 
+Z6_c = (f.variables['Z6_c'][:,:]) 
+Z6_n = (f.variables['Z6_n'][:,:]) 
+Z6_p = (f.variables['Z6_p'][:,:]) 
 
 #read 1d
 hice =  f.variables['hice'][:]
@@ -90,7 +97,13 @@ interp_po4 = interpolate_2d_var(po4)
 interp_no3 = interpolate_2d_var(no3)
 interp_nh4 = interpolate_2d_var(nh4)
 interp_Si = interpolate_2d_var(Si)
-
+interp_Z4_c = interpolate_2d_var(Z4_c)
+interp_Z5_c = interpolate_2d_var(Z5_c)
+interp_Z5_n = interpolate_2d_var(Z5_n)
+interp_Z5_p = interpolate_2d_var(Z5_p)
+interp_Z6_c = interpolate_2d_var(Z6_c)
+interp_Z6_n = interpolate_2d_var(Z6_n)
+interp_Z6_p = interpolate_2d_var(Z6_p)
 
 '''
 to_interp_sal = interp2d(ocean_time,depth,sal.T,kind = 'linear')
@@ -238,7 +251,47 @@ def write_nc():
     v_Si.long_name = 'time-averaged silicate/silicate'
     v_Si.units = 'mmol Si/m^3'
     v_Si[:] = interp_Si
-        
+
+
+    #mesozooplankton
+    v_Z4_c = f1.createVariable('Z4_c', 'f8', ('time','z'), zlib=False)
+    v_Z4_c.long_name = 'time-averaged mesozooplankton/carbon'
+    v_Z4_c.units = 'mmol C/m^3'
+    v_Z4_c[:] = interp_Z4_c
+    
+    
+    #microzooplankton
+    v_Z5_c = f1.createVariable('Z5_c', 'f8', ('time','z'), zlib=False)
+    v_Z5_c.long_name = 'time-averaged microzooplankton/carbon'
+    v_Z5_c.units = 'mmol C/m^3'
+    v_Z5_c[:] = interp_Z5_c
+    
+    v_Z5_n = f1.createVariable('Z5_n', 'f8', ('time','z'), zlib=False)
+    v_Z5_n.long_name = 'time-averaged microzooplankton/nitrogen'
+    v_Z5_n.units = 'mmol N/m^3'
+    v_Z5_n[:] = interp_Z5_n
+    
+    v_Z5_p = f1.createVariable('Z5_p', 'f8', ('time','z'), zlib=False)
+    v_Z5_p.long_name = 'time-averaged microzooplankton/phosphorus'
+    v_Z5_p.units = 'mmol P/m^3'
+    v_Z5_p[:] = interp_Z5_p
+    
+    #nanoflagellates
+    v_Z6_c = f1.createVariable('Z6_c', 'f8', ('time','z'), zlib=False)
+    v_Z6_c.long_name = 'time-averaged nanoflagellates/carbon'
+    v_Z6_c.units = 'mmol C/m^3'
+    v_Z6_c[:] = interp_Z6_c
+    
+    v_Z6_n = f1.createVariable('Z6_n', 'f8', ('time','z'), zlib=False)
+    v_Z6_n.long_name = 'time-averaged nanoflagellates/nitrogen'
+    v_Z6_n.units = 'mmol N/m^3'
+    v_Z6_n[:] = interp_Z6_n
+    
+    v_Z6_p = f1.createVariable('Z6_p', 'f8', ('time','z'), zlib=False)
+    v_Z6_p.long_name = 'time-averaged nanoflagellates/phosphorus'
+    v_Z6_p.units = 'mmol P/m^3'
+    v_Z6_p[:] = interp_Z6_p
+            
     v_pCO2atm = f1.createVariable('pCO2atm', 'f8', ('time'), zlib=False)
     v_pCO2atm.long_name = 'time-averaged partial pressure of CO2 in air'
     v_pCO2atm.units = 'uatm'

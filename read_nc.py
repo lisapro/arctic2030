@@ -7,7 +7,7 @@ from netCDF4 import Dataset
 from netCDF4 import num2date, date2num
 import matplotlib.pyplot as plt
 
-f = Dataset('ROMS_Laptev_Sea_NETCDF3_CLASSIC_each_day.nc')
+f = Dataset(r'C:\Users\ELP\workspace\arctic2030\src\results\ROMS_Laptev_Sea_NETCDF3_CLASSIC_each_day.nc')
 depth =  f.variables['depth'][:]
 sal = f.variables['sal'][:][7000]
 temp = f.variables['temp'][:][7000]

@@ -14,24 +14,37 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d,interp2d
 import numpy as np
 
-f = Dataset('ROMS_Laptev_Sea_NETCDF3_CLASSIC.nc')
+f = Dataset('ROMS_Laptev_Sea_NETCDF3_CLASSIC_east.nc')
 
 # dimensions
 ocean_time =  f.variables['time'][:]
 depth =  f.variables['depth'][:]
 depth2 =  f.variables['depth2'][:]
 
-# 2d
+#read 2d
 sal = f.variables['sal'][:][:]
 temp = f.variables['temp'][:][:]
 kz =  f.variables['Kz_s'][:][:]
 rho =  f.variables['rho'][:][:]
 
-# 1d
+DIC = f.variables['DIC'][:][:]
+o2 = f.variables['o2'][:][:]
+Alk = f.variables['Alk'][:][:]
+po4 = f.variables['po4'][:][:]
+no3 = f.variables['no3'][:][:]
+nh4 = f.variables['no3'][:][:]
+Si = f.variables['Si'][:][:]
+
+
+#read 1d
 hice =  f.variables['hice'][:]
 snow_thick =  f.variables['snow_thick'][:]
 tisrf =  f.variables['tisrf'][:]
+swrad =  f.variables['swrad'][:]
+swradWm2 =  f.variables['swradWm2'][:]
+pCO2atm = f.variables['pCO2atm'][:]
 
+#convert time 
 times = num2date(ocean_time,units= 'seconds since 1948-01-01 00:00:00' ,
                                    calendar= 'standard')
 
@@ -40,6 +53,18 @@ newdates = num2date(newtimes,units= 'seconds since 1948-01-01 00:00:00',
                                    calendar= 'standard')
 
 #interpolate 1D variables 
+def interpolate_1d_var(var):
+    to_interp_var = interp1d(ocean_time, var)
+    return  to_interp_var(newtimes)
+
+interp_hice = interpolate_1d_var(hice) 
+interp_snow_thick = interpolate_1d_var(snow_thick) 
+interp_tisrf = interpolate_1d_var(tisrf) 
+interp_swrad = interpolate_1d_var(swrad) 
+interp_swradWm2 = interpolate_1d_var(swradWm2) 
+interp_pCO2atm = interpolate_1d_var(pCO2atm)
+
+'''
 to_interp_hice = interp1d(ocean_time, hice)
 to_interp_snow_thick = interp1d(ocean_time, snow_thick)
 to_interp_tisrf = interp1d(ocean_time, tisrf)
@@ -47,8 +72,27 @@ to_interp_tisrf = interp1d(ocean_time, tisrf)
 interp_hice = to_interp_hice(newtimes)
 interp_snow_thick = to_interp_snow_thick(newtimes)
 interp_tisrf = to_interp_tisrf(newtimes)
+'''
 
 # interpolate 2D variables 
+def interpolate_2d_var(var):
+    to_interp_var = interp2d(ocean_time,depth,var.T,kind = 'linear')
+    interp_var = to_interp_var(newtimes,depth)
+    #interp_var = interp_var.T 
+    return interp_var.T 
+interp_sal = interpolate_2d_var(sal)
+interp_temp = interpolate_2d_var(temp)
+interp_rho = interpolate_2d_var(rho)
+interp_DIC = interpolate_2d_var(DIC)
+interp_o2 = interpolate_2d_var(o2)
+interp_Alk = interpolate_2d_var(Alk)
+interp_po4 = interpolate_2d_var(po4)
+interp_no3 = interpolate_2d_var(no3)
+interp_nh4 = interpolate_2d_var(nh4)
+interp_Si = interpolate_2d_var(Si)
+
+
+'''
 to_interp_sal = interp2d(ocean_time,depth,sal.T,kind = 'linear')
 interp_sal = to_interp_sal(newtimes,depth)
 interp_sal = interp_sal.T
@@ -60,20 +104,21 @@ interp_temp = interp_temp.T
 to_interp_rho = interp2d(ocean_time,depth,rho.T,kind = 'linear')
 interp_rho = to_interp_rho(newtimes,depth)
 interp_rho = interp_rho.T
+'''
 
 to_interp_kz = interp2d(ocean_time,depth2,kz.T,kind = 'linear')
 interp_kz = to_interp_kz(newtimes,depth2)
 interp_kz = interp_kz.T
 
 
-# plot to test 1d
+# plot to print_nc_all_params 1d
 def plot_1d():
     plt.plot(newdates,interp_hice,'o',alpha = 0.7, label = 'interp')
     #plt.plot(times,hice,'--',alpha = 0.9, label = 'raw')
     plt.legend()
     plt.show()
 
-def plot_2d(): # to test 2d
+def plot_2d(): # to print_nc_all_params 2d
     Times,V_depth = np.meshgrid(ocean_time,depth)
     Times2,V_depth2 = np.meshgrid(newtimes,depth)
     Dates2 = num2date(Times2,units= 'seconds since 1948-01-01 00:00:00',
@@ -82,7 +127,7 @@ def plot_2d(): # to test 2d
                                        calendar= 'standard') 
     plt.pcolormesh(newtimes,depth2,interp_temp.T) #,
     #               vmin=0, vmax=0.1) #, alpha = 0.9, label = 'interp')    
-    plt.legend()
+    #plt.legend()
     plt.show()
 
 
@@ -93,7 +138,7 @@ def write_nc():
     st_lon = 126.82
     st_lat = 76.77
     nc_format = 'NETCDF3_CLASSIC' 
-    f1 = Dataset('ROMS_Laptev_Sea_{}_each_day.nc'.format(nc_format), mode='w', format= nc_format)
+    f1 = Dataset('ROMS_Laptev_Sea_{}_south_each_day.nc'.format(nc_format), mode='w', format= nc_format)
     
     f1.description= (
         "lat=%3.2f,lon=%3.2f file from ROMS data interpolated to 1day timedelta"%(st_lat,st_lon))
@@ -159,6 +204,59 @@ def write_nc():
     v_tisrf.units = 'degree Celsius'
     v_tisrf[:] = interp_tisrf
     
+    v_DIC = f1.createVariable('DIC', 'f8', ('time','z'), zlib=False)
+    v_DIC.long_name = 'time-averaged carbonate/total dissolved inorganic carbon'
+    v_DIC.units = 'mmol C/m^3 '
+    v_DIC[:] = interp_DIC
+    
+    v_o2 = f1.createVariable('o2', 'f8', ('time','z'), zlib=False)
+    v_o2.long_name = 'time-averaged oxygen/oxygen '
+    v_o2.units = 'mmol O_2/m^3'
+    v_o2[:] = interp_o2
+    
+    v_Alk = f1.createVariable('Alk', 'f8', ('time','z'), zlib=False)
+    v_Alk.long_name = 'time-averaged carbonate/total alkalinity"'
+    v_Alk.units = 'umol/kg'
+    v_Alk[:] = interp_Alk    
+        
+    v_po4 = f1.createVariable('po4', 'f8', ('time','z'), zlib=False)
+    v_po4.long_name = 'time-averaged phosphate/phosphorus'
+    v_po4.units = 'mmol P/m^3'
+    v_po4[:] = interp_po4
+        
+    v_no3 = f1.createVariable('no3', 'f8', ('time','z'), zlib=False)
+    v_no3.long_name = 'time-averaged nitrate/nitrogen'
+    v_no3.units = 'mmol N/m^3'
+    v_no3[:] = interp_no3
+        
+    v_nh4 = f1.createVariable('nh4', 'f8', ('time','z'), zlib=False)
+    v_nh4.long_name = 'time-averaged ammonium/nitrogen'
+    v_nh4.units = 'mmol N/m^3'
+    v_nh4[:] = interp_nh4
+    
+    v_Si = f1.createVariable('Si', 'f8', ('time','z'), zlib=False)
+    v_Si.long_name = 'time-averaged silicate/silicate'
+    v_Si.units = 'mmol Si/m^3'
+    v_Si[:] = interp_Si
+        
+    v_pCO2atm = f1.createVariable('pCO2atm', 'f8', ('time'), zlib=False)
+    v_pCO2atm.long_name = 'time-averaged partial pressure of CO2 in air'
+    v_pCO2atm.units = 'uatm'
+    v_pCO2atm[:] = interp_pCO2atm
+        
+    v_swrad = f1.createVariable('swrad', 'f8', ('time'), zlib=False)
+    v_swrad.long_name = 'time-averaged solar shortwave radiation flux'
+    v_swrad.units = 'watt meter-2'
+    v_swrad.negative_value = 'upward flux, cooling'
+    v_swrad.positive_value = 'downward flux, heating'
+    v_swrad[:] = interp_swrad
+     
+    v_swradWm2 = f1.createVariable('swradWm2', 'f8', ('time'), zlib=False)
+    v_swradWm2.long_name = 'time-averaged solar shortwave radiation flux (under ice)'
+    v_swradWm2.units = 'watt meter-2'
+    v_swradWm2[:] = interp_swradWm2
+    
+ 
     f1.close()
     
     

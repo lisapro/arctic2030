@@ -32,7 +32,7 @@ longitude = np.array(f.variables['lon_rho'])
 
 # coordinates of needed station 
 st_lon = 126.82
-st_lat = 76.77
+st_lat = 76.47# real lat 76.77
 
 
 # function 'def find_xi_eta' is based on 
@@ -64,6 +64,7 @@ xi = itemindex[1]
 # Read the data from needed station 
 temp = np.array(f.variables['temp'][:,:,eta,xi])
 temp = temp[:,:,0,0]
+
 sal = np.array(f.variables['salt'][:,:,eta,xi])
 sal = sal[:,:,0,0]
 
@@ -78,35 +79,48 @@ rho = rho[:,:,0,0]
 
 hice = np.array(f.variables['hice'][:,eta,xi]) 
 hice = hice[:,0,0]
+
 snow_thick = np.array(f.variables['snow_thick'][:,eta,xi]) 
 snow_thick = snow_thick[:,0,0]
+
 tisrf = np.array(f.variables['tisrf'][:,eta,xi]) 
-tisrf = tisrf[:,0,0]
+tisrf = tisrf[:,0,0] #time-averaged temperature of ice surface"
 
-# variables to add
-'''
-Q1_c
-Q1_n
-Q1_p
 
-Q6_c
-Q6_n
-Q6_p
+DIC = np.array(f.variables['O3_c'][:,:,eta,xi])
+DIC = DIC[:,:,0,0] #time-averaged carbonate/total dissolved inorganic carbon""
 
-Q7_c
-Q7_n
-Q7_p
+o2 = np.array(f.variables['O2_o'][:,:,eta,xi])
+o2 = o2[:,:,0,0] 
 
-R1_c
-R1_n
-R1_p
+Alk = np.array(f.variables['O3_TA'][:,:,eta,xi])
+Alk = Alk[:,:,0,0] 
 
-R2
-R4
+#Akt_bak = np.array(f.variables['Akt_bak'][:,:,eta,xi])
+#Akt_bak = Akt_bak[:,:,0,0]  #"background vertical mixing coefficient for tracers"
 
-'''
-#long_name = "salinity vertical diffusion coefficient"
-       
+po4 = np.array(f.variables['N1_p'][:,:,eta,xi])
+po4 = po4[:,:,0,0] # time-averaged phosphate/phosphorus
+
+no3 = np.array(f.variables['N3_n'][:,:,eta,xi]) 
+no3 = no3[:,:,0,0]
+
+nh4 = np.array(f.variables['N4_n'][:,:,eta,xi])  
+nh4 = nh4[:,:,0,0]
+
+Si = np.array(f.variables['N5_s'][:,:,eta,xi]) 
+Si = Si[:,:,0,0]
+
+pCO2atm = np.array(f.variables['pCO2atm'][:,eta,xi]) 
+pCO2atm = pCO2atm[:,0,0]
+ 
+#time-averaged solar shortwave radiation flux 
+swrad = np.array(f.variables['swrad'][:,eta,xi]) 
+swrad = swrad[:,0,0] 
+
+#time-averaged solar shortwave radiation flux (under ice)
+swradWm2 = np.array(f.variables['swradWm2'][:,eta,xi]) 
+swradWm2 = swradWm2[:,0,0] 
 
 # Read the variables needed to recalculate 
 # depth from sigma values  to meters
@@ -387,10 +401,6 @@ depth2 = - vgrid.z_w[0,:] # interfaces depths
 #Cs_w = vgrid.Cs_w
 #s_rho = vgrid.s_rho
 
-
-
-
-
 ### plot to check  
 #for n in range(0,12):
 #    plt.plot(temp[n],z_r)
@@ -400,9 +410,15 @@ depth2 = - vgrid.z_w[0,:] # interfaces depths
 
 #### Create nectdf file 
 nc_format = 'NETCDF3_CLASSIC' 
-f1 = Dataset('ROMS_Laptev_Sea_{}.nc'.format(nc_format), mode='w', format= nc_format)
 
-f1.description=" lat=%3.2f,lon=%3.2f file from ROMS data for station (lat=%3.2f,lon=%3.2f)"%(latitude[eta, xi],longitude[eta, xi],st_lat,st_lon)
+
+if test == True: 
+    f1 = Dataset('print_nc_all_params.nc'.format(nc_format), mode='w', format= nc_format)
+else:
+    f1 = Dataset('ROMS_Laptev_Sea_{}_east.nc'.format(nc_format), mode='w', format= nc_format)
+
+#f1 = Dataset('ROMS_Laptev_Sea_{}_east.nc'.format(nc_format), mode='w', format= nc_format)
+f1.description=" lat=%3.2f,lon=%3.2f file from ROMS data,the closest to station (lat=%3.2f,lon=%3.2f)"%(latitude[eta, xi],longitude[eta, xi],st_lat,st_lon)
 f1.source = 'Elizaveta Protsenko (elp@niva.no)'
 
 f1.history = 'Created ' + time.ctime(time.time())
@@ -427,6 +443,7 @@ v_time.units = 'seconds since 1948-01-01 00:00:00'
 v_time.field = 'time, scalar, series'
 v_time.calendar='standard'
 v_time[:] = ntime
+
 
 v_temp=f1.createVariable('temp', 'f8', ('time','z'), zlib=False)
 v_temp.long_name = "Ocean temperature"
@@ -462,6 +479,71 @@ v_tisrf = f1.createVariable('tisrf', 'f8', ('time',), zlib=False)
 v_tisrf.long_name = 'time-averaged temperature of ice surface'
 v_tisrf.units = 'degree Celsius'
 v_tisrf[:] = tisrf
+
+v_DIC = f1.createVariable('DIC', 'f8', ('time','z'), zlib=False)
+v_DIC.long_name = 'time-averaged carbonate/total dissolved inorganic carbon'
+v_DIC.units = ' mmol C/m^3 '
+v_DIC[:] = DIC
+
+v_o2 = f1.createVariable('o2', 'f8', ('time','z'), zlib=False)
+v_o2.long_name = 'time-averaged oxygen/oxygen '
+v_o2.units = 'mmol O_2/m^3'
+v_o2[:] = o2
+
+
+v_Alk = f1.createVariable('Alk', 'f8', ('time','z'), zlib=False)
+v_Alk.long_name = 'time-averaged carbonate/total alkalinity"'
+v_Alk.units = 'umol/kg'
+v_Alk[:] = Alk
+
+
+
+#v_Akt_bak = f1.createVariable('Akt_bak', 'f8', ('time','z'), zlib=False)
+#v_Akt_bak.long_name = 'background vertical mixing coefficient for tracers'
+#v_Akt_bak.units = 'meter2 second-1'
+#v_Akt_bak[:] = Akt_bak
+
+v_po4 = f1.createVariable('po4', 'f8', ('time','z'), zlib=False)
+v_po4.long_name = 'time-averaged phosphate/phosphorus'
+v_po4.units = 'mmol P/m^3'
+v_po4[:] = po4
+
+
+v_no3 = f1.createVariable('no3', 'f8', ('time','z'), zlib=False)
+v_no3.long_name = 'time-averaged nitrate/nitrogen'
+v_no3.units = 'mmol N/m^3'
+v_no3[:] = no3
+
+
+v_nh4 = f1.createVariable('nh4', 'f8', ('time','z'), zlib=False)
+v_nh4.long_name = 'time-averaged ammonium/nitrogen'
+v_nh4.units = 'mmol N/m^3'
+v_nh4[:] = nh4
+
+v_Si = f1.createVariable('Si', 'f8', ('time','z'), zlib=False)
+v_Si.long_name = 'time-averaged silicate/silicate'
+v_Si.units = 'mmol Si/m^3'
+v_Si[:] = Si
+
+
+v_pCO2atm = f1.createVariable('pCO2atm', 'f8', ('time'), zlib=False)
+v_pCO2atm.long_name = 'time-averaged partial pressure of CO2 in air'
+v_pCO2atm.units = 'uatm'
+v_pCO2atm[:] = pCO2atm
+
+
+v_swrad = f1.createVariable('swrad', 'f8', ('time'), zlib=False)
+v_swrad.long_name = 'time-averaged solar shortwave radiation flux'
+v_swrad.units = 'watt meter-2'
+v_swrad.negative_value = 'upward flux, cooling'
+v_swrad.positive_value = 'downward flux, heating'
+v_swrad[:] = swrad
+ 
+v_swradWm2 = f1.createVariable('swradWm2', 'f8', ('time'), zlib=False)
+v_swradWm2.long_name = 'time-averaged solar shortwave radiation flux (under ice)'
+v_swradWm2.units = 'watt meter-2'
+v_swradWm2[:] = swradWm2
+
 
 f1.close()
 

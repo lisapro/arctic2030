@@ -3,7 +3,7 @@ Created on 9. okt. 2017
 
 @author: ELP
 '''
-
+import matplotlib.animation as animation
 from netCDF4 import Dataset
 import csv
 import numpy as np
@@ -26,11 +26,12 @@ with open(file , 'r') as f:
     r1 = np.transpose(np.array(r[:])) 
     # time,zr/100.,rn/1000.,mn, kb
 time = r1[0]
+lentime = len(time)
 depth_bubble = r1[1] # z of bubble (m)?? 
 radius_bubble = np.array(r1[2]).astype(float)  # r of bubble ! r in micrometer ?? 
 s = np.array(radius_bubble - min(radius_bubble))*1000.
 mn_volume  = np.array(r1[3]).astype(float)   # volume of methane 
-kb = r1[4] # k mass transfer ! cm/sec
+kb = np.array(r1[4]).astype(float)   # k mass transfer ! cm/sec
     
 ymax = max(depth_bubble)
 ch4_max = max(mn_volume)
@@ -42,16 +43,51 @@ def plot_fig():
     gs.update(wspace=0.2,hspace = 0.3,left=0.1,
        right=0.97,bottom = 0.05, top = 0.85)
     ax00 = figure.add_subplot(gs[0])
-    ax01 = figure.add_subplot(gs[1])   
-    for n in range(0,len(radius_bubble),100) :
-        ax00.scatter(radius_bubble[n],depth_bubble[n],s = s[n],alpha = 0.2,c = 'k')
-        ax01.scatter(mn_volume[n],depth_bubble[n],alpha = 0.2,c = 'r',s = s[n])        
+    ax01 = figure.add_subplot(gs[1])  
     ax00.set_ylim(100,0)
     ax01.set_ylim(100,0)
-    ax01.set_xlim(ch4_min,ch4_max)
+    ax01.set_xlim(ch4_min,ch4_max)     
+    for n in range(0,len(radius_bubble),100) :
+        ax00.scatter(kb[n],depth_bubble[n],s = s[n],alpha = 0.2,c = 'k')
+        ax01.scatter(mn_volume[n],depth_bubble[n],alpha = 0.2,c = 'r',s = s[n])        
+
     #ax01.plot(var2,depth)   
      
-    plt.show()
-
+        #plt.show()
     
-plot_fig()    
+
+plt.show()
+def show_animation():
+    figure = plt.figure(figsize=(8,6), dpi=100)
+    gs = gridspec.GridSpec(1, 2)
+    gs.update(wspace=0.2,hspace = 0.3,left=0.1,
+    right=0.97,bottom = 0.05, top = 0.85)
+    ax00 = figure.add_subplot(gs[0])
+    ax01 = figure.add_subplot(gs[1])  
+    ax00.set_ylim(100,0)
+    ax01.set_ylim(100,0)
+    ax01.set_xlim(ch4_min,ch4_max)     
+
+    def update(n):
+            
+    
+        #for n in range(0,len(radius_bubble),100) :
+        ax00.scatter(kb[n],depth_bubble[n],s = s[n],alpha = 0.2,c = 'k')
+        ax01.scatter(mn_volume[n],depth_bubble[n],alpha = 0.01,c = 'r',s = s[n])  
+        #print (n) 
+        #def init():
+        #    scatter.set_xdata(var[0,:]) 
+            
+        #scatter, = ax01.scatter(mn_volume[0], depth_bubble[0])    l
+        
+
+    ani = animation.FuncAnimation(figure, update, np.arange(0,2200,50),#init_func=init,
+                                      interval = 1)    
+        #def animate():
+        #    scatter.set_xdata(var[n,:])  # update the data
+        #    
+    #plt.show()
+    ani.save('bubble_raise.avi')
+
+#plot_fig()    
+show_animation()

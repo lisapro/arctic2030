@@ -16,7 +16,7 @@ plt.style.use('ggplot')
 year=2014
 month=11
 day=24
-
+dt=datetime.datetime(year,month,day,12,0)
 # input netcdf:
 filein='ROMS_Laptev_Sea_NETCDF3_CLASSIC_each_day.nc'
 

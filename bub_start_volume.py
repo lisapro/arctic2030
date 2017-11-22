@@ -27,7 +27,7 @@ def vol_mol_bub(r):
     # *1e-03 # volume in mm^3 to volume in cm^3
     # не домножать ни на что в выражении return функции vol_bub - получим мм^3
     gas_mol=(Pres*vol)/(Rgas*Temp) #содержание газа в пузырьке, моли
-    return [r,vol,gas_mol] # если так: ([r,vol,mol]) - вернет tuple
+    return (r,vol,gas_mol) # если так: ([r,vol,mol]) - вернет tuple
 
 dir_name = 'Data'   
 script_dir = os.path.abspath(os.path.dirname(__file__))

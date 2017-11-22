@@ -147,6 +147,6 @@ plt.yticks(visible=False)
 #            textcoords='offset points')
 #map.scatter(x,y)
 
-plt.savefig('laptev_map_corrected_polygon.png', format='png',transparent=True)
+#plt.savefig('laptev_map_corrected_polygon.png', format='png',transparent=True)
 #mark_inset(ax, axins, loc1=2, loc2=4, fc="none", ec="0.5")
 plt.show()

@@ -16,6 +16,19 @@ times = num2date(ocean_time,
                  units= 'seconds since 1948-01-01 00:00:00' ,
                                    calendar= 'standard')
 
+
+'''
+names_vars = [] 
+for names,vars in fh.variables.items():
+    names_vars.append(names)  
+
+    try:
+        x = fh.variables[str(names)].long_name
+        print(names, x) 
+    except AttributeError :     
+        print ('error')
+'''    
+
 plt.plot(temp,depth)
 plt.ylim(150,0)
 plt.title(str(times)+', temperature')

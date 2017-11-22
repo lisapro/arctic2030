@@ -9,22 +9,11 @@ from netCDF4 import num2date, date2num
 import matplotlib.pyplot as plt
 import pandas as pd
 import numpy as np
+    
 
-'''
-names_vars = [] 
-for names,vars in fh.variables.items():
-    names_vars.append(names)  
-
-    try:
-        x = fh.variables[str(names)].long_name
-        print(names, x) 
-    except AttributeError :     
-        print ('error')
-'''        
-
-fh = Dataset(r'C:\Users\ELP\workspace\arctic2030\src\data_from_WOD_COLLECTION_(2017-08-21T16-04-41).nc')
-fh_roms = Dataset(r'ROMS_Laptev_Sea_NETCDF3_CLASSIC_south_each_day.nc')     
-fh_water_brom = Dataset(r'water.nc')     
+fh = Dataset(r'C:\Users\ELP\workspace\arctic2030\src\Data\data_from_WOD_COLLECTION_(2017-08-21T16-04-41).nc')
+fh_roms = Dataset(r'C:\Users\ELP\workspace\arctic2030\src\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_south_each_day.nc')     
+fh_water_brom = Dataset(r'C:\Users\ELP\workspace\arctic2030\src\Data\water.nc')     
 #d = {'depth': [depth],'o2': [o2],'time': [jd]} 
 
 #datatypes 
@@ -109,7 +98,7 @@ plt.ylim(100,0)
 '''
 
 
-path_to_file = os.path.join(cwd,'results\seep_data_amk.txt')
+path_to_file = os.path.join(cwd,'Data\seep_data_amk.txt')
 with open(path_to_file, 'r') as f:
     # important to specify delimiter right 
     reader = csv.reader(f, delimiter='\t')
@@ -160,9 +149,15 @@ def plot_var(var,var2,var3,amkvar1,amkvar2,title):
     plt.ylim(100,0)
 
     plt.legend()
-    plt.show()
-    #plt.savefig('results/'+str(title)+'.png')   
+    #plt.show()
+    dir_name = 'Figures'   
+    script_dir = os.path.abspath(os.path.dirname(__file__))
+    dir_to_save = os.path.abspath(os.path.join(script_dir,dir_name))    
+    if not os.path.isdir(dir_to_save):
+        os.makedirs(dir_to_save)
+    plt.savefig('{}\{}.png'.format(dir_to_save,title))   
     
+
 
 #plot_var(o2,o2_roms,o2_water_brom,None,None,'o2')    
 #plot_var(no3,no3_roms,no3_water_brom,None,None,'no3')  

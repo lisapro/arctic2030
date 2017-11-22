@@ -25,8 +25,16 @@ count, bins, ignored = plt.hist(s,11, normed=True)
 norm_function=1/(sigma * np.sqrt(2 * np.pi )) * np.exp( - (bins - mu)**2 / (2 * sigma**2))
 plt.plot(bins,norm_function,linewidth=2, color='r')
 plt.xlim(0.25,7.45)
+
+import os
+dir_name = 'Figures'   
+script_dir = os.path.abspath(os.path.dirname(__file__))
+dir_to_save = os.path.abspath(os.path.join(script_dir,dir_name))    
+if not os.path.isdir(dir_to_save):
+    os.makedirs(dir_to_save)
+
 #plt.plot(bins, 1/(sigma * np.sqrt(2 * np.pi)) * np.exp( - (bins - mu)**2 / (2 * sigma**2) ),linewidth=2, color='r')
-plt.savefig('gauss.png', dpi=400, facecolor='w', edgecolor='r',
+plt.savefig('{}\gauss.png'.format(dir_to_save), dpi=400, facecolor='w', edgecolor='r',
         orientation='portrait', papertype=None, forma=None,
         transparent=False, bbox_inches=None, pad_inches=0.1,
         frameon=None)

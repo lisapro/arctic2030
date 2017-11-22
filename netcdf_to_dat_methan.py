@@ -18,10 +18,21 @@ month=11
 day=24
 dt=datetime.datetime(year,month,day,12,0)
 # input netcdf:
-filein='ROMS_Laptev_Sea_NETCDF3_CLASSIC_each_day.nc'
+filein=r'C:\Users\ELP\workspace\arctic2030\src\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_south_each_day.nc'
 
 # output file for using in methan.f90 model:
-fileout='Laptev_sea_{0}_{1}_{2}'.format(day,month, year)+'.dat'
+# save file to folder DATA
+import os  
+dir_name = 'Data'   
+# path to you working folder 
+script_dir = os.path.abspath(os.path.dirname(__file__))
+# append it with "data" folder  
+dir_to_save = os.path.abspath(os.path.join(script_dir,dir_name))
+# check if this folder exists, if not, create it     
+if not os.path.isdir(dir_to_save):
+    os.makedirs(dir_to_save)
+    
+fileout='{}\TS_Laptev_sea_{}_{}_{}'.format(dir_to_save,day,month, year)+'.dat'
 
 # output temperature plot:
 plot_T='Temp_Laptev_sea_{0}_{1}_{2}'.format(day,month, year)+'.png' 
@@ -54,7 +65,7 @@ def save_datfile():
     out_array=np.column_stack((True_depth,sal[ind],temp[ind])) 
     np.savetxt(fileout,out_array, delimiter=' ') #save the main data file
 
-# function to plot to subplots in on figure 
+# function to plot 2 subplots in on figure 
 def plot_2var(var1,var2):
     figure = plt.figure(figsize=(8,6), dpi=100)
     gs = gridspec.GridSpec(1, 2)
@@ -89,14 +100,14 @@ def plot_var(var,title,filename):
             orientation='portrait', papertype=None, forma=None,
             transparent=False, bbox_inches=None, pad_inches=0.1,
             frameon=None)
-    plt.show()
+    #plt.show()
 
 
 #Uncomment to call functions 
 
 #plot_var(temp[ind],' Temperature',plot_T) 
 #plot_var(sal[ind],' Salinity',plot_S)
-#save_datfile()
+save_datfile()
 
 plot_2var(temp[ind],sal[ind])
 

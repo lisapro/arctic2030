@@ -3,7 +3,7 @@ Created on 12. sep. 2017
 
 @author: ELP
 '''
-# script read netcdf file created in main.py script
+# script read netcdf file created in read_roms_nc.py script
 # write and interpolate the  data to each day 
 
 import os, time
@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d,interp2d
 import numpy as np
 
-f = Dataset('ROMS_Laptev_Sea_NETCDF3_CLASSIC_east.nc')
+f = Dataset(r'C:\Users\ELP\workspace\arctic2030\src\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east.nc')
 
 # dimensions
 ocean_time =  f.variables['time'][:]
@@ -150,30 +150,33 @@ def write_nc():
     # coordinates of needed station 
     st_lon = 126.82
     st_lat = 76.77
+    
+    dir_name = 'Data'   
+    script_dir = os.path.abspath(os.path.dirname(__file__))
+    dir_to_save = os.path.abspath(os.path.join(script_dir,dir_name))    
+    if not os.path.isdir(dir_to_save):
+        os.makedirs(dir_to_save)    
     nc_format = 'NETCDF3_CLASSIC' 
-    f1 = Dataset('ROMS_Laptev_Sea_{}_south_each_day.nc'.format(nc_format), mode='w', format= nc_format)
-    
+    f1 = Dataset('{}\ROMS_Laptev_Sea_{}_south_each_day.nc'.format(
+        dir_to_save,nc_format), mode='w', format= nc_format)    
     f1.description= (
-        "lat=%3.2f,lon=%3.2f file from ROMS data interpolated to 1day timedelta"%(st_lat,st_lon))
-    
-    f1.source = 'Elizaveta Protsenko (elp@niva.no)'
-    
-    f1.history = 'Created ' + time.ctime(time.time())
-    
+        "lat=%3.2f,lon=%3.2f file from ROMS data interpolated to 1day timedelta"%(
+                     st_lat,st_lon))    
+    f1.source = 'Elizaveta Protsenko (elp@niva.no)'    
+    f1.history = 'Created ' + time.ctime(time.time())    
     f1.createDimension('time', len(newtimes))
     f1.createDimension('z', len(depth))
     f1.createDimension('z2', len(depth2))
     
-    
     v_depth2 = f1.createVariable('depth2','f8',('z2',), zlib= False)
     v_depth2.long_name = "Z-depth matrix for kz, direction down" ;
     v_depth2.units = "meter"
-    v_depth2[:]= depth2
+    v_depth2[:] = depth2
     
     v_depth = f1.createVariable('depth','f8',('z',), zlib= False)
     v_depth.long_name = "Z-depth matrix, direction down" ;
     v_depth.units = "meter"
-    v_depth[:]= depth
+    v_depth[:] = depth
         
     v_time = f1.createVariable('time', 'f8', ('time',), zlib=False)
     v_time.long_name = 'Time in seconds since 1948-01-01 00:00:00'

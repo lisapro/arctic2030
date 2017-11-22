@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import warnings 
 
-test = False
+test = True
 
 if test == True: 
     files = ["X:/trondkr/CloudStation/ARCTIC2030/a20_avg_11705_arctic2030.nc",
@@ -394,31 +394,25 @@ class z_w(object):
 vgrid = s_coordinate_4(h, theta_b, theta_s, Tcline, Nlevels, vtransform, vstretching, zeta=None)
 depth = - vgrid.z_r[0,:] # depth in m (axis from surface to bottom)
 depth2 = - vgrid.z_w[0,:] # interfaces depths
-#z_w = z_w
-#z_r = vgrid.z_r[0,:]
-#Cs_rho = vgrid.Cs_r
-#self.s_w = vgrid.s_w
-#Cs_w = vgrid.Cs_w
-#s_rho = vgrid.s_rho
-
-### plot to check  
-#for n in range(0,12):
-#    plt.plot(temp[n],z_r)
-#plt.ylim(200,0)
-#plt.show()
-
 
 #### Create nectdf file 
-nc_format = 'NETCDF3_CLASSIC' 
-
-
+nc_format = 'NETCDF3_CLASSIC'     
+dir_name = 'Data'   
+script_dir = os.path.abspath(os.path.dirname(__file__))
+dir_to_save = os.path.abspath(os.path.join(script_dir,dir_name))    
+if not os.path.isdir(dir_to_save):
+    os.makedirs(dir_to_save)
+                
 if test == True: 
-    f1 = Dataset('Laptev_test.nc'.format(nc_format), mode='w', format= nc_format)
+    f1 = Dataset('{}\Laptev_test.nc'.format(
+        dir_to_save,nc_format), mode='w', format= nc_format)
 else:
-    f1 = Dataset('ROMS_Laptev_Sea_{}_east.nc'.format(nc_format), mode='w', format= nc_format)
+    f1 = Dataset('{}\ROMS_Laptev_Sea_{}_east.nc'.format(
+        dir_to_save,nc_format), mode='w', format= nc_format)
 
 #f1 = Dataset('ROMS_Laptev_Sea_{}_east.nc'.format(nc_format), mode='w', format= nc_format)
-f1.description=" lat=%3.2f,lon=%3.2f file from ROMS data,the closest to station (lat=%3.2f,lon=%3.2f)"%(latitude[eta, xi],longitude[eta, xi],st_lat,st_lon)
+f1.description=" lat=%3.2f,lon=%3.2f file from ROMS data,the closest to station (lat=%3.2f,lon=%3.2f)"%(
+                 latitude[eta, xi],longitude[eta, xi],st_lat,st_lon)
 f1.source = 'Elizaveta Protsenko (elp@niva.no)'
 
 f1.history = 'Created ' + time.ctime(time.time())

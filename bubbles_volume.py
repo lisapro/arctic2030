@@ -52,5 +52,12 @@ for r in radius:
 
     #print(r,vol_bub(r),mol_bub())
 out_array = np.column_stack((r_to_file, volume, met_bub,o2_bub,co2_bub))
-np.savetxt('mol_res.dat', out_array, delimiter=' ') 
+import os 
+dir_name = 'Data'   
+script_dir = os.path.abspath(os.path.dirname(__file__))
+dir_to_save = os.path.abspath(os.path.join(script_dir,dir_name))    
+if not os.path.isdir(dir_to_save):
+    os.makedirs(dir_to_save)
+    
+np.savetxt('{}\mol_res.dat'.format(dir_to_save), out_array, delimiter=' ') 
     

@@ -16,7 +16,7 @@ plt.style.use('ggplot')
 cwd = os.getcwd()
 # AMK 2015 September 
 
-path_to_file = os.path.join(cwd,'results\seep_data_amk.txt')
+path_to_file = os.path.join(cwd,'Data\seep_data_amk.txt')
 with open(path_to_file, 'r') as f:
     # important to specify delimiter right 
     reader = csv.reader(f, delimiter='\t')

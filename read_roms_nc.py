@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import warnings 
 
-test = True
+test = False #True
 
 if test == True: 
     files = ["X:/trondkr/CloudStation/ARCTIC2030/a20_avg_11705_arctic2030.nc",
@@ -392,8 +392,10 @@ class z_w(object):
         return np.squeeze(z_w[res_index])    
 
 vgrid = s_coordinate_4(h, theta_b, theta_s, Tcline, Nlevels, vtransform, vstretching, zeta=None)
-depth = - vgrid.z_r[0,:] # depth in m (axis from surface to bottom)
-depth2 = - vgrid.z_w[0,:] # interfaces depths
+depth =  vgrid.z_r[0,:]
+depth = depth - depth[0] # depth in m (axis from surface to bottom)
+depth2 =  vgrid.z_w[0,:]
+depth2 = depth2 - depth2[0] # interfaces depths
 
 #### Create nectdf file 
 nc_format = 'NETCDF3_CLASSIC'     

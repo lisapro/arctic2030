@@ -157,7 +157,7 @@ def write_nc():
     if not os.path.isdir(dir_to_save):
         os.makedirs(dir_to_save)    
     nc_format = 'NETCDF3_CLASSIC' 
-    f1 = Dataset('{}\ROMS_Laptev_Sea_{}_south_each_day.nc'.format(
+    f1 = Dataset('{}\ROMS_Laptev_Sea_{}_east_each_day.nc'.format(
         dir_to_save,nc_format), mode='w', format= nc_format)    
     f1.description= (
         "lat=%3.2f,lon=%3.2f file from ROMS data interpolated to 1day timedelta"%(

@@ -5,5 +5,7 @@
 seep_data.txt
 fielddata_plot.py
 *.dat
+
 /Figures
 /Data
+

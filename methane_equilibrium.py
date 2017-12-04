@@ -6,10 +6,12 @@ Created on 30. nov. 2017
 
 import math
 from netCDF4 import Dataset
-
-
-
-
+import tkinter as tk # python3
+from tkinter.filedialog import askopenfilename # python 3
+#To show only the dialog without any other GUI elements
+root = tk.Tk()
+root.withdraw()
+import os
 def calc_methane_surf(temp,sal,fg):
     
     ###          ONLY FOR SURFACE       ### 
@@ -164,10 +166,11 @@ import matplotlib.pyplot as plt
 def call_met_profile():
     # function read nc file, calculates methage saturation with 2 var of 
     # functions and plots it 
-    
-    file = r'C:\Users\ELP\workspace\arctic2030\src\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_each_day.nc'
-    import xarray as xr
-    
+    #We get the whole path to file
+    file = askopenfilename(initialdir= os.getcwd(),
+    filetypes =(("NetCDF file", "*.nc"),
+    ("All Files","*.*")),title = "Choose a file.")
+            
     fh = Dataset(file)     
     depth =  fh.variables['depth'][:]
     temp =  fh.variables['temp'][10,:] #10 random day, to change 

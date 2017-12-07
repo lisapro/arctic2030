@@ -5,11 +5,14 @@ Created on 30. nov. 2017
 '''
 
 import math
+
 from netCDF4 import Dataset
-
-
-
-
+import tkinter as tk # python3
+from tkinter.filedialog import askopenfilename # python 3
+#To show only the dialog without any other GUI elements
+root = tk.Tk()
+root.withdraw()
+import os
 def calc_methane_surf(temp,sal,fg):
     
     ###          ONLY FOR SURFACE       ### 
@@ -135,6 +138,10 @@ def calc_methane_depth(temp,sal,fg,depth):
     # on the volume of the aqueous phase by using a value of 37
     # cm3 for the partial molal volume of methane (6').
     #
+    # Coefficients and bunsen equation are from the paper 
+    # 'Solubility of Methane in Distilled Water and Seawater' 1972 
+    # Sachio Yamamoto,' James B. Alcauskas, and Thomas E. Crozier2
+    # 
     abs_temp = temp + 273.15 # Absoulte Temp Kelvins
     a1 = -67.1962  #-68.8862 
     a2 = 99.1624 # 101.4956
@@ -153,9 +160,19 @@ def calc_methane_depth(temp,sal,fg,depth):
     # fg -  the mole fraction of gas (fG) in the dry atmosphere
     # h is the relative humidity (percent)
     # p_vapor is vapor pressure of the solution (atm).
+    
+    try:
+        import seawater as sw
+        st_lat = 76.47
+        p_dbar = sw.pres(depth,st_lat) # dbars
+        p_tot = 0.987 * p_dbar/10. # convert dbars to atm 
+    except ModuleNotFoundError:
+        p_tot = 1 + depth/10.3 # in atm
+            
     h = 100
     p_vapor = calculate_vapor(temp,sal)
-    p_tot = 1 + depth/10.3 # in atm
+     
+    # Equation 
     c = bunsen * (p_tot - ((h/100.) * p_vapor)) * fg
     #print (temp,sal,bunsen,c) # to check 
     return c
@@ -164,10 +181,11 @@ import matplotlib.pyplot as plt
 def call_met_profile():
     # function read nc file, calculates methage saturation with 2 var of 
     # functions and plots it 
-    
-    file = r'C:\Users\ELP\workspace\arctic2030\src\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_each_day.nc'
-    import xarray as xr
-    
+    #We get the whole path to file
+    file = askopenfilename(initialdir= os.getcwd(),
+    filetypes =(("NetCDF file", "*.nc"),
+    ("All Files","*.*")),title = "Choose a file.")
+            
     fh = Dataset(file)     
     depth =  fh.variables['depth'][:]
     temp =  fh.variables['temp'][10,:] #10 random day, to change 
@@ -213,7 +231,6 @@ def call_met_profile():
         
     plt.show()
 
-
 def test(): 
     temp = 10 #Celsius
     sal = 34 
@@ -233,7 +250,15 @@ def test2():
     print ('test 2 ',value)
     test_bunsen = 0.04409
 
-
+def test3():
+    temp = 0 #C
+    depth = 100 
+    sal = 34 
+    fg = 1.81*10**(-6) 
+    value = calc_methane_depth(temp,sal,fg,depth) * 44.6 * 10**6 # (44.6 times nanomoles)  
+    print (value)
+    
 call_met_profile()
 #test2()
 #test()
+#test3()

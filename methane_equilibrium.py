@@ -257,8 +257,21 @@ def test3():
     fg = 1.81*10**(-6) 
     value = calc_methane_depth(temp,sal,fg,depth) * 44.6 * 10**6 # (44.6 times nanomoles)  
     print (value)
-    
-call_met_profile()
+  
+  
+def convert():
+    # 22.4 liter - 1 mole 
+    # 1 liter - x 
+    # x = ( (1 [mole] * input[liter]) / 22.4 liter )[mole]
+    input = 3. *10 **(-5) # ml/l 
+    input = input * 10**(-3) # convert ml to l
+    x  = ( 1 * input ) / 22.4 #[mole/l]
+    x = x * 10 ** 9 #[nanomole/l]
+    return x 
+
+x = convert()
+print (x, 'nM/l')    
+#call_met_profile()
 #test2()
 #test()
 #test3()

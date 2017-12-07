@@ -15,7 +15,7 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import warnings 
 
-test = False #True
+test = False #
 
 if test == True: 
     files = ["X:/trondkr/CloudStation/ARCTIC2030/a20_avg_11705_arctic2030.nc",
@@ -392,10 +392,9 @@ class z_w(object):
         return np.squeeze(z_w[res_index])    
 
 vgrid = s_coordinate_4(h, theta_b, theta_s, Tcline, Nlevels, vtransform, vstretching, zeta=None)
-depth =  vgrid.z_r[0,:]
-depth = depth - depth[0] # depth in m (axis from surface to bottom)
-depth2 =  vgrid.z_w[0,:]
-depth2 = depth2 - depth2[0] # interfaces depths
+depth =  - vgrid.z_r[0,:] #(axis from bottom to surface)
+depth2 =  - vgrid.z_w[0,:] # interfaces depths
+
 
 #### Create nectdf file 
 nc_format = 'NETCDF3_CLASSIC'     
@@ -424,12 +423,12 @@ f1.createDimension('z', len(depth))
 f1.createDimension('z2', len(depth2))
 
 v_depth = f1.createVariable('depth','f8',('z',), zlib= False)
-v_depth.long_name = "Z-depth matrix, direction down" ;
+v_depth.long_name = "Z-depth matrix, direction up" ;
 v_depth.units = "meter"
 v_depth[:] = depth
 
 v_depth2 = f1.createVariable('depth2','f8',('z2',), zlib= False)
-v_depth2.long_name = "Z-depth matrix for kz, direction down" ;
+v_depth2.long_name = "Z-depth matrix for kz, direction up" ;
 v_depth2.units = "meter"
 v_depth2[:] = depth2
 

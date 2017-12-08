@@ -5,7 +5,7 @@ Created on 30. nov. 2017
 '''
 
 import math
-
+import matplotlib.pyplot as plt
 from netCDF4 import Dataset
 import tkinter as tk # python3
 from tkinter.filedialog import askopenfilename # python 3
@@ -13,6 +13,7 @@ from tkinter.filedialog import askopenfilename # python 3
 root = tk.Tk()
 root.withdraw()
 import os
+
 def calc_methane_surf(temp,sal,fg):
     
     ###          ONLY FOR SURFACE       ### 
@@ -45,7 +46,7 @@ def calc_methane_surf(temp,sal,fg):
     return c
 
 
-def calculate_vapor(temp,sal):
+def calculate_vapor(temp,S):
     #
     #function [vapor_press_atm] = vpress(S,T)
     # Copied from https://web.uvic.ca/~rhamme/
@@ -53,21 +54,13 @@ def calculate_vapor(temp,sal):
     %=========================================================================
     % vpress Version 2.0 : 27 October 2012
     %          Author: Roberta C. Hamme (University of Victoria)
-    %
-    % USAGE:  vapor_press = vpress(S,T)
-    %
     % DESCRIPTION:
-    %    Vapor pressure of sea water
-    %
-    % INPUT:  (if S and T are not singular they must have same dimensions)
+    %   Vapor pressure of sea water
     %   S = salinity    [PSS-78]
     %   T = temperature [degree C]
-    %
     % OUTPUT:
     %   vapor_press = vapor pressure of seawater  [atm] 
-    % 
     % AUTHOR:  Roberta Hamme (rhamme@uvic.ca)
-    %
     % REFERENCE:
     %   Guide to Best Practices for Ocean CO2 Measurements
     %   Dickson, A.G., C.L. Sabine, J.R. Christian (Eds.) 2007
@@ -78,48 +71,22 @@ def calculate_vapor(temp,sal):
     %       general and scientific use, J. Phs. Chem. Ref. Data, 31, 387-535.
     %       AND Millero, F.J. (1974) Seawater as a multicomponent electrolyte 
     %       solution, pp.3-80.  In: The Sea, Vol. 5, E.D. Goldberg Ed.
-    %
-    % DISCLAIMER:
-    %    This software is provided "as is" without warranty of any kind.  
-    %=========================================================================
-    
-    % CALLER: general purpose
-    % CALLEE: none
-    
-    %----------------------
-    % Check input parameters
-    %----------------------
-    if nargin ~=2
-       error('vpress.m: Must pass 2 parameters')
-    end %if
-    
-    % CHECK S,T dimensions and verify consistent
-    [ms,ns] = size(S);
-    [mt,nt] = size(T);
-    % Check that T&S have the same shape or are singular
-    if ((ms~=mt) || (ns~=nt)) && (ms+ns>2) && (mt+nt>2)
-       error('vpress: S & T must have same dimensions or be singular')
-    end %if
-    
-    %------
-    % BEGIN
-    %------
     '''
-    T = temp
-    S = sal
     #%Calculate temperature in Kelvin and modified temperature for Chebyshev polynomial
-    temp_K = T+273.15
+    temp_K = temp + 273.15
     temp_mod = 1-temp_K/647.096;
     
     #%Calculate value of Wagner polynomial
-    Wagner = -7.85951783*temp_mod +1.84408259*temp_mod**1.5 -11.7866497 * temp_mod**3 + 22.6807411*temp_mod**3.5 -15.9618719*temp_mod**4 + 1.80122502*temp_mod**7.5
+    Wagner = (-7.85951783*temp_mod +1.84408259*temp_mod**1.5 -11.7866497 * temp_mod**3 + 
+              22.6807411*temp_mod**3.5 -15.9618719*temp_mod**4 + 1.80122502*temp_mod**7.5)
     
     #%Vapor pressure of pure water in kiloPascals and mm of Hg
     vapor_0sal_kPa = math.exp(Wagner * 647.096 / temp_K)* 22.064 * 1000
     
     #%Correct vapor pressure for salinity
     molality = 31.998 * S /(1e3-1.005*S)
-    osmotic_coef = 0.90799 -0.08992*(0.5*molality) +0.18458*(0.5*molality)**2 -0.07395*(0.5*molality)**3 -0.00221*(0.5*molality)**4
+    osmotic_coef = (0.90799 -0.08992*(0.5*molality) +0.18458*(0.5*molality)**2 -
+                    0.07395*(0.5*molality)**3 -0.00221*(0.5*molality)**4)
     vapor_press_kPa = vapor_0sal_kPa* math.exp(-0.018 * osmotic_coef * molality)
     
     #%Convert to atm
@@ -173,10 +140,9 @@ def calc_methane_depth(temp,sal,fg,depth):
     p_vapor = calculate_vapor(temp,sal)
      
     # Equation 
-    c = bunsen * (p_tot - ((h/100.) * p_vapor)) * fg * 44.6 * 10**6 # (44.6 times nanomoles)  
-    #print (temp,sal,bunsen,c) # to check 
+    c = bunsen * (p_tot - ((h/100.) * p_vapor)) * fg * 44.6 * 10**6 # (times nanomoles)  
     return c,bunsen
-import matplotlib.pyplot as plt
+
 
 def call_met_profile():
     # function read nc file, calculates methage saturation with 2 var of 
@@ -200,7 +166,7 @@ def call_met_profile():
         s = sal[n]
         d = depth[n]
         met = calc_methane_surf(t,s,fg)
-        met2 = calc_methane_depth(t,s,fg,d) * 44.6 * 10**6  #44.6 times nanomoles)  
+        met2 = calc_methane_depth(t,s,fg,d)[0] 
         methane.append(met)
         methane2.append(met2)
         
@@ -246,7 +212,9 @@ def test2():
     sal = 34 #33.629 # commented values for bunsen test
     # Molecular Fraction of Atmospheric Gases Used for Test Value Calculations, ppm     
     fg = 1.41*10**(-6) 
-    value = calc_methane_depth(temp,sal,fg,0) * 44.6 * 10**6 # (44.6 times nanomoles)  
+    value = calc_methane_depth(temp,sal,fg,0) 
+    conc = value[0]
+    bunsen = value[1]
     print ('test 2 ',value)
     test_bunsen = 0.04409
 
@@ -297,10 +265,11 @@ def calculate_flux(windspeed,ch4_water,temp,sal,depth,pCH4_air):
     flux_sec = flux / 86400. # [muM m**-2 sec**-1]
     return flux                    
 
+
 # test values from table 1  L. Lapham et al.(2017)  
 #test_1line = calculate_flux(windspeed = 4.53, ch4_water = 13.69,
 #                 temp = 1.31,sal = 30.18, depth = 5.05,pCH4_air = 1.89)     
-print (test_1line)
+#print (test_1line)
 #test_2line = calculate_flux(windspeed = 5.52, ch4_water =22.73 ,
 #               temp = -0.66,sal = 29.11, depth = 5.03,pCH4_air = 1.89)     
         

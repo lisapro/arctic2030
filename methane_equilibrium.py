@@ -173,9 +173,9 @@ def calc_methane_depth(temp,sal,fg,depth):
     p_vapor = calculate_vapor(temp,sal)
      
     # Equation 
-    c = bunsen * (p_tot - ((h/100.) * p_vapor)) * fg
+    c = bunsen * (p_tot - ((h/100.) * p_vapor)) * fg * 44.6 * 10**6 # (44.6 times nanomoles)  
     #print (temp,sal,bunsen,c) # to check 
-    return c
+    return c,bunsen
 import matplotlib.pyplot as plt
 
 def call_met_profile():
@@ -255,7 +255,9 @@ def test3():
     depth = 100 
     sal = 34 
     fg = 1.81*10**(-6) 
-    value = calc_methane_depth(temp,sal,fg,depth) * 44.6 * 10**6 # (44.6 times nanomoles)  
+    value = calc_methane_depth(temp,sal,fg,depth)
+    conc = value[0] 
+    bunsen = value[1]
     print (value)
   
   
@@ -267,10 +269,42 @@ def convert():
     input = input * 10**(-3) # convert ml to l
     x  = ( 1 * input ) / 22.4 #[mole/l]
     x = x * 10 ** 9 #[nanomole/l]
+    print (x, 'nM/l')   
     return x 
 
-x = convert()
-print (x, 'nM/l')    
+def calculate_flux(windspeed,ch4_water,temp,sal,depth,pCH4_air):
+    # Function calculates air-sea flux of CH4
+    # Flux in [muM m**-2 d**-1] or flux_sec in [muM m**-2 sec**-1] 
+    # based on Wanninkhof et al. (2009) and L. Lapham et al.(2017)
+    # from 
+    # input parameters:
+    # windspeed at 10 m [m*sec**-1]
+    # pCH4_air [ppm] = [uatm]  
+    # ch4_water - CH4 concentration at surface water layer,[nM/l] 
+    # temp [C], sal [psu], depth [m]
+    
+    bunsen = calc_methane_depth(temp,sal,pCH4_air,depth)[1] # [ml CH4 / ml water]    
+    #p = nRt/v = c[nM/l] * R[atm*l*(mol**-1)*(K**-1)] * T[Kelvin]
+    pCH4_water = ch4_water* 0.082057 * (temp + 273.15) * (10**-3) *22.4    #![uatm]
+        
+    # Coefficients from  Wanninkhof (2014) Table 1
+    Sc_ch4 = 2101.2 - 131.54 * temp + 4.4931 * temp **2 - 0.08676 * temp **3 + 0.00070663 * temp ** 4 
+    s = bunsen / 22.4  # mole/l                           
+
+    #coef 0.24 includes convertions from m/s to cm/h 
+    k = ( 0.24 * (windspeed**2 )) * ((Sc_ch4/ 660.)**-0.5) # [cm/h] 
+    flux = k * s * (pCH4_water - pCH4_air) * 24 / 100 # [muM m**-2 d**-1]
+    flux_sec = flux / 86400. # [muM m**-2 sec**-1]
+    return flux                    
+
+# test values from table 1  L. Lapham et al.(2017)  
+#test_1line = calculate_flux(windspeed = 4.53, ch4_water = 13.69,
+#                 temp = 1.31,sal = 30.18, depth = 5.05,pCH4_air = 1.89)     
+print (test_1line)
+#test_2line = calculate_flux(windspeed = 5.52, ch4_water =22.73 ,
+#               temp = -0.66,sal = 29.11, depth = 5.03,pCH4_air = 1.89)     
+        
+#convert()
 #call_met_profile()
 #test2()
 #test()

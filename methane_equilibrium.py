@@ -1,6 +1,11 @@
+# -*- coding: utf-8 -*-
+"""
+Created on Sun Dec 10 19:31:26 2017
+
+@author: zagoven
+"""
 '''
 Created on 30. nov. 2017
-
 @author: ELP
 '''
 
@@ -274,7 +279,7 @@ def calculate_flux(windspeed,ch4_water,temp,sal,depth,pCH4_air):
 #               temp = -0.66,sal = 29.11, depth = 5.03,pCH4_air = 1.89)     
         
 #convert()
-#call_met_profile()
+call_met_profile()
 #test2()
 #test()
 #test3()

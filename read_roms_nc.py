@@ -32,7 +32,7 @@ longitude = np.array(f.variables['lon_rho'])
 
 # coordinates of needed station 
 st_lon = 126.82
-st_lat = 76.47# real lat 76.77
+st_lat = 76.47 # real lat 76.77
 
 
 # function 'def find_xi_eta' is based on 

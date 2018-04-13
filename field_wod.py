@@ -9,9 +9,13 @@ import pandas as pd
 import numpy as np
     
 
-fh = Dataset(r'C:\Users\ELP\workspace\arctic2030\src\Data\data_from_WOD_COLLECTION_(2017-08-21T16-04-41).nc')
-fh_roms = Dataset(r'C:\Users\ELP\workspace\arctic2030\src\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_each_day.nc')     
-fh_water_brom = Dataset(r'C:\Users\ELP\workspace\arctic2030\src\Data\waternewbound.nc')  
+fh = Dataset(r'E:\Users\ELP\Python plot\arctic2030\Data\WOD-data\data_from_WOD_COLLECTION_(2017-08-21T16-04-41).nc')
+fh_roms = Dataset(r'E:\Users\ELP\Python plot\arctic2030\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_each_day.nc')     
+fh_water_brom = Dataset(r'E:\Users\ELP\Python plot\arctic2030\Data\experiment_result\baseline\water.nc')  
+
+
+
+
 #fh_water_brom = Dataset(r'C:\Users\ELP\workspace\arctic2030\src\Data\water.nc')     
 #d = {'depth': [depth],'o2': [o2],'time': [jd]} 
 
@@ -138,7 +142,7 @@ with open(path_to_file, 'r') as f:
 
 
 
-def plot_var(var,var2,var3,amkvar1,amkvar2,title):
+def plot_var_3(var,var2,var3,amkvar1,amkvar2,title):
     plt.clf()
     ax = fig.add_subplot(111)
 
@@ -183,7 +187,7 @@ def plot_var(var,var2,var3,amkvar1,amkvar2,title):
 
 
 #plot_var(o2,o2_roms,o2_water_brom,None,None,'o2')    
-plot_var(no3,no3_roms,no3_water_brom,no3_1,no3_2,'no3')  
+plot_var_3(no3,no3_roms,no3_water_brom,no3_1,no3_2,'no3')  
 #plot_var(po4,po4_roms,po4_water_brom,po4_1,po4_1,'po4')  
 #plot_var(si,si_roms,si_water_brom,si_1,si_2,'si') 
 #plot_var(alk,alk_roms,alk_water_brom,alk_1,alk_2,'Alk') 

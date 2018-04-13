@@ -272,9 +272,49 @@ def calculate_flux(windspeed,ch4_water,temp,sal,depth,pCH4_air):
 #print (test_1line)
 #test_2line = calculate_flux(windspeed = 5.52, ch4_water =22.73 ,
 #               temp = -0.66,sal = 29.11, depth = 5.03,pCH4_air = 1.89)     
+def call_met_profile1():
+    # function read nc file, calculates methage saturation with 2 var of 
+    # functions and plots it 
+    #We get the whole path to file
+    file = askopenfilename(initialdir= os.getcwd(),
+    filetypes =(("NetCDF file", "*.nc"),
+    ("All Files","*.*")),title = "Choose a file.")
+            
+    fh = Dataset(file)     
+    depth =  fh.variables['depth'][:]
+    temp =  fh.variables['temp'][10,:] #10 random day, to change 
+    sal =  fh.variables['sal'][10,:]
+    
+    methane = []
+    methane2 = []
+    
+    fg = 1.8*10**(-6) # 1.87987 ppb to check 
+    for n in range(0,len(temp)):
+        t = temp[n]  
+        s = sal[n]
+        d = depth[n]
+        met = calc_methane_surf(t,s,fg)
+        met2 = calc_methane_depth(t,s,fg,d)[0] 
+        methane.append(met)
+        methane2.append(met2)
         
+        
+    fig = plt.figure(figsize = (3,5))
+    import matplotlib.gridspec as gridspec
+    gs = gridspec.GridSpec(1, 1)
+    gs.update(wspace=0.3)
+    ax = plt.subplot(gs[0])
+    print (depth,
+           methane2)
+    ax.plot(methane2,depth,'ro--')
+    ax.set_title('Methane solumbility nM')
+   
+
+    ax.set_ylim(80,0)
+    ax.set_xlim(0,35)    
+    plt.show()        
 #convert()
-#call_met_profile()
+call_met_profile()
 #test2()
 #test()
 #test3()

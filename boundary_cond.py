@@ -70,7 +70,7 @@ def use_netcdf4():
     
         #f = interpolate.interp1d(time, o2_sort2, kind = 'nearest', # bounds_error=None, 
         #                         fill_value= 'extrapolate', assume_sorted=False)
-        from scipy.interpolate import CubicSpline
+        #from scipy.interpolate import CubicSpline
         #cs = CubicSpline(arr[1],arr[0])
         xnew = np.arange(1, 366, 1)
         ynew = f(xnew) 

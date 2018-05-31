@@ -28,6 +28,7 @@ fh_water_brom = Dataset(r'E:\Users\ELP\Python plot\arctic2030\Data\experiment_re
 #df2.plot(x = 'time',y ='depth') 
 #hs = pd.Series(depth[:,0],index=jd)
 
+
 fig = plt.figure(figsize=(7,7))
 
 #hs.plot('o') #,title='%s at %s' % (o2.long_name,fh.id))

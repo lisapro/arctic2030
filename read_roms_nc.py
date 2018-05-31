@@ -15,15 +15,15 @@ import numpy as np
 import matplotlib.pyplot as plt 
 import warnings 
 
-test = False #
+test = False
 
 if test == True: 
-    files = ["X:/trondkr/CloudStation/ARCTIC2030/a20_avg_11705_arctic2030.nc",
-             "X:/trondkr/CloudStation/ARCTIC2030/a20_avg_11733_arctic2030.nc",
-             "X:/trondkr/CloudStation/ARCTIC2030/a20_avg_11761_arctic2030.nc"]
+    files = ["X:/ARCTIC2030/a20_avg_11705_arctic2030.nc",
+             "X:/ARCTIC2030/a20_avg_11733_arctic2030.nc",
+             "X:/ARCTIC2030/a20_avg_11761_arctic2030.nc"]
     f = MFDataset(files)
 else:
-    f = MFDataset("X:/trondkr/CloudStation/ARCTIC2030/*.nc")
+    f = MFDataset("X:/ARCTIC2030/*.nc")
 
 
 
@@ -408,7 +408,7 @@ if test == True:
     f1 = Dataset('{}\Laptev_test.nc'.format(
         dir_to_save,nc_format), mode='w', format= nc_format)
 else:
-    f1 = Dataset('{}\ROMS_Laptev_Sea_{}_east.nc'.format(
+    f1 = Dataset('{}\ROMS_Laptev_Sea_{}_east_var2.nc'.format(
         dir_to_save,nc_format), mode='w', format= nc_format)
 
 #f1 = Dataset('ROMS_Laptev_Sea_{}_east.nc'.format(nc_format), mode='w', format= nc_format)
@@ -418,17 +418,17 @@ f1.source = 'Elizaveta Protsenko (elp@niva.no)'
 
 f1.history = 'Created ' + time.ctime(time.time())
 
-f1.createDimension('time', len(ntime))
-f1.createDimension('z', len(depth))
-f1.createDimension('z2', len(depth2))
+f1.createDimension('time',  size=None)
+f1.createDimension('depth', len(depth))
+f1.createDimension('depth2', len(depth2))
 
-v_depth = f1.createVariable('depth','f8',('z',), zlib= False)
-v_depth.long_name = "Z-depth matrix, direction up" ;
+v_depth = f1.createVariable('depth','f8',('depth',), zlib= False)
+v_depth.long_name = "Z-depth matrix, direction up" 
 v_depth.units = "meter"
 v_depth[:] = depth
 
-v_depth2 = f1.createVariable('depth2','f8',('z2',), zlib= False)
-v_depth2.long_name = "Z-depth matrix for kz, direction up" ;
+v_depth2 = f1.createVariable('depth2','f8',('depth2',), zlib= False)
+v_depth2.long_name = "Z-depth matrix for kz, direction up" 
 v_depth2.units = "meter"
 v_depth2[:] = depth2
 
@@ -440,22 +440,18 @@ v_time.calendar='standard'
 v_time[:] = ntime
 
 
-v_temp=f1.createVariable('temp', 'f8', ('time','z'), zlib=False)
+v_temp=f1.createVariable('temp', 'f8', ('time','depth'), zlib=False)
 v_temp.long_name = "Ocean temperature"
 v_temp.units = "degree Celsius"
 v_temp[:,:] = temp
 
-v_sal = f1.createVariable('sal', 'f8', ('time','z'), zlib=False)
+v_sal = f1.createVariable('sal', 'f8', ('time','depth'), zlib=False)
 v_sal.long_name = "Time-averaged salinity"
 v_sal.units = "psu"
 v_sal[:,:] = sal
 
-v_kz = f1.createVariable('Kz_s', 'f8', ('time','z2'), zlib=False)
-v_kz.long_name = 'Salinity vertical diffusion coefficient'
-v_kz.units = 'meter2 second-1'
-v_kz[:,:] = kz
 
-v_rho = f1.createVariable('rho', 'f8', ('time','z'), zlib=False)
+v_rho = f1.createVariable('rho', 'f8', ('time','depth'), zlib=False)
 v_rho.long_name = 'time-averaged density anomaly'
 v_rho.units = 'kilogram meter-1'
 v_rho[:,:] = rho
@@ -464,6 +460,14 @@ v_hice = f1.createVariable('hice', 'f8', ('time',), zlib=False)
 v_hice.long_name = 'time-averaged ice thickness in cell'
 v_hice.units = 'meter'
 v_hice[:] = hice
+
+
+v_pCO2atm = f1.createVariable('pCO2atm', 'f8', ('time',), zlib=False)
+v_pCO2atm.long_name = 'time-averaged partial pressure of CO2 in air'
+#v_pCO2atm.units = 'milliatm' #'uatm'
+v_pCO2atm[:] = pCO2atm
+#
+
 
 v_snow_thick = f1.createVariable('snow_thick', 'f8', ('time',), zlib=False)
 v_snow_thick.long_name = 'time-averaged thickness of snow cover'
@@ -475,96 +479,93 @@ v_tisrf.long_name = 'time-averaged temperature of ice surface'
 v_tisrf.units = 'degree Celsius'
 v_tisrf[:] = tisrf
 
-v_DIC = f1.createVariable('DIC', 'f8', ('time','z'), zlib=False)
+v_DIC = f1.createVariable('DIC', 'f8', ('time','depth'), zlib=False)
 v_DIC.long_name = 'time-averaged carbonate/total dissolved inorganic carbon'
 v_DIC.units = ' mmol C/m^3 '
 v_DIC[:] = DIC
 
-v_o2 = f1.createVariable('o2', 'f8', ('time','z'), zlib=False)
+v_o2 = f1.createVariable('o2', 'f8', ('time','depth'), zlib=False)
 v_o2.long_name = 'time-averaged oxygen/oxygen '
 v_o2.units = 'mmol O_2/m^3'
 v_o2[:] = o2
 
 
-v_Alk = f1.createVariable('Alk', 'f8', ('time','z'), zlib=False)
+v_Alk = f1.createVariable('Alk', 'f8', ('time','depth'), zlib=False)
 v_Alk.long_name = 'time-averaged carbonate/total alkalinity"'
 v_Alk.units = 'umol/kg'
 v_Alk[:] = Alk
 
+v_kz = f1.createVariable('Kz_s', 'f8', ('time','depth2'), zlib=False)
+v_kz.long_name = 'Salinity vertical diffusion coefficient'
+v_kz.units = 'meter^2 second^-1'
+v_kz[:,:] = kz
 
-
-#v_Akt_bak = f1.createVariable('Akt_bak', 'f8', ('time','z'), zlib=False)
+#v_Akt_bak = f1.createVariable('Akt_bak', 'f8', ('time','depth'), zlib=False)
 #v_Akt_bak.long_name = 'background vertical mixing coefficient for tracers'
 #v_Akt_bak.units = 'meter2 second-1'
 #v_Akt_bak[:] = Akt_bak
 
-v_po4 = f1.createVariable('po4', 'f8', ('time','z'), zlib=False)
+v_po4 = f1.createVariable('po4', 'f8', ('time','depth'), zlib=False)
 v_po4.long_name = 'time-averaged phosphate/phosphorus'
 v_po4.units = 'mmol P/m^3'
 v_po4[:] = po4
 
 
-v_no3 = f1.createVariable('no3', 'f8', ('time','z'), zlib=False)
+v_no3 = f1.createVariable('no3', 'f8', ('time','depth'), zlib=False)
 v_no3.long_name = 'time-averaged nitrate/nitrogen'
 v_no3.units = 'mmol N/m^3'
 v_no3[:] = no3
 
 
-v_nh4 = f1.createVariable('nh4', 'f8', ('time','z'), zlib=False)
+v_nh4 = f1.createVariable('nh4', 'f8', ('time','depth'), zlib=False)
 v_nh4.long_name = 'time-averaged ammonium/nitrogen'
 v_nh4.units = 'mmol N/m^3'
 v_nh4[:] = nh4
 
-v_Si = f1.createVariable('Si', 'f8', ('time','z'), zlib=False)
+v_Si = f1.createVariable('Si', 'f8', ('time','depth'), zlib=False)
 v_Si.long_name = 'time-averaged silicate/silicate'
 v_Si.units = 'mmol Si/m^3'
 v_Si[:] = Si
 
 
 #mesozooplankton
-v_Z4_c = f1.createVariable('Z4_c', 'f8', ('time','z'), zlib=False)
+v_Z4_c = f1.createVariable('Z4_c', 'f8', ('time','depth'), zlib=False)
 v_Z4_c.long_name = 'time-averaged mesozooplankton/carbon'
 v_Z4_c.units = 'mmol C/m^3'
 v_Z4_c[:] = Z4_c
 
-
 #microzooplankton
-v_Z5_c = f1.createVariable('Z5_c', 'f8', ('time','z'), zlib=False)
+v_Z5_c = f1.createVariable('Z5_c', 'f8', ('time','depth'), zlib=False)
 v_Z5_c.long_name = 'time-averaged microzooplankton/carbon'
 v_Z5_c.units = 'mmol C/m^3'
 v_Z5_c[:] = Z5_c
 
-v_Z5_n = f1.createVariable('Z5_n', 'f8', ('time','z'), zlib=False)
+v_Z5_n = f1.createVariable('Z5_n', 'f8', ('time','depth'), zlib=False)
 v_Z5_n.long_name = 'time-averaged microzooplankton/nitrogen'
 v_Z5_n.units = 'mmol N/m^3'
 v_Z5_n[:] = Z5_n
 
-v_Z5_p = f1.createVariable('Z5_p', 'f8', ('time','z'), zlib=False)
+v_Z5_p = f1.createVariable('Z5_p', 'f8', ('time','depth'), zlib=False)
 v_Z5_p.long_name = 'time-averaged microzooplankton/phosphorus'
 v_Z5_p.units = 'mmol P/m^3'
 v_Z5_p[:] = Z5_p
 
 #nanoflagellates
-v_Z6_c = f1.createVariable('Z6_c', 'f8', ('time','z'), zlib=False)
+v_Z6_c = f1.createVariable('Z6_c', 'f8', ('time','depth'), zlib=False)
 v_Z6_c.long_name = 'time-averaged nanoflagellates/carbon'
 v_Z6_c.units = 'mmol C/m^3'
 v_Z6_c[:] = Z6_c
 
-v_Z6_n = f1.createVariable('Z6_n', 'f8', ('time','z'), zlib=False)
+v_Z6_n = f1.createVariable('Z6_n', 'f8', ('time','depth'), zlib=False)
 v_Z6_n.long_name = 'time-averaged nanoflagellates/nitrogen'
 v_Z6_n.units = 'mmol N/m^3'
 v_Z6_n[:] = Z6_n
 
-v_Z6_p = f1.createVariable('Z6_p', 'f8', ('time','z'), zlib=False)
+v_Z6_p = f1.createVariable('Z6_p', 'f8', ('time','depth'), zlib=False)
 v_Z6_p.long_name = 'time-averaged nanoflagellates/phosphorus'
 v_Z6_p.units = 'mmol P/m^3'
 v_Z6_p[:] = Z6_p
 
-
-v_pCO2atm = f1.createVariable('pCO2atm', 'f8', ('time'), zlib=False)
-v_pCO2atm.long_name = 'time-averaged partial pressure of CO2 in air'
-v_pCO2atm.units = 'uatm'
-v_pCO2atm[:] = pCO2atm
 
 v_swrad = f1.createVariable('swrad', 'f8', ('time'), zlib=False)
 v_swrad.long_name = 'time-averaged solar shortwave radiation flux'
@@ -572,7 +573,7 @@ v_swrad.units = 'watt meter-2'
 v_swrad.negative_value = 'upward flux, cooling'
 v_swrad.positive_value = 'downward flux, heating'
 v_swrad[:] = swrad
- 
+
 v_swradWm2 = f1.createVariable('swradWm2', 'f8', ('time'), zlib=False)
 v_swradWm2.long_name = 'time-averaged solar shortwave radiation flux (under ice)'
 v_swradWm2.units = 'watt meter-2'

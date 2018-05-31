@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from scipy.interpolate import interp1d,interp2d
 import numpy as np
 
-f = Dataset(r'C:\Users\ELP\workspace\arctic2030\src\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east.nc')
+f = Dataset(r'C:\Users\ELP\OneDrive\Python_workspace\arctic2030\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east.nc')
 
 # dimensions
 ocean_time =  f.variables['time'][:]
@@ -83,10 +83,11 @@ interp_tisrf = to_interp_tisrf(newtimes)
 
 # interpolate 2D variables 
 def interpolate_2d_var(var):
-    to_interp_var = interp2d(ocean_time,depth,var.T,kind = 'linear')
+    to_interp_var = interp2d(ocean_time,sorted(depth),var.T,kind = 'linear')
     interp_var = to_interp_var(newtimes,depth)
     #interp_var = interp_var.T 
     return interp_var.T 
+
 interp_sal = interpolate_2d_var(sal)
 interp_temp = interpolate_2d_var(temp)
 interp_rho = interpolate_2d_var(rho)
@@ -132,13 +133,17 @@ def plot_1d():
     plt.show()
 
 def plot_2d(): # to print_nc_all_params 2d
+    fig,(ax1,ax2) = plt.subplots(2)
     Times,V_depth = np.meshgrid(ocean_time,depth)
     Times2,V_depth2 = np.meshgrid(newtimes,depth)
+    
     Dates2 = num2date(Times2,units= 'seconds since 1948-01-01 00:00:00',
                                        calendar= 'standard') 
     Dates = num2date(Times,units= 'seconds since 1948-01-01 00:00:00',
                                        calendar= 'standard') 
-    plt.pcolormesh(newtimes,depth2,interp_temp.T) #,
+    
+    ax1.pcolormesh(newtimes,depth,interp_temp.T) #,
+    ax2.pcolormesh(ocean_time,depth,temp.T) #,    
     #               vmin=0, vmax=0.1) #, alpha = 0.9, label = 'interp')    
     #plt.legend()
     plt.show()
@@ -169,7 +174,7 @@ def write_nc():
     f1.createDimension('z2', len(depth2))
     
     v_depth2 = f1.createVariable('depth2','f8',('z2',), zlib= False)
-    v_depth2.long_name = "Z-depth matrix for kz, direction down" ;
+    v_depth2.long_name = "Z-depth matrix for kz, direction up" ;
     v_depth2.units = "meter"
     v_depth2[:] = depth2
     
@@ -297,7 +302,7 @@ def write_nc():
             
     v_pCO2atm = f1.createVariable('pCO2atm', 'f8', ('time'), zlib=False)
     v_pCO2atm.long_name = 'time-averaged partial pressure of CO2 in air'
-    v_pCO2atm.units = 'uatm'
+    #v_pCO2atm.units = 'uatm'
     v_pCO2atm[:] = interp_pCO2atm
         
     v_swrad = f1.createVariable('swrad', 'f8', ('time'), zlib=False)
@@ -317,5 +322,5 @@ def write_nc():
     
     
 #plot_1d()   
-#plot_2d()
-write_nc()
+plot_2d()
+#write_nc()

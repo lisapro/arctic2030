@@ -314,7 +314,9 @@ def call_met_profile1():
     ax.set_xlim(0,35)    
     plt.show()        
 #convert()
-call_met_profile()
+
 #test2()
 #test()
 #test3()
+if __name__ == '__main__':
+    call_met_profile()

@@ -14,8 +14,15 @@ from scipy.interpolate import interp1d,interp2d
 import numpy as np
 import pandas as pd 
 from matplotlib import gridspec
+import xarray as xr
 
 
+dss = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
+print ( dss.loc{'temp','sal'})
+#ds = dss[]
+#dss['o2'].plot(ax=ax, x = 'time',y = 'depth')
+
+'''
 nc_format = 'NETCDF3_CLASSIC' 
 f = Dataset('Data\ROMS_Laptev_Sea_{}_east_each_day.nc'.format(nc_format)) 
 
@@ -33,7 +40,7 @@ kz = f.variables['Kz_s'][:]
 hice = f.variables['hice'][:]
 
 fig = plt.figure(figsize=(11,6),dpi = 100)
-gs = gridspec.GridSpec(2, 2)
+gs = gridspec.GridSpec(4, 1)
 #gs.update(right = 0.99,hspace = 0.5 )
 ax1,ax2,ax3,ax4 = plt.subplot(gs[0]),plt.subplot(gs[1]),plt.subplot(gs[2]),plt.subplot(gs[3])
 #fig,(ax1,ax2,ax3) = plt.subplots(3)
@@ -45,8 +52,8 @@ Dates = num2date(Times,units= units,calendar= clnd)
 Dates2 = num2date(Times2,units= units,calendar= clnd)
 Dates3 = num2date(ocean_time,units= units,calendar= clnd)
 
-start = datetime.datetime(1995, 1, 1, 23, 59)
-end = datetime.datetime(1999, 1, 1, 23, 59)
+start = datetime.datetime(1990, 1, 1, 23, 59)
+end = datetime.datetime(2014, 1, 1, 23, 59)
 
 rng = pd.date_range(start, end, freq='A-DEC')
 rng2 = pd.date_range(start, end, freq='6M')
@@ -84,7 +91,10 @@ for axis in (ax1,ax2,ax3):
 plt.colorbar(cs1,ax= ax1)    
 plt.colorbar(cs2,ax= ax2)   
 plt.colorbar(cs3,ax= ax3) 
-plt.colorbar(cs3,ax= ax4,ticks = [])
+plt.colorbar(cs3,ax= ax4,ticks = [])'''
+
+
+
 
 '''
 ax1.set_xticks(rng2)

@@ -48,7 +48,8 @@ map2.drawlsmask(ocean_color='#caedfd')
 
 
 X, Y = map2( seep_area_lons, seep_area_lats )
-poly = Polygon(((X[0],Y[0]),(X[1],Y[1]),(X[2],Y[2]),(X[3],Y[3])), facecolor='#fff7e6', alpha=1,zorder = 1 )
+poly = Polygon(((X[0],Y[0]),(X[1],Y[1]),(X[2],Y[2]),(X[3],Y[3])),
+               facecolor='#fff7e6', alpha=1,zorder = 1 )
 axins.add_patch(poly)
 #axins.text(X[0],Y[0]-200000, r'Laptev sea', fontsize=14)
 plt.gca().add_patch(poly)

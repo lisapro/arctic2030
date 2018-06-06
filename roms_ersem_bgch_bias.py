@@ -151,68 +151,7 @@ def create_relax_array(ncfile,varname,pl,save,levels,axis,int_num = 1,
         axis.scatter(ds[var_from_odv],ds['var1'],alpha = 0.5, 
                 c = '#7f7f7f', label = 'Sept WOD', zorder = 7) 
 
-def roms_average_year(var,cmap,vmax,vmin,title) :
-    ds = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
-    ds = ds.where((ds['time.year']  >= 1989), drop=True) 
-    
-    d = ds.depth.values
-  
-    ds_1990 = ds.where((ds['time.year'] < 2002), drop=True) 
-    ds_2002= ds.where((ds['time.year'] >= 2002), drop=True)
-     
-    arr = ds[var].to_pandas().sort_index() 
-    arr = arr.resample('D').ffill()
-    
-    t = arr.index.dayofyear
-    
-    arr['dayofyear'] = t    
-    arr = arr.pivot_table(arr,index = 'dayofyear', aggfunc=np.median).T.sort_index() #columns = 'depth', 
-    X,Y = np.meshgrid(arr.columns,arr.index)
-       
-    fig  = plt.figure(figsize=(10,7), dpi=100 )
-    fig.suptitle(title)
-    gs = gridspec.GridSpec(3,1)
-    gs.update(hspace=0.3,top = 0.95,bottom = 0.05, right = 1.02) 
-    ax = fig.add_subplot(gs[0]) 
-    ax1 = fig.add_subplot(gs[1])
-    ax2 = fig.add_subplot(gs[2])   
-    ax2.set_title('Mean Temperature year') 
-    #ax3 = fig.add_subplot(gs[3])  
-       
-    ds_1990[var].plot(ax=ax, x = 'time',y = 'depth',cmap=plt.get_cmap(cmap),vmax = vmax,vmin = vmin)
-    ds_2002[var].plot(ax=ax1, x = 'time',y = 'depth',cmap=plt.get_cmap(cmap),vmax = vmax,vmin = vmin)  
-    cs = ax2.pcolormesh(X,Y,arr,cmap=plt.get_cmap(cmap),vmax = vmax,vmin = vmin) #, cmap=plt.cm.Reds, alpha=1)
-    
-    ax2.set_ylim(80,0)
-    plt.colorbar(cs, ax = ax2)    
-    from scipy.interpolate import interp2d
 
-    arr2 = arr.as_matrix(columns = None)
-    x = np.array(arr.columns.values) #dayx 
-    y = np.array(sorted(d))
-    X1,Y1 = np.meshgrid(x,y)    
-    
-    x_f = np.arange(1,366,1)
-    y_f = np.arange(0,81,1)
-    X2,Y2 = np.meshgrid(x_f,y_f)
-    
-    f = interp2d(x,y, arr2, kind ='cubic')
-    #cs3 = ax3.pcolormesh(X2,Y2,f(x_f,y_f),cmap=plt.get_cmap(cmap),vmax = 3,vmin = -3) #arr2)
-    #ax3.set_ylim(80,0)   
-    #plt.colorbar(cs3, ax = ax3)      
-      
-    ax1.set_ylim(80,0) 
-    ax.set_ylim(80,0) 
-
-    
-    start = datetime(1989, 1, 1, 23, 59)
-    end = datetime(2014, 1, 1, 23, 59)
-    rng = pd.date_range(start, end, freq='A-DEC')
-    ax.vlines(rng,0,80,linestyle = '--', lw = 0.5)
-    ax1.vlines(rng,0,80,linestyle = '--', lw = 0.5)
-
-    plt.show() 
-    
 def call_arctic() :
     dss = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_each_day.nc')
     levels = sorted(dss.depth.values)
@@ -254,6 +193,6 @@ def call_arctic() :
     plt.savefig('Data/WOD_vs_ROMS.png')
     #plt.show( )
  
-#call_arctic()   
+call_arctic()   
 #roms_average_year('o2')   
-roms_average_year('temp','RdBu_r',3,-3,'Temperature C') #'coolwarm')   
+ 

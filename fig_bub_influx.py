@@ -4,7 +4,7 @@ from glob import glob
 import numpy as np 
 import matplotlib.gridspec as gridspec
 from scipy import interpolate 
-    
+import xarray as xr
 ##### to read all files. 
 def read_all_files():
     files  = glob(r'C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re\total_2160_per1sec_woa_sel_13_decav_*.dat')
@@ -92,7 +92,7 @@ def init_conditions():
     
 #plt_flux(3)
     
-def scenario_B1():    
+def plot_scenario_B1():    
     # Scenario B1 1 bubble 4mm, 1 bubble 3mm, 1 bubble 2mm and 1 bubble 1mm
     
     plt.style.use('ggplot')
@@ -155,15 +155,10 @@ def scenario_B1():
     #print (s)
     #ax.plot(int_2_flow,new_depth2,'k--')
     #ax.plot(int2_flow,new_depth,'r--')
-    
     ax1.plot(df_sum.met_cont,df_sum.depth) 
-    
-    
-                  
     #ax.text(0.3,0.9,'mean ={}'.format(s_flow_mean),transform=ax.transAxes)                  
     #ax1.text(0.15,0.9,'To atm = {}\nDissolved={}%'.format(
-    #          to_atm,perc),transform=ax1.transAxes) 
-    
+    #          to_atm,perc),transform=ax1.transAxes)     
     '''
     f  = interpolate.interp1d(df_sum.depth,df_sum.rad_evol) 
     
@@ -178,6 +173,82 @@ def scenario_B1():
     #plt.savefig('Data/Scanerio_B1_r_{}.png'.format(rad))  
       
     plt.show()
+    
+def calculate_scenario_B1():
+    ds = xr.open_dataset(r'C:\Users\elp\OneDrive\Python_workspace\arctic2030\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')        
+    d_roms = ds.depth.values 
+    
+    path = r'C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re (1)\all_for_sbm_79_mm_tab.dat'
+    df = pd.read_csv(path,delimiter = '\t' )
+    df4 = df[df.radius == 4].reset_index()
+    df3 = df[df.radius == 3].reset_index()    
+    df2 = df[df.radius == 2].reset_index()      
+    df1 = df[df.radius == 1].reset_index()  
+
+    df_sum = df4.loc[:,['depth','rad_evol','met_cont','met_flow','vbub']]
+    
+    for col in df_sum.columns[1:] :
+        df_sum[col] = df4[col].add(df3[col]).add(
+             df2[col]).add(df1[col],fill_value= 0)   
+    
+    for d in (df1,df2,df3,df4,df_sum):           
+        # 1 bubble, to milliM
+        d.met_cont = d.met_cont*1000 #*3.6
+        # 1 bubble, to second, to milliM/sec
+        d.met_flow = d.met_flow*1000 #*10 #*86400 
+        
+    
+    # Calculate means,fluxes etc.
+    s_flow_mean = np.around(df_sum.met_flow.mean(),decimals = 2)         
+    ma = np.around(df_sum.met_cont.max(),decimals = 2)
+    mi = np.around(df_sum.met_cont.min(),decimals = 2)
+    to_atm  = np.around(ma - mi,decimals = 2)      
+    perc = np.around(mi*100/ma,decimals = 2) 
+    print ('Mean sum flow from the seep',s_flow_mean)
+    print ('To atmosphere ', to_atm)
+    print ('Percentage of dissolved CH4 ', perc) 
+         
+    #ax.plot(df_sum.met_flow,df_sum.depth,label = 'sum')
+    #print (df_sum.depth[0])
+    new_depth =  sorted(d_roms) #np.arange(0,78,0.01) 
+    #new_depth2 = np.arange(1,78,1) 
+    f_flow  = interpolate.interp1d(df_sum.depth,
+                                   df_sum.met_flow,
+                                   fill_value = 'extrapolate',
+                                   kind='nearest')  
+    int_flow = f_flow(new_depth)
+    from statsmodels.nonparametric.smoothers_lowess import lowess
+    import statsmodels
+    days = np.arange(1,366)
+    #int_flow3 = lowess(new_depth,int_flow,frac=0.2,is_sorted = False)[:,1]
+    int_flow4 = lowess(new_depth,int_flow,frac=1,is_sorted = False)[:,0]
+    df_flow = pd.DataFrame(index = int_flow4,columns = days)
+    
+    for n in days:
+        df_flow[n] = int_flow4    #data = int_flow4
+    #print (df_flow[2])
+    #print(int_flow3,new_depth.shape)
+    #met_lowess=a[:,1]    
+    int_flow2 = f_flow(new_depth)
+    
+    f_cont  = interpolate.interp1d(df_sum.depth,
+                                   df_sum.met_cont,
+                                   fill_value = 'extrapolate',
+                                   kind='nearest')  
+    int_cont = f_cont(new_depth)   
+    
+    #plt.plot(int_flow,new_depth)
+    #plt.plot(int_flow3,new_depth)
+    df_flow.plot()
+    
+    #plt.plot(int_flow4,new_depth,'-')
+
+    #plt.plot(int_cont,new_depth,'yo--')
+    #plt.ylim(80,0)
+    #plt.show()
+    return df_flow.T
 #init_conditions() 
-scenario_B1()      
-read_all_files()
+#plot_scenario_B1()      
+calculate_scenario_B1() 
+#plot_scenario_B1() 
+#read_all_files()

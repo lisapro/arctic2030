@@ -12,12 +12,15 @@ def read_all_files():
     for num,f in enumerate(files): 
         if num+1 == 1:
             df_tot = pd.read_csv(f, delimiter = '  ', header = None, names = ['depth',num+1],index_col = 'depth', engine='python') 
+            df_tot[num+1] = df_tot[num+1] *1000000
         else: 
             f = pd.read_csv(f, delimiter = '  ', header = None, names = ['depth',num+1],index_col = 'depth', engine='python')
+            f[num+1] = f[num+1] *1000000
             #print (f)
             df_tot[num+1] = f[num+1]
         #df_tot.append(pd.read_csv(f, delimiter = '  ', header = None, names = ['depth',num+1],index_col = 'depth', engine='python')) 
     df_tot.plot() 
+    #print (df_tot.head())
     plt.show()
     
     
@@ -135,7 +138,7 @@ def scenario_B1():
         
     l = range(1,5)
     for n,d in enumerate((df1,df2,df3,df4)):
-        #ax.plot(d.met_flow,d.depth,'--',label = '{}mm'.format(l[n]))
+        ax.plot(d.met_flow,d.depth,'--',label = '{}mm'.format(l[n]))
         ax1.plot(d.met_cont,d.depth,'--')   
         ax2.plot(d.rad_evol,d.depth,'-',alpha = 1) 
         
@@ -147,11 +150,11 @@ def scenario_B1():
     f_flow  = interpolate.interp1d(df_sum.depth,df_sum.met_flow, fill_value = 'extrapolate',kind='nearest')  
     int_flow = f_flow(new_depth)
     
-    s = interpolate.splrep(int_flow, new_depth, s=0) 
+    #s = interpolate.splrep(int_flow, new_depth, s=0) 
     #int2_flow = s(new_depth)
-    print (s)
+    #print (s)
     #ax.plot(int_2_flow,new_depth2,'k--')
-    ax.plot(int2_flow,new_depth,'r--')
+    #ax.plot(int2_flow,new_depth,'r--')
     
     ax1.plot(df_sum.met_cont,df_sum.depth) 
     
@@ -177,3 +180,4 @@ def scenario_B1():
     plt.show()
 #init_conditions() 
 scenario_B1()      
+read_all_files()

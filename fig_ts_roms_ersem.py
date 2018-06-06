@@ -18,7 +18,7 @@ import xarray as xr
 
 
 dss = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
-print ( dss.loc{'temp','sal'})
+print ( dss.loc['temp','sal'])
 #ds = dss[]
 #dss['o2'].plot(ax=ax, x = 'time',y = 'depth')
 

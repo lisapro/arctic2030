@@ -41,8 +41,8 @@ file = r'C:\Users\elp\OneDrive\Python_workspace\arctic2030\Data\ROMS_Laptev_Sea_
 fh = Dataset(file)     
 depth =  fh.variables['depth'][:]
 
-temp =  fh.variables['temp'][40,:] # random day
-sal =  fh.variables['sal'][40,:]
+temp =  fh.variables['temp'][80,:] # random day
+sal =  fh.variables['sal'][80,:]
 fg = 1.8*10**(-6) # 1.87987 ppb to check 
 methane2 = []
 for n in range(0,len(temp)):

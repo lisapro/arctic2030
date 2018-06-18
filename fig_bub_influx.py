@@ -198,7 +198,7 @@ def plot_scenario(df_list, df_sum,smoothed_flow,new_depth,int_cont,title):
     ax.legend()    
     #plt.savefig('Data/Scenario_B1.png')    
     plt.show()    
-def calculate_scenario_B1(d_roms,pl):
+def calculate_scenario_B1(d_roms,pl,days):
     path= r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat" 
     df = pd.read_csv(path,delimiter = '\t' )
     df4 = df[df.radius == 4].reset_index()
@@ -229,7 +229,6 @@ def calculate_scenario_B1(d_roms,pl):
 
     ## Interpolate to roms depths and 365 days
     new_depth =  d_roms
-    days = np.arange(1,367)
     f_flow  = interpolate.interp1d(df_sum.depth,
                                    df_sum.met_flow,
                                    fill_value = 'extrapolate',
@@ -257,17 +256,17 @@ def calculate_scenario_B1(d_roms,pl):
     return df_flow.T, df_cont.T
 
 
-def calculate_baseline(d_roms):
+def calculate_baseline(d_roms,days):
     ds = xr.open_dataset(r"C:\Users\elp\OneDrive\Python_workspace\arctic2030\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc") 
     new_depth =  d_roms
-    days = np.arange(1,367)
+    #days = np.arange(1,367)
     slb = slblt()
     df_slb = pd.DataFrame(index = slb,columns = days)        
     for n in days:
         df_slb[n] = slb     
     return df_slb.T
 
-def calculate_scenario_B1_stop(d_roms,pl,slb):
+def calculate_scenario_B1_stop(d_roms,pl,slb,days):
     path= r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat" 
     df = pd.read_csv(path,delimiter = '\t' )
     df4 = df[df.radius == 4].reset_index()
@@ -298,7 +297,7 @@ def calculate_scenario_B1_stop(d_roms,pl,slb):
 
     ## Interpolate to roms depths and 365 days
     new_depth =  d_roms
-    days = np.arange(1,367)
+    #days = np.arange(1,367)
     f_flow  = interpolate.interp1d(df_sum.depth,
                                    df_sum.met_flow,
                                    fill_value = 'extrapolate',
@@ -330,7 +329,7 @@ def calculate_scenario_B1_stop(d_roms,pl,slb):
 
 
 
-def calculate_scenario_B1_50(d_roms,pl,slb):
+def calculate_scenario_B1_50(d_roms,pl,slb,days):
     ## Sampe seep as B1 but working 50% of time 
     path= r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat" 
     df = pd.read_csv(path,delimiter = '\t' )
@@ -362,7 +361,7 @@ def calculate_scenario_B1_50(d_roms,pl,slb):
 
     ## Interpolate to roms depths and 365 days
     new_depth =  d_roms
-    days = np.arange(1,367)
+    #days = np.arange(1,367)
     f_flow  = interpolate.interp1d(df_sum.depth,
                                    df_sum.met_flow,
                                    fill_value = 'extrapolate',
@@ -401,7 +400,7 @@ def calculate_scenario_B1_50(d_roms,pl,slb):
     return df_flow.T, df_cont.T
 #init_conditions() 
 
-def calculate_scenario_B2(d_roms,pl):
+def calculate_scenario_B2(d_roms,pl,days):
     path= r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat" 
     df = pd.read_csv(path,delimiter = '\t' )
     
@@ -432,7 +431,7 @@ def calculate_scenario_B2(d_roms,pl):
 
     ## Interpolate to roms depths and 365 days
     new_depth =  d_roms
-    days = np.arange(1,367)
+    #days = np.arange(1,367)
     f_flow  = interpolate.interp1d(df_sum.depth,
                                    df_sum.met_flow,
                                    fill_value = 'extrapolate',

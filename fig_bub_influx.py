@@ -198,63 +198,6 @@ def plot_scenario(df_list, df_sum,smoothed_flow,new_depth,int_cont,title):
     ax.legend()    
     #plt.savefig('Data/Scenario_B1.png')    
     plt.show()    
-def calculate_scenario_B1(d_roms,pl,days):
-    path= r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat" 
-    df = pd.read_csv(path,delimiter = '\t' )
-    df4 = df[df.radius == 4].reset_index()
-    df3 = df[df.radius == 3].reset_index()    
-    df2 = df[df.radius == 2].reset_index()      
-    df1 = df[df.radius == 1].reset_index()  
-
-    df_sum = df4.loc[:,['depth','rad_evol','met_cont','met_flow','vbub']]
-
-    for col in df_sum.columns[1:] :
-        df_sum[col] = df4[col].add(df3[col]).add(
-             df2[col]).add(df1[col],fill_value= 0)   
-    
-    for d in (df1,df2,df3,df4,df_sum):           
-        d.met_cont = d.met_cont*1000 # milliM
-        d.met_flow = d.met_flow*1000  # milliM/sec
-            
-    # Calculate means,fluxes etc.
-    s_flow_mean = np.around(df_sum.met_flow.mean(),decimals = 2)         
-    ma = np.around(df_sum.met_cont.max(),decimals = 2)
-    mi = np.around(df_sum.met_cont.min(),decimals = 2)
-    to_atm  = np.around(ma - mi,decimals = 2)      
-    perc = np.around((to_atm*100)/ma,decimals = 2) 
-    print (ma,mi)
-    print ('Mean sum flow from the seep',s_flow_mean)
-    print ('To atmosphere ', to_atm)
-    print ('Percentage of dissolved CH4 ', perc) 
-
-    ## Interpolate to roms depths and 365 days
-    new_depth =  d_roms
-    f_flow  = interpolate.interp1d(df_sum.depth,
-                                   df_sum.met_flow,
-                                   fill_value = 'extrapolate',
-                                   kind='nearest')  
-    f_cont  = interpolate.interp1d(df_sum.depth,
-                                   df_sum.met_cont,
-                                   fill_value = 'extrapolate',
-                                   kind='nearest') 
-    int_flow = f_flow(new_depth)
-    int_cont = f_cont(new_depth)
-    
-    smoothed_flow = lowess(new_depth,int_flow,frac=1,is_sorted = False)[:,0]   
-    # Reverse array, since in roms axis direction is up    
-    cont = np.flip(smoothed_flow,0)
-    smoothed_flow = np.flip(smoothed_flow,0)        
-    df_flow = pd.DataFrame(index = smoothed_flow,columns = days)
-    df_cont = pd.DataFrame(index = cont,columns = days)
-    if pl == True: 
-        plot_scenario(df4,df3,df2,df1,df_sum,smoothed_flow,new_depth,int_cont)        
-        
-    for n in days:
-        df_flow[n] = smoothed_flow      
-        df_cont[n] = cont
-
-    return df_flow.T, df_cont.T
-
 
 def calculate_baseline(d_roms,days):
     ds = xr.open_dataset(r"C:\Users\elp\OneDrive\Python_workspace\arctic2030\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc") 
@@ -266,102 +209,50 @@ def calculate_baseline(d_roms,days):
         df_slb[n] = slb     
     return df_slb.T
 
-def calculate_scenario_B1_stop(d_roms,pl,slb,days):
+
+def make_df_sum(s):
     path= r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat" 
-    df = pd.read_csv(path,delimiter = '\t' )
-    df4 = df[df.radius == 4].reset_index()
-    df3 = df[df.radius == 3].reset_index()    
-    df2 = df[df.radius == 2].reset_index()      
-    df1 = df[df.radius == 1].reset_index()  
-
-    df_sum = df4.loc[:,['depth','rad_evol','met_cont','met_flow','vbub']]
-
-    for col in df_sum.columns[1:] :
-        df_sum[col] = df4[col].add(df3[col]).add(
-             df2[col]).add(df1[col],fill_value= 0)   
+    df = pd.read_csv(path,delimiter = '\t' )    
+    sizes,fraction = s
+    print(sizes)
+    df1 = df[df.radius == sizes[0]].reset_index()
+    df_sum = df1.loc[:,['depth','rad_evol','met_cont','met_flow','vbub']]
     
-    for d in (df1,df2,df3,df4,df_sum):           
-        d.met_cont = d.met_cont*1000 # milliM
-        d.met_flow = d.met_flow*1000  # milliM/sec
-            
-    # Calculate means,fluxes etc.
-    s_flow_mean = np.around(df_sum.met_flow.mean(),decimals = 2)         
-    ma = np.around(df_sum.met_cont.max(),decimals = 2)
-    mi = np.around(df_sum.met_cont.min(),decimals = 2)
-    to_atm  = np.around(ma - mi,decimals = 2)      
-    perc = np.around((to_atm*100)/ma,decimals = 2) 
-    print (ma,mi)
-    print ('Mean sum flow from the seep',s_flow_mean)
-    print ('To atmosphere ', to_atm)
-    print ('Percentage of dissolved CH4 ', perc) 
-
-    ## Interpolate to roms depths and 365 days
-    new_depth =  d_roms
-    #days = np.arange(1,367)
-    f_flow  = interpolate.interp1d(df_sum.depth,
-                                   df_sum.met_flow,
-                                   fill_value = 'extrapolate',
-                                   kind='nearest')  
-    f_cont  = interpolate.interp1d(df_sum.depth,
-                                   df_sum.met_cont,
-                                   fill_value = 'extrapolate',
-                                   kind='nearest') 
-    int_flow = f_flow(new_depth)
-    int_cont = f_cont(new_depth)
-    
-    smoothed_flow = lowess(new_depth,int_flow,frac=1,is_sorted = False)[:,0]   
-    # Reverse array, since in roms axis direction is up    
-    cont = np.flip(smoothed_flow,0)
-    smoothed_flow = np.flip(smoothed_flow,0)        
-    df_flow = pd.DataFrame(index = smoothed_flow,columns = days)
-    df_cont = pd.DataFrame(index = cont,columns = days)
-    if pl == True: 
-        plot_scenario(df4,df3,df2,df1,df_sum,smoothed_flow,new_depth,int_cont)        
-        
-    for n in days:
-        df_flow[n] = slb     
-        df_cont[n] = np.nan
-    for n in np.arange(1,150):
-        df_flow[n] = smoothed_flow      
-        df_cont[n] = cont
-    return df_flow.T, df_cont.T
+    for n,num in enumerate(sizes):          
+        df2 = df[df.radius == n].reset_index()      
+        for col in df_sum.columns[1:] :
+            df_sum[col] = df_sum[col].add(df2[col],fill_value= 0)   
+              
+    df_sum.met_cont = df_sum.met_cont*1000 # milliM
+    df_sum.met_flow = df_sum.met_flow*1000  # milliM/sec    
+    return df_sum
 
 
-
-
-def calculate_scenario_B1_50(d_roms,pl,slb,days):
-    ## Sampe seep as B1 but working 50% of time 
-    path= r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat" 
-    df = pd.read_csv(path,delimiter = '\t' )
-    df4 = df[df.radius == 4].reset_index()
-    df3 = df[df.radius == 3].reset_index()    
-    df2 = df[df.radius == 2].reset_index()      
-    df1 = df[df.radius == 1].reset_index()  
-
-    df_sum = df4.loc[:,['depth','rad_evol','met_cont','met_flow','vbub']]
-
-    for col in df_sum.columns[1:] :
-        df_sum[col] = df4[col].add(df3[col]).add(
-             df2[col]).add(df1[col],fill_value= 0)   
-    
-    for d in (df1,df2,df3,df4,df_sum):           
-        d.met_cont = d.met_cont*1000 # milliM
-        d.met_flow = d.met_flow*1000  # milliM/sec
-            
+def calculate_scenarios(d_roms,pl,slb,days,sc):
+    # get sum flux for the scenario
+    # bubble sizes, fraction 3 is 1/3 
+    scenario_dict = {'B0_30':[[4,2,1],3],
+                     'B2_30':[[2,1],3],
+                     'B0_50':[[4,2,1],2],
+                     'B1_30':[[4,3,2,1],3],
+                     'B1_50':[[4,3,2,1],2],
+                     'B1':[[4,3,2,1],1]}
+    df_sum = make_df_sum(scenario_dict[sc]) 
+    frac = scenario_dict[sc][1]       
     # Calculate means,fluxes etc.
     s_flow_mean = np.around(df_sum.met_flow.mean(),decimals = 2)         
     ma = np.around(df_sum.met_cont.max(),decimals = 2)
     mi = np.around(df_sum.met_cont.min(),decimals = 2)
     to_atm  = np.around(ma - mi,decimals = 2)      
     perc = np.around(mi*100/ma,decimals = 2) 
-    
-    print ('Mean sum flow from the seep',s_flow_mean)
-    print ('To atmosphere ', to_atm)
-    print ('Percentage of dissolved CH4 ', perc) 
-
+    perc1 = np.around(100-perc,decimals = 2)
+    print ('Mean sum flow from the seep {}'.format(sc),s_flow_mean)
+    print ('To atmosphere  {} '.format(sc), to_atm)
+    print ('Percentage of dissolved CH4 {}'.format(sc), perc) 
+    print ('Percentage of flux CH4 to atm {}'.format(sc), perc1) 
     ## Interpolate to roms depths and 365 days
     new_depth =  d_roms
-    #days = np.arange(1,367)
+
     f_flow  = interpolate.interp1d(df_sum.depth,
                                    df_sum.met_flow,
                                    fill_value = 'extrapolate',
@@ -379,163 +270,44 @@ def calculate_scenario_B1_50(d_roms,pl,slb,days):
     smoothed_flow = np.flip(smoothed_flow,0)        
     df_flow = pd.DataFrame(index = smoothed_flow,columns = days)
     df_cont = pd.DataFrame(index = cont,columns = days)
-    if pl == True: 
-        df_list = [df4,df3,df2,df1]
-        plot_scenario(df_list,df_sum,smoothed_flow,new_depth,int_cont,'Scenario B1 50%')        
     
+    '''plt.plot(int_flow,new_depth,'--')
+    plt.plot(smoothed_flow,new_depth)
+    plt.ylim(80,0)
+    plt.show()  '''   
+    if frac ==1 :
+        for n in days:
+            df_flow[n] = smoothed_flow      
+            df_cont[n] = cont        
+    else:           
+        for n in days:
+            df_flow[n] = slb #smoothed_flow      
+            df_cont[n] = np.nan #cont
         
-    for n in days:
-        df_flow[n] = slb #smoothed_flow      
-        df_cont[n] = np.nan #cont
-
-    import random
-    lst = range(1,366)
-    n = int(366/2)
-    rand = random.sample(lst,n)
-
-    for n in rand:
-        df_flow[n] = smoothed_flow      
-        df_cont[n] = cont
-                
-    return df_flow.T, df_cont.T
-#init_conditions() 
-
-def calculate_scenario_B2(d_roms,pl,days):
-    path= r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat" 
-    df = pd.read_csv(path,delimiter = '\t' )
+        import random
+        lst = range(1,366)
+        n = int(365/frac)
+        rand = random.sample(lst,n)
     
-    #df3 = df[df.radius == 3].reset_index()    
-    df2 = df[df.radius == 2].reset_index()          
-    df1 = df[df.radius == 1].reset_index()  
-    
-    df_sum = df2.loc[:,['depth','rad_evol','met_cont','met_flow','vbub']]
-    
-    # Tree bubbles with d 1 (so we add df1 three times to df_sum) 
-    for col in df_sum.columns[1:] :
-        df_sum[col] = df2[col].add(df1[col],fill_value= 0).add(df1[col],fill_value= 0).add(df1[col],fill_value= 0)     
-    
-    for d in (df1,df2,df_sum):           
-        d.met_cont = d.met_cont*1000000 # milliM
-        d.met_flow = d.met_flow*1000000  # milliM/sec
-            
-    # Calculate means,fluxes etc.
-    s_flow_mean = np.around(df_sum.met_flow.mean(),decimals = 2)         
-    ma = np.around(df_sum.met_cont.max(),decimals = 2)
-    mi = np.around(df_sum.met_cont.min(),decimals = 2)
-    to_atm  = np.around(ma - mi,decimals = 2)      
-    perc = np.around(mi*100/ma,decimals = 2) 
-    
-    print ('Mean sum flow from the seep',s_flow_mean)
-    print ('To atmosphere ', to_atm)
-    print ('Percentage of dissolved CH4 ', perc) 
-
-    ## Interpolate to roms depths and 365 days
-    new_depth =  d_roms
-    #days = np.arange(1,367)
-    f_flow  = interpolate.interp1d(df_sum.depth,
-                                   df_sum.met_flow,
-                                   fill_value = 'extrapolate',
-                                   kind='nearest')  
-    f_cont  = interpolate.interp1d(df_sum.depth,
-                                   df_sum.met_cont,
-                                   fill_value = 'extrapolate',
-                                   kind='nearest') 
-    int_flow = f_flow(new_depth)
-    int_cont = f_cont(new_depth)
-    
-    smoothed_flow = lowess(new_depth,int_flow,frac=1,is_sorted = False)[:,0]   
-    # Reverse array, since in roms axis direction is up    
-    cont = np.flip(smoothed_flow,0)
-    smoothed_flow = np.flip(smoothed_flow,0)        
-    df_flow = pd.DataFrame(index = smoothed_flow,columns = days)
-    df_cont = pd.DataFrame(index = cont,columns = days)
-    if pl == True: 
-        df_list =  [df2,df1]
-        plot_scenario(df_list,df_sum,smoothed_flow,new_depth,int_cont,'Scenario B2')        
-        
-    for n in days:
-        df_flow[n] = smoothed_flow      
-        df_cont[n] = cont
+        for n in rand:
+            df_flow[n] = smoothed_flow      
+            df_cont[n] = cont
 
     return df_flow.T, df_cont.T
 
-def calculate_scenario_B_10min(d_roms,pl):
-    '''mu, sigma = 4, 0.5 # mean and standard deviation
-    sizes =    sorted(np.round(np.random.normal(mu, sigma, 2160),decimals = 2))     
-    print (sizes)
-    plt.hist(sizes)'''
-    #count, bins, ignored = plt.hist(sizes, 30, normed=True)
-    #plt.plot(bins, 1/(sigma * np.sqrt(2 * np.pi)) *
-    #            np.exp( - (bins - mu)**2 / (2 * sigma**2) ),
-    #      linewidth=2, color='r')
-    plt.show()
 
-    path= r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat" 
-    df = pd.read_csv(path,delimiter = '\t' )
-    
-    #df3 = df[df.radius == 3].reset_index()    
-    df2 = df[df.radius == 2].reset_index()          
-    df1 = df[df.radius == 1].reset_index()  
-    df_all = pd.merge(df1,df2,on=['depth','time'],suffixes = ['_1mm','_2mm'])
-    print (df_all.head())
-    df_sum = df2.loc[:,['depth','rad_evol','met_cont','met_flow','vbub']]
-    
-    # Tree bubbles with d 1 (so we add df1 three times to df_sum) 
-    for col in df_sum.columns[1:] :
-        df_sum[col] = df2[col].add(df1[col],fill_value= 0).add(df1[col],fill_value= 0).add(df1[col],fill_value= 0)     
-    
-    for d in (df1,df2,df_sum):           
-        d.met_cont = d.met_cont*1000000 # milliM
-        d.met_flow = d.met_flow*1000000  # milliM/sec
-            
-    # Calculate means,fluxes etc.
-    s_flow_mean = np.around(df_sum.met_flow.mean(),decimals = 2)         
-    ma = np.around(df_sum.met_cont.max(),decimals = 2)
-    mi = np.around(df_sum.met_cont.min(),decimals = 2)
-    to_atm  = np.around(ma - mi,decimals = 2)      
-    perc = np.around(mi*100/ma,decimals = 2) 
-    
-    print ('Mean sum flow from the seep',s_flow_mean)
-    print ('To atmosphere ', to_atm)
-    print ('Percentage of dissolved CH4 ', perc) 
-
-    ## Interpolate to roms depths and 365 days
-    new_depth =  d_roms
-    days = np.arange(1,367)
-    f_flow  = interpolate.interp1d(df_sum.depth,
-                                   df_sum.met_flow,
-                                   fill_value = 'extrapolate',
-                                   kind='nearest')  
-    f_cont  = interpolate.interp1d(df_sum.depth,
-                                   df_sum.met_cont,
-                                   fill_value = 'extrapolate',
-                                   kind='nearest') 
-    int_flow = f_flow(new_depth)
-    int_cont = f_cont(new_depth)
-    
-    smoothed_flow = lowess(new_depth,int_flow,frac=1,is_sorted = False)[:,0]   
-    # Reverse array, since in roms axis direction is up    
-    cont = np.flip(smoothed_flow,0)
-    smoothed_flow = np.flip(smoothed_flow,0)        
-    df_flow = pd.DataFrame(index = smoothed_flow,columns = days)
-    df_cont = pd.DataFrame(index = cont,columns = days)
-    if pl == True: 
-        df_list =  [df2,df1]
-        plot_scenario(df_list,df_sum,smoothed_flow,new_depth,int_cont,'Scenario B2')        
-        
-    for n in days:
-        df_flow[n] = smoothed_flow      
-        df_cont[n] = cont
-
-    return df_flow.T, df_cont.T 
 
 
 if __name__ == '__main__':     
-    ds = xr.open_dataset(r"C:\Users\elp\OneDrive\Python_workspace\arctic2030\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc")          
-    roms_levels = ds.depth.values 
+    pass
+    #ds = xr.open_dataset(r"C:\Users\elp\OneDrive\Python_workspace\arctic2030\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc")          
+    #roms_levels = ds.depth.values 
+    #days = np.arange(1,366)
+    #slb_year = calculate_baseline(roms_levels,days)
+    #df_flow = calculate_scenarios(roms_levels,True,slb_year,days,'B0_30')[0]
 
     #calculate_scenario_B1_50(roms_levels,True,solubility)
-    calculate_baseline(ds,roms_levels)
+    #calculate_baseline(ds,roms_levels)
     #calculate_scenario_B2(roms_levels,True)
     #calculate_scenario_B_10min(roms_levels,True)
     

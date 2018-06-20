@@ -24,10 +24,10 @@ def thresh_lower(conc,coef):
     thresh = 0.5 - 0.5*np.tanh(conc-coef) 
     return thresh
 
-r_no3 = 1.- 0.5*(1.+np.tanh(conc_no3-s_omso_no3))
+r_no3 = thresh_lower(conc_no3,s_omso_no3)
 r_o2 = thresh_lower(conc_o2,s_omso_o2)
 r_anti_o2 = thresh_higher(conc_o2,s_omso_o2)
-r_so4 = 1.- 0.5*(1.+np.tanh(conc_so4-s_omch_so4))
+#r_so4 = 1.- 0.5*(1.+np.tanh(conc_so4-s_omch_so4))
 #ax.text(6,0.5,'1.- 0.5*(1.+np.tanh(conc_no3-s_omso_no3))')
 #r_om = (r_no3+r_o2+r_so4)*DON*k_don_ch4
 fig = plt.figure(figsize = (4,5)) 

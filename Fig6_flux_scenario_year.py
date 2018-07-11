@@ -3,7 +3,7 @@ import netCDF4
 import xarray as xr
 
 
-def plot_flux_scenario(sc_name):
+def plot_flux_scenario(sc_name,save = False):
     
     fig, axes = plt.subplots(nrows = 2,figsize = (6,4))
     ds = xr.open_dataset('Data\Laptev_average_year_2year.nc')
@@ -25,10 +25,13 @@ def plot_flux_scenario(sc_name):
     axes[0].set_ylim(10,0)
     axes[1].set_ylim(80,10)
     
-    plt.show()
+    if save == True:
+        plt.savefig('Data/fluxes_experiment_{}.png'.format(sc_name),
+                    transparent = False)
+    else:    
+        plt.show()
 
-#plt.savefig('Data/fluxes_experiment.png',transparent = True)
 
 if __name__ == '__main__':
     #plot_flux_scenario('B2_10f')
-    plot_flux_scenario('B2_30f')
+    plot_flux_scenario('B2_10f',save = True)

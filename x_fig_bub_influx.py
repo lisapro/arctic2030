@@ -7,7 +7,7 @@ from scipy import interpolate
 import xarray as xr
 from statsmodels.nonparametric.smoothers_lowess import lowess
 import statsmodels
-import methane_equilibrium as me 
+import S1_methane_equilibrium  as me 
 
 def slblt():
     ds = xr.open_dataset(r"C:\Users\elp\OneDrive\Python_workspace\arctic2030\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc")          
@@ -105,56 +105,6 @@ def plt_flux():   #Figure for 2 bubble/sec scenario
     
 # Function to plot met_con, met_flow and diameter evolution
 # for 1 bubble, depending on initial radius   
-def plt_flux_1bub(rad):    
-    plt.style.use('ggplot')
-    path = r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat"
-    df = pd.read_csv(path,delimiter = '\t' )
-    df2 = df[df.radius == rad].reset_index()
-
-    df2.met_cont = df2.met_cont*1000  
-    df2.met_flow = df2.met_flow*1000000   # to microM/second 
-    
-    fig = plt.figure(figsize =(6,4), dpi=100)
-    gs = gridspec.GridSpec(1,3)
-    gs.update(top = 0.8)
-    ax = plt.subplot(gs[0])
-    ax1 = plt.subplot(gs[1])
-    ax2 = plt.subplot(gs[2])
-    ax1.set_yticklabels([])
-    ax2.set_yticklabels([])
-    ax.set_title('CH$_4$ dissolution \n$\mu M \cdot sec ^{-1}$')
-    ax.plot(df2.met_flow,df2.depth,'--',label = 'r = {}'.format(2))
-    
-    s_flow_mean = np.around(df2.met_flow.mean(),decimals = 2)   
-     
-    #ax.text(0.3,0.9,'mean ={}'.format(s_flow_mean),transform=ax.transAxes)
-    #ax1.text(0.15,0.9,'To atm = {}\nDissolved={}%'.format(
-    #          to_atm,perc),transform=ax1.transAxes)     
-    
-    ma = np.around(df2.met_cont.max(),decimals = 4)
-    mi = np.around(df2.met_cont.min(),decimals = 4)    
-    to_atm  = np.around(ma - mi,decimals = 4)      
-    perc = np.around(mi*100/ma,decimals = 4)  
-    print (ma,mi,to_atm,perc)
-       
-    ax1.set_title('CH$_4$ in bubbles \n$mM$')    
-    ax1.plot(df2.met_cont,df2.depth )  
-     
-    f  = interpolate.interp1d(df2.depth,df2.rad_evol)
-
-    new_depth = np.arange(1.05,78,4)
-    radii = f(new_depth) 
-    s_rad = (radii/max(radii))*100 
-
-    ax2.set_title('Bubble radius \n$mm$')
-    ax2.plot(df2.rad_evol,df2.depth,'-',alpha = 0.1 )  
-    ax2.scatter(radii,new_depth,s = s_rad,alpha = 0.7)
-   
-    for axis in (ax,ax1,ax2):
-        axis.set_ylim(80,0)
-    plt.savefig('Data/bubbles_r_{}.png'.format(rad),transparent = False) 
-    plt.clf()   
-    #plt.show()    
 
     
 #radius(mm) bubble volume(cm^3) methane contnent in bubble (mol) 
@@ -227,6 +177,7 @@ def calculate_baseline(d_roms,days):
         df_slb[n] = slb     
     return df_slb.T
 
+r'''
 def make_df_sum(s,scen):
     path= r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat" 
     df = pd.read_csv(path,delimiter = '\t' )    
@@ -243,8 +194,9 @@ def make_df_sum(s,scen):
     df_sum.met_flow = df_sum.met_flow*1000  # milliM/m2/sec  
     if scen == 'B2_10_30min':
           df_sum.met_flow = df_sum.met_flow*(30/24*60)
-    return df_sum
+    return df_sum'''
 
+'''
 def calculate_scenarios(d_roms,pl,slb,days,sc):
     # get sum flux for the scenario
     # bubble sizes, fraction 3 is 1/3 
@@ -322,7 +274,7 @@ def calculate_scenarios(d_roms,pl,slb,days,sc):
                 df_flow[n] = smoothed_flow      
                 df_cont[n] = cont    
 
-    return df_flow.T, df_cont.T
+    return df_flow.T, df_cont.T'''
 
 if __name__ == '__main__':     
     pass
@@ -340,5 +292,4 @@ if __name__ == '__main__':
     #plot_scenario_B1() 
     #read_all_files()
     ##plot_scenario_B1(roms_levels) 
-    plt_flux_1bub(4)
-    plt_flux_1bub(3)
+    

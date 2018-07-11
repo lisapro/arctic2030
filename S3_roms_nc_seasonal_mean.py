@@ -18,7 +18,7 @@ from scipy.interpolate import griddata
 import pandas as pd 
 import os, time
 from statsmodels.nonparametric.smoothers_lowess import lowess
-import fig_bub_influx 
+import x_fig_bub_influx as fig_bub_influx 
     
 def get_averaged_value(var):
     ds = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
@@ -433,33 +433,34 @@ def make_nc_2_year():
     v_Si[:] = get_averaged_value_2_year('Si')        
  
     days_1 = np.arange(1,367)
+    import S5_Calculate_scenarios as scen 
     
-    flux_B1,cont_B1 = fig_bub_influx.calculate_scenarios(depth,False,slb,days_1,'B1')
+    flux_B1,cont_B1 = scen.calculate_scenarios(depth,False,slb,days_1,'B1')
     flux_B1 = (pd.concat([flux_B1,flux_B1],axis = 0)).iloc[:731,:]
     cont_B1 = pd.concat([cont_B1,cont_B1],axis = 0).iloc[:731,:]
     
-    flux_B0_30,cont_B0_30 = fig_bub_influx.calculate_scenarios(depth,False,slb,days_1,'B0_30')
+    flux_B0_30,cont_B0_30 = scen.calculate_scenarios(depth,False,slb,days_1,'B0_30')
     flux_B0_30 = pd.concat([flux_B0_30,flux_B0_30],axis = 0).iloc[:731,:]
     cont_B0_30 = pd.concat([cont_B0_30,cont_B0_30],axis = 0).iloc[:731,:]
 
-    flux_B1_50,cont_B1_50 = fig_bub_influx.calculate_scenarios(depth,False,slb,days_1,'B1_50')
+    flux_B1_50,cont_B1_50 = scen.calculate_scenarios(depth,False,slb,days_1,'B1_50')
     slb_year = fig_bub_influx.calculate_baseline(depth,days_1)/10
     slb_year = pd.concat([slb_year,slb_year],axis = 0).iloc[:731,:]
     flux_B1_50 = pd.concat([flux_B1_50,flux_B1_50],axis = 0).iloc[:731,:]
     cont_B1_50 = pd.concat([cont_B1_50,cont_B1_50],axis = 0).iloc[:731,:]
 
-    flux_B1_30,cont_B1_30 = fig_bub_influx.calculate_scenarios(depth,False,slb,days_1,'B1_30')
+    flux_B1_30,cont_B1_30 = scen.calculate_scenarios(depth,False,slb,days_1,'B1_30')
     flux_B1_30 = pd.concat([flux_B1_30,flux_B1_30],axis = 0).iloc[:731,:]
     cont_B1_30 = pd.concat([cont_B1_30,cont_B1_30],axis = 0).iloc[:731,:]
 
-    flux_B2_30,cont_B2_30 = fig_bub_influx.calculate_scenarios(depth,False,slb,days_1,'B2_30')
+    flux_B2_30,cont_B2_30 = scen.calculate_scenarios(depth,False,slb,days_1,'B2_30')
     flux_B2_30 = pd.concat([flux_B2_30,flux_B2_30],axis = 0).iloc[:731,:]
     cont_B2_30 = pd.concat([cont_B2_30,cont_B2_30],axis = 0).iloc[:731,:]
     
-    flux_B2_10,cont_B1_10 = fig_bub_influx.calculate_scenarios(depth,False,slb,days_1,'B2_10')
+    flux_B2_10,cont_B1_10 = scen.calculate_scenarios(depth,False,slb,days_1,'B2_10')
     flux_B2_10 = pd.concat([flux_B2_10,flux_B2_10],axis = 0).iloc[:731,:]
     
-    flux_B2_10_30min,cont_B1_10_30min = fig_bub_influx.calculate_scenarios(depth,False,slb,days_1,'B2_10_30min')
+    flux_B2_10_30min,cont_B1_10_30min = scen.calculate_scenarios(depth,False,slb,days_1,'B2_10_30min')
     flux_B2_10_30min = pd.concat([flux_B2_10_30min,flux_B2_10_30min],axis = 0).iloc[:731,:]    
     #cont_B2_30 = pd.concat([cont_B2_30,cont_B2_30],axis = 0).iloc[:731,:]
  
@@ -572,9 +573,9 @@ def plot_roms_average_year(var,title,cmap = 'gist',vmax = None,vmin = None) :
 if __name__ == '__main__':
     #get_averaged_value('o2')
     #make_nc()
-    #make_nc_2_year()
-    '''plot_roms_average_year('temp','Temperature C','RdBu_r',3,-3) #'coolwarm')   
-    plot_roms_average_year('po4','PO$_4\ \mu M$','viridis',0.8,0)
+    make_nc_2_year()
+    #plot_roms_average_year('temp','Temperature C','RdBu_r',3,-3) #'coolwarm')   
+    '''plot_roms_average_year('po4','PO$_4\ \mu M$','viridis',0.8,0)
     plot_roms_average_year('Si','Si $ \mu M$','viridis',15,2)'''
     #plot_roms_average_year('no3','NO$_3\ \mu M$','viridis',8,0)
     ##plot_roms_average_year('o2','O$_2\ \mu M$','viridis',400,300)

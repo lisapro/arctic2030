@@ -17,18 +17,24 @@ COMPOSITION OF GASES
 # подсчет начального кол-ва вещества (моль) на основании имеющихся радиусов (см) 
 # с использованием уравнения Менделеева-Клайперона (PV = nRT)
 
-def vol_mol_bub(r):
-    Pres = 1 #7.5 # давление газа, атм ! что мы тут задаем????! давление газа как? или давление пузырька? или окружающей среды??
-    Temp = 274.15 # температура, °К, сейчас здесь: 1°С (берем температуру придонной воды?)
-    Rgas = 82.0575 # универсальная газовая постоянная, (atm*cm^3)/mol*°K
-    vol = (4/3*np.pi*r**3)
+def vol_mol_bub(r,t = 1):
+    Pres = 8 #7.5 #A Pressure atm
+    Temp = t + 273.15 # Temprature °К
+    Rgas = 82.0575 # Gas constant cm3 atm K−1 mol−1 
+    r = r/10 # to cm
+    vol = (4/3*np.pi*r**3) # Volume of bubble cм^3
+    
     # объем газа в пузыре, cм^3 на основании данных о радиусе
     # *1e-09 # volume in mm^3 to volume in meters^3
     # *1e-03 # volume in mm^3 to volume in cm^3
     # не домножать ни на что в выражении return функции vol_bub - получим мм^3
+    #pv = nrT
+    #n = pv / rT
     gas_mol=(Pres*vol)/(Rgas*Temp) #содержание газа в пузырьке, моли
-    return (r,vol,gas_mol*3.6*1000) # если так: ([r,vol,mol]) - вернет tuple
+    
+    return (r,vol,gas_mol*1000*3.6) # если так: ([r,vol,mol]) - вернет tuple
 
+print ('test1',vol_mol_bub(4,t = 1)) 
 
 def calculate_flux(r,n_bub):
     vol = (4./3.)*np.pi*r**3.*1e-06 #Liter  radius in mm liter   to liter **1e-06
@@ -42,7 +48,9 @@ def calculate_nbub(r,flux):
     n_bub = flux*22.4/vol
     return (np.around(n_bub,decimals=2))
 
-print ('ttt',vol_mol_bub(0.4)) 
+#print ('ttt',vol_mol_bub(0.4)) 
+
+
 #print (vol_mol_bub(4))
 n_bub_init = 3.6 #bub
 rad = 2 #mm

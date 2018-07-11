@@ -66,18 +66,12 @@ xi = itemindex[1]
 # Read the data from needed station 
 # 2D
 temp = np.array(f.variables['temp'][:,:,eta,xi])
-#temp = temp[:,:,0,0]
 sal = np.array(f.variables['salt'][:,:,eta,xi])
-#sal = sal[:,:,0,0]
 kz = np.array(f.variables['AKs'][:,:,eta,xi]) 
-#kz = kz[:,:,0,0]
 rho = np.array(f.variables['rho'][:,:,eta,xi]) 
-#rho = rho[:,:,0,0]
 DIC = np.array(f.variables['O3_c'][:,:,eta,xi])
-#DIC = DIC[:,:,0,0] #time-averaged carbonate/total dissolved inorganic carbon""
-
 o2 = np.array(f.variables['O2_o'][:,:,eta,xi])
-#o2 = o2[:,:,0,0] 
+
 Alk = np.array(f.variables['O3_TA'][:,:,eta,xi])
 po4 = np.array(f.variables['N1_p'][:,:,eta,xi])
 no3 = np.array(f.variables['N3_n'][:,:,eta,xi]) 
@@ -120,8 +114,6 @@ tisrf = tisrf[:,0,0] #time-averaged temperature of ice surface"
 ntime = np.array(f.variables['ocean_time'][:])
 sigma = np.array(f.variables['s_rho'][:])
 
-
-
 # Read the variables needed to recalculate 
 # depth from sigma values  to meters
 
@@ -136,13 +128,9 @@ Nlevels = 40
 
 f.close()
   
-
-
-
 # this part of the script is taken from 
 # Model2roms  Python toolbox     
 # https://github.com/trondkr/model2roms
-
 class s_coordinate(object):
     """
     Song and Haidvogel (1994) vertical coordinate transformation (Vtransform=1) and
@@ -391,7 +379,8 @@ class z_w(object):
 
         return np.squeeze(z_w[res_index])    
 
-vgrid = s_coordinate_4(h, theta_b, theta_s, Tcline, Nlevels, vtransform, vstretching, zeta=None)
+vgrid = s_coordinate_4(h, theta_b, theta_s, Tcline, Nlevels, 
+                       vtransform, vstretching, zeta=None)
 depth =  - vgrid.z_r[0,:] #(axis from bottom to surface)
 depth2 =  - vgrid.z_w[0,:] # interfaces depths
 
@@ -411,7 +400,6 @@ else:
     f1 = Dataset('{}\ROMS_Laptev_Sea_{}_east_var2.nc'.format(
         dir_to_save,nc_format), mode='w', format= nc_format)
 
-#f1 = Dataset('ROMS_Laptev_Sea_{}_east.nc'.format(nc_format), mode='w', format= nc_format)
 f1.description=" lat=%3.2f,lon=%3.2f file from ROMS data,the closest to station (lat=%3.2f,lon=%3.2f)"%(
                  latitude[eta, xi],longitude[eta, xi],st_lat,st_lon)
 f1.source = 'Elizaveta Protsenko (elp@niva.no)'
@@ -516,7 +504,6 @@ v_no3.long_name = 'time-averaged nitrate/nitrogen'
 v_no3.units = 'mmol N/m^3'
 v_no3[:] = no3
 
-
 v_nh4 = f1.createVariable('nh4', 'f8', ('time','depth'), zlib=False)
 v_nh4.long_name = 'time-averaged ammonium/nitrogen'
 v_nh4.units = 'mmol N/m^3'
@@ -526,7 +513,6 @@ v_Si = f1.createVariable('Si', 'f8', ('time','depth'), zlib=False)
 v_Si.long_name = 'time-averaged silicate/silicate'
 v_Si.units = 'mmol Si/m^3'
 v_Si[:] = Si
-
 
 #mesozooplankton
 v_Z4_c = f1.createVariable('Z4_c', 'f8', ('time','depth'), zlib=False)
@@ -566,7 +552,6 @@ v_Z6_p.long_name = 'time-averaged nanoflagellates/phosphorus'
 v_Z6_p.units = 'mmol P/m^3'
 v_Z6_p[:] = Z6_p
 
-
 v_swrad = f1.createVariable('swrad', 'f8', ('time'), zlib=False)
 v_swrad.long_name = 'time-averaged solar shortwave radiation flux'
 v_swrad.units = 'watt meter-2'
@@ -578,7 +563,6 @@ v_swradWm2 = f1.createVariable('swradWm2', 'f8', ('time'), zlib=False)
 v_swradWm2.long_name = 'time-averaged solar shortwave radiation flux (under ice)'
 v_swradWm2.units = 'watt meter-2'
 v_swradWm2[:] = swradWm2
-
 
 f1.close()
 

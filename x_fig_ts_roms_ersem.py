@@ -17,12 +17,12 @@ from matplotlib import gridspec
 import xarray as xr
 
 
-dss = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
-print ( dss.loc['temp','sal'])
+#dss = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
+#print ( dss.loc['temp','sal'])
 #ds = dss[]
 #dss['o2'].plot(ax=ax, x = 'time',y = 'depth')
 
-'''
+
 nc_format = 'NETCDF3_CLASSIC' 
 f = Dataset('Data\ROMS_Laptev_Sea_{}_east_each_day.nc'.format(nc_format)) 
 
@@ -91,12 +91,12 @@ for axis in (ax1,ax2,ax3):
 plt.colorbar(cs1,ax= ax1)    
 plt.colorbar(cs2,ax= ax2)   
 plt.colorbar(cs3,ax= ax3) 
-plt.colorbar(cs3,ax= ax4,ticks = [])'''
+plt.colorbar(cs3,ax= ax4,ticks = [])
 
 
 
 
-'''
+
 ax1.set_xticks(rng2)
 ax1.vlines(rng,80,0,linestyle = '--', lw = 0.5)
 ax1.set_xlim(start,end)
@@ -110,7 +110,7 @@ ax2.set_ylim(80,0)
 ax3.set_xticks(rng2)
 ax3.vlines(rng,80,0,linestyle = '--', lw = 0.5)
 ax3.set_xlim(start,end)
-ax3.set_ylim(80,0)'''
+ax3.set_ylim(80,0)
 
 #ax2.pcolormesh(ocean_time,depth,temp.T) #,    
 #               vmin=0, vmax=0.1) #, alpha = 0.9, label = 'interp')    

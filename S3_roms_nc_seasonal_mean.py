@@ -18,7 +18,7 @@ from scipy.interpolate import griddata
 import pandas as pd 
 import os, time
 from statsmodels.nonparametric.smoothers_lowess import lowess
-
+import fig_bub_influx 
     
 def get_averaged_value(var):
     ds = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
@@ -85,7 +85,7 @@ def get_averaged_value_1d_2_year(var):
         smoothed_arr_c = []
         for n in smoothed_arr:
             if n < 0.5: 
-                n = n - 0.1
+                n = n - 0.15
             if n < 0:
                 n = 0    
             smoothed_arr_c.append(n)   
@@ -93,10 +93,11 @@ def get_averaged_value_1d_2_year(var):
         
     smoothed_arr2 = np.append(smoothed_arr,smoothed_arr) 
     smoothed_arr2 = smoothed_arr2[:731]
-
+    #plt.plot(smoothed_arr)
+    #plt.show()
     return smoothed_arr2,arr2
 
-
+#get_averaged_value_1d_2_year('hice')
 
 def get_dimensions():
     ds = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
@@ -442,7 +443,7 @@ def make_nc_2_year():
     cont_B0_30 = pd.concat([cont_B0_30,cont_B0_30],axis = 0).iloc[:731,:]
 
     flux_B1_50,cont_B1_50 = fig_bub_influx.calculate_scenarios(depth,False,slb,days_1,'B1_50')
-    slb_year = fig_bub_influx.calculate_baseline(depth,days_1)
+    slb_year = fig_bub_influx.calculate_baseline(depth,days_1)/10
     slb_year = pd.concat([slb_year,slb_year],axis = 0).iloc[:731,:]
     flux_B1_50 = pd.concat([flux_B1_50,flux_B1_50],axis = 0).iloc[:731,:]
     cont_B1_50 = pd.concat([cont_B1_50,cont_B1_50],axis = 0).iloc[:731,:]
@@ -454,7 +455,13 @@ def make_nc_2_year():
     flux_B2_30,cont_B2_30 = fig_bub_influx.calculate_scenarios(depth,False,slb,days_1,'B2_30')
     flux_B2_30 = pd.concat([flux_B2_30,flux_B2_30],axis = 0).iloc[:731,:]
     cont_B2_30 = pd.concat([cont_B2_30,cont_B2_30],axis = 0).iloc[:731,:]
-
+    
+    flux_B2_10,cont_B1_10 = fig_bub_influx.calculate_scenarios(depth,False,slb,days_1,'B2_10')
+    flux_B2_10 = pd.concat([flux_B2_10,flux_B2_10],axis = 0).iloc[:731,:]
+    
+    flux_B2_10_30min,cont_B1_10_30min = fig_bub_influx.calculate_scenarios(depth,False,slb,days_1,'B2_10_30min')
+    flux_B2_10_30min = pd.concat([flux_B2_10_30min,flux_B2_10_30min],axis = 0).iloc[:731,:]    
+    #cont_B2_30 = pd.concat([cont_B2_30,cont_B2_30],axis = 0).iloc[:731,:]
  
     v_B1 = f1.createVariable('B1f', 'f8', ('time','depth'), zlib=False)
     v_B1.long_name = 'Methane inflow scenario B1'
@@ -501,9 +508,16 @@ def make_nc_2_year():
     v_B2_30.units = 'mmol CH4/m^2 sec'
     v_B2_30[:] = flux_B2_30 
 
+    v_B2_10 = f1.createVariable('B2_10f', 'f8', ('time','depth'), zlib=False)
+    v_B2_10.long_name = 'Methane inflow scenario B2_10'
+    v_B2_10.units = 'mmol CH4/m^2 sec'
+    v_B2_10[:] = flux_B2_10 
 
-
-
+    v_B2_10_30min = f1.createVariable('B2_10f_30min', 'f8', ('time','depth'), zlib=False)
+    v_B2_10_30min.long_name = 'Methane inflow scenario B2_10 30min per day'
+    v_B2_10_30min.units = 'mmol CH4/m^2 sec'
+    v_B2_10_30min[:] = flux_B2_10_30min 
+        
     v_B1_slb = f1.createVariable('Slb', 'f8', ('time','depth'), zlib=False)
     v_B1_slb.long_name = 'Methane solubility'
     v_B1_slb.units = 'mmol/l CH4 '
@@ -554,57 +568,15 @@ def plot_roms_average_year(var,title,cmap = 'gist',vmax = None,vmin = None) :
     plt.show() 
     plt.clf()
 
-def plot_average_values():
-    
-    fig  = plt.figure(figsize=(6,8), dpi=100 )
 
-    gs = gridspec.GridSpec(3, 2, width_ratios=(17, 1))
-    #gs = gridspec.GridSpec(3,1)
-    gs.update(hspace=0.25,wspace = 0.05,top = 0.95,bottom = 0.1, right = 0.9,left = 0.05) 
-    ax = fig.add_subplot(gs[0]) 
-    cbax = fig.add_subplot(gs[1])
-    ax1 = fig.add_subplot(gs[2])
-    cbax1 = fig.add_subplot(gs[3])
-    ax2 = fig.add_subplot(gs[4])
-    for axis in (ax,ax1):
-        axis.set_ylabel('depth, m')
-        axis.set_ylim(80,0)    
-    temp = get_averaged_value('temp')
-    sal = get_averaged_value('sal')
-    sm_hice, hice = get_averaged_value_1d('hice')
+if __name__ == '__main__':
+    #get_averaged_value('o2')
+    #make_nc()
+    #make_nc_2_year()
+    '''plot_roms_average_year('temp','Temperature C','RdBu_r',3,-3) #'coolwarm')   
+    plot_roms_average_year('po4','PO$_4\ \mu M$','viridis',0.8,0)
+    plot_roms_average_year('Si','Si $ \mu M$','viridis',15,2)'''
+    #plot_roms_average_year('no3','NO$_3\ \mu M$','viridis',8,0)
+    ##plot_roms_average_year('o2','O$_2\ \mu M$','viridis',400,300)
     
-    depth = temp.columns
-    time = temp.index
-    x,y = np.meshgrid(time,depth)
-    ax.set_title('Temperature, C')
-    cax0 = ax.pcolormesh(x,y,temp.T,cmap = 'RdBu_r')
-    cb = fig.colorbar(cax0, cax=cbax)
-    #fig.colorbar(cax1,ax = c)
-    ax1.set_title('Salinity, psu')
-    cax1 = ax1.pcolormesh(x,y,sal.T)
-    cb = fig.colorbar(cax1, cax=cbax1)
-     #plt.title('Mean ice thickness,m ')
-    ax2.set_title('Ice thickness, m')
-    ax2.plot(hice.index.values,hice.values,c = 'y')
-    ax2.plot(hice.index.values,sm_hice,c='k')
-    ax2.set_xlabel('Day in a year')
-    #plt.plot(arr.index.values,smoothed_arr)
-    #plt.show()
-    #plt.savefig('meanhice.png', transparent = True)
-    #ax2.plot(hice[0],hice[1])
-    #o2 = o2.drop_index()
-    #plt.show()
-    plt.savefig('Data/mean_roms_tshice.png',transparent = True)
     
-'''plot_roms_average_year('temp','Temperature C','RdBu_r',3,-3) #'coolwarm')   
-
-plot_roms_average_year('po4','PO$_4\ \mu M$','viridis',0.8,0)
-plot_roms_average_year('Si','Si $ \mu M$','viridis',15,2)'''
-#plot_roms_average_year('no3','NO$_3\ \mu M$','viridis',8,0)
-import fig_bub_influx 
-##plot_roms_average_year('o2','O$_2\ \mu M$','viridis',400,300)
-#plot_average_values()
-#get_averaged_value('o2')
-#make_nc()
-make_nc_2_year()
-#

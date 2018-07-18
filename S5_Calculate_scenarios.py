@@ -21,7 +21,7 @@ def make_df_sum(s,scen):
           df_sum.met_flow = df_sum.met_flow*(30/24*60)
     return df_sum
 
-def calculate_scenarios(d_roms,pl,slb,days,sc):
+def calculate_scenarios(d_roms,pl,days,sc): #slb,
     # get sum flux for the scenario
     # bubble sizes, fraction 3 is 1/3 
     scenario_dict = {'B0_30':[[4,2,1],0.3],

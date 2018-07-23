@@ -435,32 +435,32 @@ def make_nc_2_year():
     days_1 = np.arange(1,367)
     import S5_Calculate_scenarios as scen 
     
-    flux_B1,cont_B1 = scen.calculate_scenarios(depth,False,slb,days_1,'B1')
+    flux_B1,cont_B1 = scen.calculate_scenarios(depth,False,days_1,'B1')
     flux_B1 = (pd.concat([flux_B1,flux_B1],axis = 0)).iloc[:731,:]
     cont_B1 = pd.concat([cont_B1,cont_B1],axis = 0).iloc[:731,:]
     
-    flux_B0_30,cont_B0_30 = scen.calculate_scenarios(depth,False,slb,days_1,'B0_30')
+    flux_B0_30,cont_B0_30 = scen.calculate_scenarios(depth,False,days_1,'B0_30')
     flux_B0_30 = pd.concat([flux_B0_30,flux_B0_30],axis = 0).iloc[:731,:]
     cont_B0_30 = pd.concat([cont_B0_30,cont_B0_30],axis = 0).iloc[:731,:]
 
-    flux_B1_50,cont_B1_50 = scen.calculate_scenarios(depth,False,slb,days_1,'B1_50')
+    flux_B1_50,cont_B1_50 = scen.calculate_scenarios(depth,False,days_1,'B1_50')
     slb_year = fig_bub_influx.calculate_baseline(depth,days_1)/10
     slb_year = pd.concat([slb_year,slb_year],axis = 0).iloc[:731,:]
     flux_B1_50 = pd.concat([flux_B1_50,flux_B1_50],axis = 0).iloc[:731,:]
     cont_B1_50 = pd.concat([cont_B1_50,cont_B1_50],axis = 0).iloc[:731,:]
 
-    flux_B1_30,cont_B1_30 = scen.calculate_scenarios(depth,False,slb,days_1,'B1_30')
+    flux_B1_30,cont_B1_30 = scen.calculate_scenarios(depth,False,days_1,'B1_30')
     flux_B1_30 = pd.concat([flux_B1_30,flux_B1_30],axis = 0).iloc[:731,:]
     cont_B1_30 = pd.concat([cont_B1_30,cont_B1_30],axis = 0).iloc[:731,:]
 
-    flux_B2_30,cont_B2_30 = scen.calculate_scenarios(depth,False,slb,days_1,'B2_30')
+    flux_B2_30,cont_B2_30 = scen.calculate_scenarios(depth,False,days_1,'B2_30')
     flux_B2_30 = pd.concat([flux_B2_30,flux_B2_30],axis = 0).iloc[:731,:]
     cont_B2_30 = pd.concat([cont_B2_30,cont_B2_30],axis = 0).iloc[:731,:]
     
-    flux_B2_10,cont_B1_10 = scen.calculate_scenarios(depth,False,slb,days_1,'B2_10')
+    flux_B2_10,cont_B1_10 = scen.calculate_scenarios(depth,False,days_1,'B2_10')
     flux_B2_10 = pd.concat([flux_B2_10,flux_B2_10],axis = 0).iloc[:731,:]
     
-    flux_B2_10_30min,cont_B1_10_30min = scen.calculate_scenarios(depth,False,slb,days_1,'B2_10_30min')
+    flux_B2_10_30min,cont_B1_10_30min = scen.calculate_scenarios(depth,False,days_1,'B2_10_30min')
     flux_B2_10_30min = pd.concat([flux_B2_10_30min,flux_B2_10_30min],axis = 0).iloc[:731,:]    
     #cont_B2_30 = pd.concat([cont_B2_30,cont_B2_30],axis = 0).iloc[:731,:]
  

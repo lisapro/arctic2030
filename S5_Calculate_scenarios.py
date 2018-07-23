@@ -59,6 +59,7 @@ def calculate_scenarios(d_roms,pl,days,sc): #slb,
                                    df_sum.met_cont,
                                    fill_value = 'extrapolate',
                                    kind='nearest') 
+    print ("new depth",new_depth)
     int_flow = f_flow(new_depth)
     int_cont = f_cont(new_depth)
     

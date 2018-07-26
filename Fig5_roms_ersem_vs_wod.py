@@ -72,15 +72,38 @@ def add_roms_plot(dss,axis,varname):
     
     var_roms = funcs[varname]   
     # Filter data: only septembers after 1990
-    dss = dss.where( ((dss['time.year']  > 1990) &  (dss['time.month'] == 9)), drop=True)   
+    #dss = dss.where( ((dss['time.year']  > 1990) &  (dss['time.month'] == 9)), drop=True)   
     dss['depth'] = dss['depth'].T      
     # Take only september data from ROMS simulation 
+    #print (dss[var_roms].shape,dss.depth.shape )
     m = dss.groupby(dss.depth).mean()
-    axis.scatter(dss[var_roms],dss.depth,  c = '#de7b5c',
+    for n in range(0,len(dss.time),2):
+        #axis.scatter(dss[var_brom][n],dss.depth,  c = 'b',
+        #    alpha = 0.3, s  = 3,zorder = 10) #, label = 'Sept \nBROM')
+        axis.scatter(dss[var_roms][n],dss.depth,  c = '#de7b5c',
             alpha = 0.2, s  = 3, label = 'Sept \nROMS+ERSEM')
-    axis.plot(m[var_roms],sorted(dss.depth[0]), 'o', c = '#660033',
+    axis.plot(m[var_roms],sorted(dss.depth), 'o', c = '#660033',
             markersize  = 3, label = 'Sept mean \nROMS+ERSEM',zorder = 8 )
-
+    
+def add_brom_plot(dss,axis,varname):
+    funcs = {'Oxygen':'o2', 'Temperature': 'temp',
+             'si':'Si', #'alk': 'Alk',
+             'po4':'PO4', 'no3':'NO3'} 
+    dss['depth'] = dss['depth'].T 
+    dss = dss.where( ((dss['time.month'] == 9)), # |  (dss['time.month'] == 8) |  (dss['time.month'] == 10)), 
+                     drop=True)        
+    var_brom = funcs[varname]   
+    #print (dss.depth, dss[var_brom])
+    for n in range(0,len(dss.time),2):
+        axis.scatter(dss[var_brom][n],dss.depth,  c = '#4f542a',
+            alpha = 0.7, s  = 3,zorder = 10) #, label = 'Sept \nBROM')
+    
+         
+    # Take only september data from BROM simulation
+    m = dss.groupby(dss.depth).mean()    
+    axis.plot(m[var_brom],sorted(dss.depth), 'o', c = 'r',
+            markersize  = 3, label = 'Sept mean \nBROM',zorder = 8 )
+    
 def get_data_wod(ncfile,varname,pl,save,levels,axis,int_num = 1,
                         double_int = False,only_clima_mean = False):
     funcs = {'Oxygen':'var4', 'Temperature': 'var2',
@@ -93,8 +116,11 @@ def get_data_wod(ncfile,varname,pl,save,levels,axis,int_num = 1,
     
     # get only data from 1950 and later
     ds = ds.where(ds.date_time.dt.year > 1950, drop = True) 
-    ds = ds.where(ds.var5 < 1.2, drop=True)
-    ds = ds.where(ds.var6 < 40, drop=True)        
+    
+    # remove all stations (for all variables) 
+    # where silicates > 40 micromoles    
+    ds = ds.where(ds.var6 < 25, drop=True)      
+    ds = ds.where(ds.var5 < 2, drop=True)
        
     # group by depth and find mean for each depth 
     clima_mean = ds.groupby(ds['var1']).mean()    
@@ -151,51 +177,39 @@ def plot_data_wod(ncfile,varname,pl,save,levels,axis,int_num = 1,
      
     
 def plt_ersem_wod(save = False) :
-    dss = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_each_day.nc')
+    dss = xr.open_dataset(
+    'Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_each_day.nc')
     levels = sorted(dss.depth.values)
-    
-    fig  = plt.figure(figsize=(8,8), dpi=100 )
-    
+
+    fig  = plt.figure(figsize=(8,8), dpi=100 )  
     gs = gridspec.GridSpec(2,2)
     gs.update(hspace=0.3,top = 0.95,bottom = 0.05)
     ax = fig.add_subplot(gs[0]) 
     ax1 = fig.add_subplot(gs[1])
     ax2 = fig.add_subplot(gs[2])     
     ax3 = fig.add_subplot(gs[3])   
-      
+
     '''
     Data from World Ocean Database 
     https://www.nodc.noaa.gov/OC5/WOD/datageo.html 
     
     '''
-    ncfile = r'C:/Users/elp/OneDrive/Python_workspace/Relaxation_WOD/src/data_from_WOD_COLLECTION_Laptev.nc'   
-     
-    plot_data_wod(ncfile,'Oxygen',
-                       True, True, levels, ax,1,
-                       double_int = True,only_clima_mean = True)
-    add_roms_plot(dss,ax,'Oxygen')
-    ax.set_title(r'O$_2\ \mu M$')  
+    ncfile = (
+    r'C:/Users/elp/OneDrive/Python_workspace/Relaxation_WOD/src/data_from_WOD_COLLECTION_Laptev.nc')   
     
-    plot_data_wod(ncfile,'po4',
-                       True, True, levels,ax1,3,
-                       double_int = True,only_clima_mean =True)
-    add_roms_plot(dss,ax1,'po4')    
-    ax1.set_title(r'PO$_4\ \mu M$') 
-        
-    plot_data_wod(ncfile,'si',
-                       True, True, levels,ax2,10,
-                       double_int = True,only_clima_mean = True)
-    add_roms_plot(dss,ax2,'si')    
-    ax2.set_title(r'Si $\mu M$') 
- 
-    plot_data_wod(ncfile,'no3',
-                       True, True, levels,ax3,3,
-                       double_int = True,only_clima_mean = True)
-    add_roms_plot(dss,ax3,'no3')       
-    ax3.set_title(r'NO$_3\ \mu M$') 
-
-    for axis in (ax,ax1,ax2,ax3):
-        axis.set_ylim(90,0)
+    vars = ['Oxygen','po4','si','no3']
+    axes = [ax,ax1,ax2,ax3]
+    interps = [1,3,10,3] #levels of interpolation 
+    titles = ['O$_2','PO$_4','NO$_3','Si $']
+    for n in range(0,4):
+        add_roms_plot(dss,axes[n],vars[n])     
+        plot_data_wod(ncfile,vars[n],
+                True, True, levels, axes[n],
+                interps[n], double_int = True,
+                only_clima_mean = True)
+        axes[n].set_ylim(90,0)
+        axes[n].set_title(r'{}\ \mu M$'.format(titles[n]))     
+           
     l = ax2.legend(facecolor = 'w',framealpha = 0.5)
     l.set_zorder(20)  #put the legend on top
     
@@ -203,7 +217,73 @@ def plt_ersem_wod(save = False) :
         plt.savefig('Data/WOD_vs_ROMS.png')
     else:    
         plt.show()
+
+
+def plt_brom_ersem_wod(save = False) :
+    
+    dss = xr.open_dataset('Data\Laptev_baseline.nc')
+    #dss_roms = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_each_day.nc')
+    dss_roms = xr.open_dataset('Data\Laptev_average_year_2year.nc')    
+    #print (dss)
+    
+    levels = sorted(dss.depth.values)
+    
+    fig  = plt.figure(figsize=(7,6), dpi=100 )
+    '''
+    gs = gridspec.GridSpec(2,2)
+    gs.update(hspace=0.3,top = 0.95,bottom = 0.05)
+    ax = fig.add_subplot(gs[0]) 
+    ax1 = fig.add_subplot(gs[1])
+    ax2 = fig.add_subplot(gs[2])     
+    ax3 = fig.add_subplot(gs[3])  
+    axes = [ax,ax1,ax2,ax3]    '''   
+    
+    '''
+    Data from World Ocean Database 
+    https://www.nodc.noaa.gov/OC5/WOD/datageo.html 
+    
+    '''
+    ncfile = (
+    r'C:/Users/elp/OneDrive/Python_workspace/Relaxation_WOD/src/data_from_WOD_COLLECTION_Laptev.nc')   
+         
+    vars = ['Oxygen','po4','si','no3']
+    titles = ['O$_2','PO$_4','Si $','NO$_3']
+    
+    
+    axes = []
+    cols = 2
+    gs = gridspec.GridSpec(len(vars) // cols , cols)
+    gs.update(hspace=0.3,top = 0.95,bottom = 0.05)
+    
+
+    interps = [1,3,10,3] #levels of interpolation 
+    
+    for n in range(0,4):
+        row = (n // cols)
+        col = n % cols    
+        axes.append(fig.add_subplot(gs[row, col]))        
+        
+        add_brom_plot(dss,axes[n],vars[n])
+        #add_roms_plot(dss_roms,axes[n],vars[n])     
+        plot_data_wod(ncfile,vars[n],
+                True, True, levels, axes[n],
+                interps[n], double_int = True,
+                only_clima_mean = True)
+        axes[n].set_ylim(90,0)
+        axes[n].set_title(r'{}\ \mu M$'.format(titles[n])) 
+
+
+    #l = ax2.legend(facecolor = 'w',framealpha = 0.5)
+    #l.set_zorder(20)  #put the legend on top
+
+        
+    if save == True: 
+        plt.savefig('Data/WOD_vs_ROMS.png')
+    else:    
+        plt.show()
+  
+
     
 if __name__ == '__main__':    
-    plt_ersem_wod()   
-
+    plt_brom_ersem_wod()   
+    #plt_ersem_wod()

@@ -7,6 +7,10 @@ import S5_Calculate_scenarios as scen
 import numpy as np
 import pandas as pd
 '''
+Script to make nc file 
+for relaxation brom model scanerios 
+based on baseline run of brom model 
+
 ds = xr.open_dataset('Data\water_baseline.nc')
 depth = ds['middle_layer_depths'].values
 depth2 = ds.depth2.values 
@@ -33,7 +37,7 @@ def d2n(delta):
     return s 
 
 def make_nc_baseline():
-    f_brom = Dataset('Data\water_baseline.nc', mode='r')
+    f_brom = Dataset('Data\water.nc', mode='r')
     f_roms = Dataset('Data\Laptev_average_year_2year.nc', mode='r')
     
     z = f_brom.variables['z'][5:]
@@ -154,7 +158,7 @@ def make_nc_baseline():
     
     flux_B2_10,cont_B1_10 = scen.calculate_scenarios(z,False,days_1,'B2_10')
     flux_B2_10 = pd.concat([flux_B2_10,flux_B2_10],axis = 0).iloc[:731,:]
-    print (flux_B2_10.shape) 
+
     v_B2_10 = f1.createVariable('B2_10f', 'f8', ('time','depth'), zlib=False)
     v_B2_10.long_name = 'Methane inflow scenario B2_10'
     v_B2_10.units = 'mmol CH4/m^2 sec'

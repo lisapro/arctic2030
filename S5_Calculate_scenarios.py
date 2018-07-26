@@ -36,15 +36,15 @@ def calculate_scenarios(d_roms,pl,days,sc): #slb,
     df_sum = make_df_sum(scenario_dict[sc],sc) 
     frac = scenario_dict[sc][1]       
     # Calculate means,fluxes etc.
-    s_flow_mean = np.around(df_sum.met_flow.mean(),decimals = 2)         
-    ma = np.around(df_sum.met_cont.max(),decimals = 2)
-    mi = np.around(df_sum.met_cont.min(),decimals = 2)
-    to_atm  = np.around(ma - mi,decimals = 2)      
+    #s_flow_mean = np.around(df_sum.met_flow.mean(),decimals = 4)         
+    ma = np.around(df_sum.met_cont.max(),decimals = 4)
+    mi = np.around(df_sum.met_cont.min(),decimals = 4)
+    to_atm  = np.around(mi,decimals = 5)      
     perc = np.around(mi*100/ma,decimals = 2) 
     perc1 = np.around(100-perc,decimals = 2)
-    
-    print ('Mean sum flow from the seep {}'.format(sc),s_flow_mean)
-    print ('To atmosphere  {} '.format(sc), to_atm)
+    print ('Sum flow to water milliM/sec from the whole! seep {}'.format(sc),df_sum.met_flow.sum())    
+    print ('Mean flow to water milliM/m2/sec from the horizont {}'.format(sc),df_sum.met_flow.mean())
+    print ('To atmosphere  {} # milliM/sec '.format(sc), to_atm)
     print ('Percentage of dissolved CH4 {}'.format(sc), perc) 
     print ('Percentage of flux CH4 to atm {}'.format(sc), perc1) 
     
@@ -59,7 +59,7 @@ def calculate_scenarios(d_roms,pl,days,sc): #slb,
                                    df_sum.met_cont,
                                    fill_value = 'extrapolate',
                                    kind='nearest') 
-    print ("new depth",new_depth)
+
     int_flow = f_flow(new_depth)
     int_cont = f_cont(new_depth)
     
@@ -102,3 +102,10 @@ def calculate_scenarios(d_roms,pl,days,sc): #slb,
                 df_cont[n] = cont    
 
     return df_flow.T, df_cont.T
+
+
+if __name__ == '__main__': 
+    days_1 = np.arange(1,32)
+    flux_B2_10,cont_B1_10 = calculate_scenarios([0,1,2,10,20,30],False,days_1,'B2_10')
+    
+    

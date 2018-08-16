@@ -4,6 +4,7 @@ import numpy as np
 from scipy import interpolate 
 import pandas as pd
 
+
 def plt_flux_1bub(rad,save = False):    
     '''
     Function plots the dissolution rate ,
@@ -54,19 +55,15 @@ def plt_flux_1bub(rad,save = False):
     ax2.set_title('Bubble radius \n$mm$')
     ax2.plot(df2.rad_evol,df2.depth,'-',alpha = 0.1 )  
     ax2.scatter(radii,new_depth,s = s_rad,alpha = 0.7)
-   
+    
     for axis in (ax,ax1,ax2):
-        axis.set_ylim(80,0)
+        axis.set_ylim(80,0)        
         
     if save == True:
         plt.savefig('Data/bubbles_r_{}.png'.format(rad),transparent = False) 
     else:  
         plt.show()    
         
-
+if __name__ == '__main__':   
+    plt_flux_1bub(4) 
  
- 
-if __name__ == '__main__':     
-
-    #plt_flux_1bub(4)
-    plt_flux_1bub(3)    

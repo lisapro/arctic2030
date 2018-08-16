@@ -1,9 +1,10 @@
-import roms_nc_seasonal_mean as roms
+import S3_roms_nc_seasonal_mean as roms
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
 import numpy as np 
 
-
+import seaborn as sns
+sns.set()
 def plot_average_values():
     
     fig  = plt.figure(figsize=(9,6), dpi=100 )    
@@ -45,7 +46,7 @@ def plot_average_values():
     ax.set_title(r'Temperature, C')
     x_text = 0.05
     y_text = 1.15
-    labels = ('(a) ','(b) ','(c)','(d)')
+    labels = ('(A) ','(C) ','(B)','(D)')
     for i,axis in enumerate((ax,ax1,ax2,ax3)):
         axis.text(x_text, y_text, labels[i], transform=axis.transAxes,
                  fontsize=14, fontweight='bold', va='top', ha='right')
@@ -55,7 +56,7 @@ def plot_average_values():
     cb = fig.colorbar(cax0, cax=cbax)
     #fig.colorbar(cax1,ax = c)
     ax1.set_title('Salinity, psu')
-    cax1 = ax1.pcolormesh(x,y,sal.T)
+    cax1 = ax1.pcolormesh(x,y,sal.T,cmap = 'viridis')
     cb = fig.colorbar(cax1, cax=cbax1)
      #plt.title('Mean ice thickness,m ')
     ax2.set_title('Ice thickness, m')
@@ -67,7 +68,7 @@ def plot_average_values():
     ax3.set_xlabel('Time')
     ax1.set_xlabel('Time')
     #plt.show()
-    plt.savefig('Data/mean_roms_tshicekz.png',transparent = True)
+    plt.savefig('Data/Figure5_mean_roms_tshicekz.png',transparent = False)
     
 plot_average_values()    
     

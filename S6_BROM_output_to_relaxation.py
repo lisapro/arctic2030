@@ -206,8 +206,7 @@ def make_nc_baseline():
     v_B2_50.long_name = 'Methane inflow scenario B2_50'
     v_B2_50.units = 'mmol CH4/m^2 sec'
     v_B2_50[:] = flux_B2_50
-
-    import x_fig_bub_influx as fig_bub_influx 
+ 
     slb_year = scen.calculate_baseline(days_1)
     slb_year = pd.concat([slb_year,slb_year,slb_year],axis = 0).iloc[:stop,:]
     v_B1_slb = f1.createVariable('Slb', 'f8', ('time','depth'), zlib=False)

@@ -21,9 +21,6 @@ st_lat = 76.77
 seep_area_lats = [76.5, 77.5, 77.5, 76.5]
 seep_area_lons = [121., 121., 132., 132.]
 
- 
-
-
 def map_attr(m):
     m.drawmapboundary(fill_color='#cae2f7')
     m.fillcontinents(color='#bdad95')
@@ -43,9 +40,8 @@ def add_bathymetry(m,axis,case = 'Laptev'):
     else: 
         etopo1  = etopo1.where(etopo1.lat > 62, drop = True)
         clevs = np.arange(-300,100,100) 
-        #clevs2 =[-200,-50]
-        
-               
+
+                      
     df = etopo1.to_dataframe().unstack()
     lon_e = list(zip(*df.columns))[1]
     lat_e = df.index.values
@@ -68,19 +64,15 @@ def add_bathymetry(m,axis,case = 'Laptev'):
 
 def add_wod(m): 
     ncfile = (r'C:\Users\elp\OneDrive\Python_workspace\arctic2030\Data\Laptev_WOD_area_70_150_f_deeper.nc')  
-    #ncfile = (r'C:\Users\elp\OneDrive\Python_workspace\arctic2030\Data\Laptev_WOD_area.nc')    
     dss = xr.open_dataset(ncfile)
     lon, lat = m(dss.longitude.values,dss.latitude.values)
     m.scatter(lon,lat,marker='o', alpha = 0.7, s = 5,c = 'k', edgecolors ='k',zorder = 10)
     
-
-
 def add_polygon(m,axis,a=0.7,c = '#db4832'):
     X, Y = m(seep_area_lons, seep_area_lats)
     poly = Polygon(((X[0],Y[0]),(X[1],Y[1]),(X[2],Y[2]),(X[3],Y[3])),
                    facecolor=c , alpha=a,zorder = 9)
     axis.add_patch(poly) 
-
 
 def fig1_polar_map():
     global fig 
@@ -101,17 +93,15 @@ def fig1_polar_map():
     x_l,y_l = map(110, 78)
     x_k,y_k = map(78, 75)
     
-    a = 0.3
-    f = 10
-    axins2.text(x_es, y_es, 'East \nSiberian \nSea',fontsize=f,fontweight='bold',
+    a,f = 0.3,10
+    axins2.text(x_es, y_es, 'East \nSiberian \nSea',
+                fontsize=f,fontweight='bold',
                 bbox=dict(facecolor='w', alpha=a ,edgecolor='none'),
                 ha='left',va='bottom',color='k')
-    axins2.text(x_l, y_l, 'Laptev \nSea',fontsize=f, fontweight='bold',
+    axins2.text(x_l, y_l, 'Laptev \nSea',fontsize=f,
+                fontweight='bold',
                 bbox=dict(facecolor='w', alpha=a ,edgecolor='none'), 
                         ha='left',va='bottom',color='k')
-    #axins2.text(x_k, y_k, 'Kara \nSea',fontsize=f, fontweight='bold',
-    #            bbox=dict(facecolor='w', alpha=a,edgecolor='none'),
-    #                    ha='left',va='bottom',color='k')
     plt.savefig('Maps/Figure1_Polar_map.png', transparent = True)
     
 def fig3_laptev_map():

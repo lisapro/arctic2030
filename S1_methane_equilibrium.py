@@ -142,16 +142,14 @@ def call_met_profile():
         returns depth,temp,sal, 
         methane equilibrium solubility '''
     
-    file = askopenfilename(initialdir= os.getcwd(),
-    filetypes =(("NetCDF file", "*.nc"),
-    ("All Files","*.*")),title = "Choose a file.")
-            
+    file = r'Data\Laptev_average_year_2year.nc'            
     fh = Dataset(file)     
-    depth =  fh.variables['depth'][:]
     
     # Here we take random day in a year 
     # Since ts does not change much and do not 
     # influence solubility significantly
+    
+    depth =  fh.variables['depth'][:]    
     temp =  fh.variables['temp'][10,:]  
     sal =  fh.variables['sal'][10,:]
     

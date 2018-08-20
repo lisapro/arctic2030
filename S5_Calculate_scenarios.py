@@ -4,7 +4,8 @@ from scipy import interpolate
 from statsmodels.nonparametric.smoothers_lowess import lowess
 
 def make_df_sum(s,scen):
-    path= r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat" 
+    #path= r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat" 
+    path='Data/all_for_sbm_79_mm_tab.dat'
     df = pd.read_csv(path,delimiter = '\t' )    
     sizes,fraction = s
     df1 = df[df.radius == sizes[0]].reset_index()

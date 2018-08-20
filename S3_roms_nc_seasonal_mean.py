@@ -18,9 +18,11 @@ from scipy.interpolate import griddata
 import pandas as pd 
 import os, time
 from statsmodels.nonparametric.smoothers_lowess import lowess
-import x_fig_bub_influx as fig_bub_influx 
+#import x_fig_bub_influx as fig_bub_influx 
+import S5_Calculate_scenarios as scen 
     
 def get_averaged_value(var):
+    ''' average roms 20 years to one year '''
     ds = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
     ds = ds.where((ds['time.year']  >= 1989), drop=True)         
     #d = ds.depth.values    
@@ -32,8 +34,8 @@ def get_averaged_value(var):
     arr = arr.loc[:,1:365] 
     return arr.T
 
-
 def get_averaged_value_2_year(var):
+    ''' average roms 20 years to one year,repeat 2 times '''
     ds = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
     ds = ds.where((ds['time.year']  >= 1989), drop=True)         
     #d = ds.depth.values    
@@ -55,6 +57,34 @@ def get_averaged_value_2_year(var):
    # print (arr.shape)
     return arr.T
 
+def get_averaged_value_N_year(var,n_years):
+    ''' average roms over 20 years to one year,repeat N times '''
+    if n_years == 1: 
+        var =  get_averaged_value(var)    
+    elif n_years == 2: 
+        var =  get_averaged_value_2_year(var)
+    else:             
+        ds = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
+        ds = ds.where((ds['time.year']  >= 1989), drop=True)          
+        arr = ds[var].to_pandas().sort_index() 
+        arr = arr.resample('D').ffill()  
+        idx = pd.date_range('1989-01-01 ', '2014-12-31')   
+        arr = arr.reindex(idx,method='ffill')
+        arr = arr.interpolate()
+        arr['dayofyear'] = arr.index.dayofyear    
+    
+        arr = arr.pivot_table(arr,index = 'dayofyear', aggfunc=np.median).T.sort_index()  
+        arr = arr.loc[:,1:365]        
+        arr1 = arr.copy() 
+        
+        for n in range(1,n_years):
+            arr1.columns = arr1.columns+365            
+            arr = pd.concat([arr,arr1],axis = 1,join='outer')      
+
+        arr = arr.reindex(index=arr.index[::-1]).T     
+    return  arr     
+
+
 
 
 def get_averaged_value_1d(var):
@@ -63,21 +93,18 @@ def get_averaged_value_1d(var):
     ds['dayofyear'] = ds.time.dt.dayofyear
     ds = ds[[var,'dayofyear']]
     arr = ds.to_dataframe()
-    #arr = arr.resample('D',how = 'ffill')
     arr = arr.groupby('dayofyear').mean()
     arr = arr[1:366]
     smoothed_arr = lowess(arr[var].values,arr.index.values,frac=0.1)[:,1]
     return smoothed_arr,arr
-
 
 def get_averaged_value_1d_2_year(var):
     ds = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
     ds = ds.where((ds['time.year']  >= 1989), drop=True)        
     ds['dayofyear'] = ds.time.dt.dayofyear
     ds = ds[[var,'dayofyear']]
-    arr = ds.to_dataframe()
-    #arr = arr.resample('D',how = 'ffill')
-    arr = arr.groupby('dayofyear').mean()
+    arr = ds.to_dataframe().groupby('dayofyear').mean()
+    arr = arr
     arr2 = arr.append(arr)
     arr2 = arr2[:731]
     smoothed_arr = lowess(arr[var].values,arr.index.values,frac=0.05)[:,1]
@@ -93,11 +120,29 @@ def get_averaged_value_1d_2_year(var):
         
     smoothed_arr2 = np.append(smoothed_arr,smoothed_arr) 
     smoothed_arr2 = smoothed_arr2[:731]
-    #plt.plot(smoothed_arr)
-    #plt.show()
     return smoothed_arr2,arr2
 
-#get_averaged_value_1d_2_year('hice')
+def get_averaged_value_1d_3_year(var):
+    ds = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
+    ds = ds.where((ds['time.year']  >= 1989), drop=True)        
+    ds['dayofyear'] = ds.time.dt.dayofyear
+    ds = ds[[var,'dayofyear']]
+    arr = ds.to_dataframe().groupby('dayofyear').mean()
+    smoothed_arr = lowess(arr[var].values,arr.index.values,frac=0.05)[:,1]
+    if var == 'hice':         
+        smoothed_arr_c = []
+        for n in smoothed_arr:
+            if n < 0.5: 
+                n = n - 0.15
+            if n < 0:
+                n = 0    
+            smoothed_arr_c.append(n)   
+        smoothed_arr = smoothed_arr_c
+        
+    smoothed_arr2 = np.append(smoothed_arr,smoothed_arr) 
+    smoothed_arr2 = np.append(smoothed_arr2,smoothed_arr) 
+    smoothed_arr2 = smoothed_arr2[:365*3]
+    return smoothed_arr2 
 
 def get_dimensions():
     ds = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
@@ -110,8 +155,7 @@ def get_dimensions():
     
     arr = arr.pivot_table(arr,index = 'dayofyear', aggfunc=np.median).T.sort_index() 
     arr = arr.loc[:,1:365] 
-    shape = arr.shape
-    
+    shape = arr.shape    
     return shape,arr.columns,d,d2
 
 def get_dimensions_2_year():
@@ -126,15 +170,35 @@ def get_dimensions_2_year():
     arr2['dayofyear'] = arr2['dayofyear'] + 365
     
     arr = arr.pivot_table(arr,index = 'dayofyear', aggfunc=np.median).T.sort_index() 
-    arr2 = arr2.pivot_table(arr2,index = 'dayofyear', aggfunc=np.median).T.sort_index()     
-   
+    arr2 = arr2.pivot_table(arr2,index = 'dayofyear', aggfunc=np.median).T.sort_index()        
     arr = arr.loc[:,1:365] 
     arr = pd.concat([arr,arr2],axis = 1)
-
     shape = arr.shape
 
     return shape,arr.columns,d,d2
 
+
+def get_dimensions_N_year(n_years):
+            
+    ds = xr.open_dataset('Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc')
+    ds = ds.where((ds['time.year']  >= 1989), drop=True) 
+    d = ds.depth.values    
+    d2 = ds.depth2.values          
+    arr = ds['o2'].to_pandas().sort_index() 
+    arr = arr.resample('D').ffill()  
+    idx = pd.date_range('1989-01-01 ', '2014-12-31')   
+    arr = arr.reindex(idx,method='ffill').interpolate()
+    arr['dayofyear'] = arr.index.dayofyear    
+
+    arr = arr.pivot_table(arr,index = 'dayofyear', aggfunc=np.median).T.sort_index()  
+    arr = arr.loc[:,1:365]    
+    arr1 = arr.copy() 
+    
+    for n in range(1,n_years):
+        arr1.columns = arr1.columns+365            
+        arr = pd.concat([arr,arr1],axis = 1,join='outer')             
+    arr = arr.reindex(index=arr.index[::-1])            
+    return  arr.shape,arr.columns,d,d2
 
 def make_nc():
     nc_format = 'NETCDF3_CLASSIC'
@@ -319,29 +383,30 @@ def make_nc():
 
 def make_nc_2_year():
     nc_format = 'NETCDF3_CLASSIC'
-    f1 = Dataset('Data\Laptev_average_year_2year.nc', mode='w', format= nc_format)
-    f1.description="file from ROMS averaged to one year" 
+    f1 = Dataset(
+    'Data\Laptev_average_year_3year.nc', mode='w', format= nc_format)
+    f1.description=(
+    "file from ROMS averaged + methane seeping scenarios from Single Bubble model")
     f1.source = 'Elizaveta Protsenko (elp@niva.no)'
     f1.history = 'Created ' + time.ctime(time.time())
     
-    n_years = 2
-    shape,days, depth,depth2 = get_dimensions_2_year()
+    n_years = 3
+    shape,days, depth,depth2 = get_dimensions_N_year(n_years)
 
     start = datetime.datetime(1991,1,1)
     format_time = [start]
     
-    seconds = [date2num(start, units = 'seconds since 1948-01-01 00:00:00',calendar = 'standard')]    
-    for n in np.arange(0,365*n_years):
+    seconds = [date2num(start, 
+            units = 'seconds since 1948-01-01 00:00:00',calendar = 'standard')]  
+      
+    for n in np.arange(1,365*n_years):
         delta  = datetime.timedelta(days=int(days[n]))
         date= delta+start
-        second = date2num(date, units = 'seconds since 1948-01-01 00:00:00',calendar = 'standard')
+        second = date2num(date,
+                units = 'seconds since 1948-01-01 00:00:00',calendar = 'standard')
         seconds.append(second)
         format_time.append(date)   
         
-        
-    print ('seconds',len(seconds))   
-    #seconds = date2num(format_time, units = 'seconds since 1948',calendar = 'standard')    
-    slb = fig_bub_influx.slblt()
     f1.createDimension('time',  size=len(seconds))
     f1.createDimension('days',  size=shape[1])    
     f1.createDimension('depth', size=shape[0])
@@ -356,7 +421,6 @@ def make_nc_2_year():
     v_depth.long_name = "Z-depth2 matrix, direction up" 
     v_depth.units = "meter"
     v_depth[:] = depth2
-
       
     v_days = f1.createVariable('days', 'f8', ('days',), zlib=False)
     v_days.long_name = 'number of day in a year'
@@ -373,157 +437,82 @@ def make_nc_2_year():
     v_o2 = f1.createVariable('o2', 'f8', ('time','depth'), zlib=False)
     v_o2.long_name = 'time-averaged oxygen/oxygen '
     v_o2.units = 'mmol O_2/m^3'
-    v_o2[:] = get_averaged_value_2_year('o2')
+    v_o2[:] = get_averaged_value_N_year('o2',n_years)
 
     v_temp = f1.createVariable('temp', 'f8', ('time','depth'), zlib=False)
     v_temp.long_name = 'time-averaged ocean temperatue '
     v_temp.units = 'Celsius'
-    v_temp[:] = get_averaged_value_2_year('temp')
+    v_temp[:] = get_averaged_value_N_year('temp',n_years)
 
     v_sal = f1.createVariable('sal', 'f8', ('time','depth'), zlib=False)
     v_sal.long_name = 'time-averaged salinity '
     v_sal.units = 'psu'
-    v_sal[:] = get_averaged_value_2_year('sal')
+    v_sal[:] = get_averaged_value_N_year('sal',n_years)
 
     v_rho = f1.createVariable('rho', 'f8', ('time','depth'), zlib=False)
     v_rho.long_name = 'time-averaged density anomaly '
     v_rho.units = 'kilogram meter-3'
-    v_rho[:] = get_averaged_value_2_year('rho')
+    v_rho[:] = get_averaged_value_N_year('rho',n_years)
 
     v_Kz_s = f1.createVariable('Kz_s', 'f8', ('time','depth2'), zlib=False)
     v_Kz_s.long_name = 'Salinity vertical diffusion coefficient'
     v_Kz_s.units = 'm^2/sec'
-    v_Kz_s[:] = get_averaged_value_2_year('Kz_s')
+    v_Kz_s[:] = get_averaged_value_N_year('Kz_s',n_years)
     
     v_hice = f1.createVariable('hice', 'f8', ('time',), zlib=False)
     v_hice.long_name = 'time-averaged ice thickness in cell'
     v_hice.units = 'meter'
-    v_hice[:] = get_averaged_value_1d_2_year('hice')[0]
+    v_hice[:] = get_averaged_value_1d_3_year('hice')
 
 
     v_tisrf = f1.createVariable('tisrf', 'f8', ('time',), zlib=False)
     v_tisrf.long_name = 'time-averaged temperature of ice surface'
     v_tisrf.units = 'Celsius'
-    v_tisrf[:] = get_averaged_value_1d_2_year('tisrf')[0]
+    v_tisrf[:] = get_averaged_value_1d_3_year('tisrf')
 
     v_swrad = f1.createVariable('swrad', 'f8', ('time',), zlib=False)
     v_swrad.long_name = 'time-averaged solar shortwave radiation flux'
     v_swrad.units = 'watt meter-2'
     v_swrad.negative_value = 'upward flux,cooling'
-    v_swrad[:] = get_averaged_value_1d_2_year('swrad')[0]
+    v_swrad[:] = get_averaged_value_1d_3_year('swrad')
 
     v_snow_thick = f1.createVariable('snow_thick', 'f8', ('time',), zlib=False)
     v_snow_thick.long_name = 'time-averaged thickness of snow cover'
     v_snow_thick.units = 'meter'
-    v_snow_thick[:] = get_averaged_value_1d_2_year('snow_thick')[0]
+    v_snow_thick[:] = get_averaged_value_1d_3_year('snow_thick')
 
     v_po4 = f1.createVariable('po4', 'f8', ('time','depth'), zlib=False)
     v_po4.long_name = 'time-averaged phosphate/phosphorus'
     v_po4.units = 'mmol P/m^3'
-    v_po4[:] = get_averaged_value_2_year('po4')
+    v_po4[:] = get_averaged_value_N_year('po4',n_years)
        
     v_no3 = f1.createVariable('no3', 'f8', ('time','depth'), zlib=False)
     v_no3.long_name = 'time-averaged nitrate/nitrogen'
     v_no3.units = 'mmol N/m^3'
-    v_no3[:] = get_averaged_value_2_year('no3')
+    v_no3[:] = get_averaged_value_N_year('no3',n_years)
         
     v_Si = f1.createVariable('Si', 'f8', ('time','depth'), zlib=False)
     v_Si.long_name = 'time-averaged silicate/silicate'
     v_Si.units = 'mmol Si/m^3'
-    v_Si[:] = get_averaged_value_2_year('Si')        
+    v_Si[:] = get_averaged_value_N_year('Si',n_years)        
  
-    days_1 = np.arange(1,367)
-    import S5_Calculate_scenarios as scen 
+    days_1 = np.arange(1,366)
     
-    flux_B1,cont_B1 = scen.calculate_scenarios(depth,False,days_1,'B1')
-    flux_B1 = (pd.concat([flux_B1,flux_B1],axis = 0)).iloc[:731,:]
-    cont_B1 = pd.concat([cont_B1,cont_B1],axis = 0).iloc[:731,:]
-    
-    flux_B0_30,cont_B0_30 = scen.calculate_scenarios(depth,False,days_1,'B0_30')
-    flux_B0_30 = pd.concat([flux_B0_30,flux_B0_30],axis = 0).iloc[:731,:]
-    cont_B0_30 = pd.concat([cont_B0_30,cont_B0_30],axis = 0).iloc[:731,:]
+    stop = 365*n_years
+    zeros = scen.calculate_spin_up(depth,days_1)
+       
+    flux_B1,cont_B1 = scen.calculate_scenarios(depth,False,days_1,'B1') 
+    flux_B1 = (pd.concat([zeros,flux_B1,flux_B1],
+            axis = 0,ignore_index=True)).iloc[:stop,:]
+    cont_B1 = pd.concat([zeros,cont_B1,cont_B1],axis = 0).iloc[:stop,:]
 
-    flux_B1_50,cont_B1_50 = scen.calculate_scenarios(depth,False,days_1,'B1_50')
-    slb_year = fig_bub_influx.calculate_baseline(depth,days_1)/10
-    slb_year = pd.concat([slb_year,slb_year],axis = 0).iloc[:731,:]
-    flux_B1_50 = pd.concat([flux_B1_50,flux_B1_50],axis = 0).iloc[:731,:]
-    cont_B1_50 = pd.concat([cont_B1_50,cont_B1_50],axis = 0).iloc[:731,:]
-
-    flux_B1_30,cont_B1_30 = scen.calculate_scenarios(depth,False,days_1,'B1_30')
-    flux_B1_30 = pd.concat([flux_B1_30,flux_B1_30],axis = 0).iloc[:731,:]
-    cont_B1_30 = pd.concat([cont_B1_30,cont_B1_30],axis = 0).iloc[:731,:]
-
-    flux_B2_30,cont_B2_30 = scen.calculate_scenarios(depth,False,days_1,'B2_30')
-    flux_B2_30 = pd.concat([flux_B2_30,flux_B2_30],axis = 0).iloc[:731,:]
-    cont_B2_30 = pd.concat([cont_B2_30,cont_B2_30],axis = 0).iloc[:731,:]
-    
-    flux_B2_10,cont_B1_10 = scen.calculate_scenarios(depth,False,days_1,'B2_10')
-    flux_B2_10 = pd.concat([flux_B2_10,flux_B2_10],axis = 0).iloc[:731,:]
-    
-    flux_B2_10_30min,cont_B1_10_30min = scen.calculate_scenarios(depth,False,days_1,'B2_10_30min')
-    flux_B2_10_30min = pd.concat([flux_B2_10_30min,flux_B2_10_30min],axis = 0).iloc[:731,:]    
-    #cont_B2_30 = pd.concat([cont_B2_30,cont_B2_30],axis = 0).iloc[:731,:]
- 
-    v_B1 = f1.createVariable('B1f', 'f8', ('time','depth'), zlib=False)
-    v_B1.long_name = 'Methane inflow scenario B1'
-    v_B1.units = 'mmol CH4/m^2 sec'
-    v_B1[:] = flux_B1 
-
-    v_B1_cont = f1.createVariable('B1c', 'f8', ('time','depth'), zlib=False)
-    v_B1_cont.long_name = 'Methane content in bubbles B1'
-    v_B1_cont.units = 'mmol CH4 in bubbles'
-    v_B1_cont[:] =  cont_B1  
-        
-    v_B1_50 = f1.createVariable('B1_50f', 'f8', ('time','depth'), zlib=False)
-    v_B1_50.long_name = 'Methane inflow scenario B1_50'
-    v_B1_50.units = 'mmol CH4/m^2 sec'
-    v_B1_50[:] = flux_B1_50 
-
-    v_B1_50_cont = f1.createVariable('B1_50c', 'f8', ('time','depth'), zlib=False)
-    v_B1_50_cont.long_name = 'Methane content in bubbles B1'
-    v_B1_50_cont.units = 'mmol CH4 in bubbles'
-    v_B1_50_cont[:] =  cont_B1_50         
-
-    v_B0_30 = f1.createVariable('B0_30f', 'f8', ('time','depth'), zlib=False)
-    v_B0_30.long_name = 'Methane inflow scenario B0_30'
-    v_B0_30.units = 'mmol CH4/m^2 sec'
-    v_B0_30[:] = flux_B0_30 
-
-    v_B0_30_cont = f1.createVariable('B0_30c', 'f8', ('time','depth'), zlib=False)
-    v_B0_30_cont.long_name = 'Methane content in bubbles B0'
-    v_B0_30_cont.units = 'mmol CH4 in bubbles'
-    v_B0_30_cont[:] =  cont_B0_30 
-    
-    v_B1_30 = f1.createVariable('B1_30f', 'f8', ('time','depth'), zlib=False)
-    v_B1_30.long_name = 'Methane inflow scenario B1_30'
-    v_B1_30.units = 'mmol CH4/m^2 sec'
-    v_B1_30[:] = flux_B1_30 
-
-    v_B1_30_cont = f1.createVariable('B1_30c', 'f8', ('time','depth'), zlib=False)
-    v_B1_30_cont.long_name = 'Methane content in bubbles B1_30'
-    v_B1_30_cont.units = 'mmol CH4 in bubbles'
-    v_B1_30_cont[:] =  cont_B1_30 
-
-    v_B2_30 = f1.createVariable('B2_30f', 'f8', ('time','depth'), zlib=False)
-    v_B2_30.long_name = 'Methane inflow scenario B2_30'
-    v_B2_30.units = 'mmol CH4/m^2 sec'
-    v_B2_30[:] = flux_B2_30 
-
-    v_B2_10 = f1.createVariable('B2_10f', 'f8', ('time','depth'), zlib=False)
-    v_B2_10.long_name = 'Methane inflow scenario B2_10'
-    v_B2_10.units = 'mmol CH4/m^2 sec'
-    v_B2_10[:] = flux_B2_10 
-
-    v_B2_10_30min = f1.createVariable('B2_10f_30min', 'f8', ('time','depth'), zlib=False)
-    v_B2_10_30min.long_name = 'Methane inflow scenario B2_10 30min per day'
-    v_B2_10_30min.units = 'mmol CH4/m^2 sec'
-    v_B2_10_30min[:] = flux_B2_10_30min 
-        
+    slb_year = scen.calculate_baseline(depth,days_1)/10
+    slb_year = pd.concat([slb_year,slb_year,slb_year],axis = 0).iloc[:stop,:]
     v_B1_slb = f1.createVariable('Slb', 'f8', ('time','depth'), zlib=False)
     v_B1_slb.long_name = 'Methane solubility'
     v_B1_slb.units = 'mmol/l CH4 '
-    v_B1_slb[:]  = slb_year      
-    
+    v_B1_slb[:]  = slb_year  
+        
     f1.close()
 
 def plot_roms_average_year(var,title,cmap = 'gist',vmax = None,vmin = None) :
@@ -571,6 +560,7 @@ def plot_roms_average_year(var,title,cmap = 'gist',vmax = None,vmin = None) :
 
 
 if __name__ == '__main__':
+        
     #get_averaged_value('o2')
     #make_nc()
     make_nc_2_year()

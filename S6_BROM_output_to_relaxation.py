@@ -6,48 +6,47 @@ import S3_roms_nc_seasonal_mean as make_nc
 import S5_Calculate_scenarios as scen 
 import numpy as np
 import pandas as pd
+import datetime
+
 '''
 Script to make nc file 
 for relaxation brom model scanerios 
 based on baseline run of brom model 
 
-ds = xr.open_dataset('Data\water_baseline.nc')
-depth = ds['middle_layer_depths'].values
-depth2 = ds.depth2.values 
-Kz_s = ds.Kz_s.values
+BROM reads ROMS and adds BBL to it,
+'''
 
-print (ds)
-r'''
-
-
-''' BROM reads ROMS and adds BBL to it,
-in order to read  '''
-
-import datetime
+global time_units
+time_units = 'seconds since 1948-01-01 00:00:00'
  
 start = datetime.datetime(1991,1,1)
 sec_start = date2num(start, 
-                units = 'seconds since 1948-01-01 00:00:00',
+                units = time_units,
                 calendar = 'standard')
+
 def d2n(delta): 
     d  = datetime.timedelta(days=int(delta))  
     s = date2num((d+start), 
-                units = 'seconds since 1948-01-01 00:00:00',
+                units = time_units,
                 calendar = 'standard')
     return s 
 
 def make_nc_baseline():
     f_brom = Dataset('Data\water.nc', mode='r')
-    f_roms = Dataset('Data\Laptev_average_year_2year.nc', mode='r')
+    f_roms = Dataset('Data\Laptev_average_year_3year.nc', mode='r')
     
+    # remove bbl! 
     z = f_brom.variables['z'][5:]
     z2 = f_brom.variables['z_faces'][5:]
     
     depth = f_roms.dimensions['depth']
     depth2 = f_roms.dimensions['depth2']
     times = f_roms.dimensions['time']
-    seconds = [d2n(delta) for delta in np.arange(1,366*2)]    
-    days = [day for day in np.arange(1,366*2)]
+    
+    n_years = 3
+    
+    seconds = [d2n(delta) for delta in np.arange(1,365*n_years+1)]    
+    days = [day for day in np.arange(1,365*n_years+1)]
 
     nc_format = 'NETCDF3_CLASSIC'
     f1 = Dataset('Data\Laptev_baseline.nc', mode='w', format= nc_format)
@@ -62,7 +61,7 @@ def make_nc_baseline():
     f1.createDimension('depth2', size=len(depth2))
     
     
-    #print (len(times),len(seconds),len(days))
+    print (len(times),len(seconds),len(days))
     
     v_depth = f1.createVariable('depth','f8',('depth',), zlib= False)
     v_depth.long_name = "Z-depth matrix, direction up" 
@@ -76,7 +75,7 @@ def make_nc_baseline():
 
     v_time = f1.createVariable('time', 'f8', ('time',), zlib=False)
     v_time.long_name = 'Time in seconds since 1948-01-01 00:00:00'
-    v_time.units = 'seconds since 1948-01-01 00:00:00'
+    v_time.units = time_units
     v_time.field = 'time, scalar, series'
     v_time.calendar='standard'
     v_time[:] = seconds
@@ -153,48 +152,70 @@ def make_nc_baseline():
     v_ch4[:] = f_brom.variables['B_CH4_CH4'][:,5:] 
     
     import S5_Calculate_scenarios as scen 
-    
+    stop = 365*n_years
     days_1 = np.arange(1,367)
-    
-    flux_B2_10,cont_B1_10 = scen.calculate_scenarios(z,False,days_1,'B2_10')
-    flux_B2_10 = pd.concat([flux_B2_10,flux_B2_10],axis = 0).iloc[:731,:]
+    zeros = scen.calculate_spin_up(z,days_1) 
+     
+    flux_B1,cont_B1 = scen.calculate_scenarios(z,False,days_1,'B1') 
+    flux_B1_50,cont_B1_50 = scen.calculate_scenarios(z,False,days_1,'B1_50')
+    flux_B2_10,cont_B2_10 = scen.calculate_scenarios(z,False,days_1,'B2_10')
+    flux_B2_50,cont_B2_50 = scen.calculate_scenarios(z,False,days_1,'B2_50')
+       
+    def three_years(flux):    
+        flux = (pd.concat([zeros,flux,flux],
+               axis = 0,ignore_index=True)).iloc[:stop,:]       
+        return flux     
+
+    flux_B1 = three_years(flux_B1)
+    flux_B1_50 = three_years(flux_B1_50)
+    flux_B2_10 = three_years(flux_B2_10)
+    flux_B2_50 = three_years(flux_B2_50)  
+      
+    cont_B1 =three_years(cont_B1)
+    cont_B1_50 = three_years(cont_B1_50) 
+       
+    conc_B2_10 = three_years(cont_B2_10)
+    conc_B2_50 = three_years(cont_B2_50)    
+               
+    v_B1 = f1.createVariable('B1f', 'f8', ('time','depth'), zlib=False)
+    v_B1.long_name = 'Methane inflow scenario B1'
+    v_B1.units = 'mmol CH4/m^2 sec'
+    v_B1[:] = flux_B1 
+
+    v_B1_cont = f1.createVariable('B1c', 'f8', ('time','depth'), zlib=False)
+    v_B1_cont.long_name = 'Methane content in bubbles B1 '
+    v_B1_cont.units = 'mmol CH4 in bubbles'
+    v_B1_cont[:] =  cont_B1 
+
+    v_B1_50 = f1.createVariable('B1_50f', 'f8', ('time','depth'), zlib=False)
+    v_B1_50.long_name = 'Methane inflow scenario B1_50 4 bubbles 50% of time'
+    v_B1_50.units = 'mmol CH4/m^2 sec'
+    v_B1_50[:] = flux_B1_50 
+
+    v_B1_50_cont = f1.createVariable('B1_50c', 'f8', ('time','depth'), zlib=False)
+    v_B1_50_cont.long_name = 'Methane content in bubbles B1'
+    v_B1_50_cont.units = 'mmol CH4 in bubbles'
+    v_B1_50_cont[:] =  cont_B1_50    
 
     v_B2_10 = f1.createVariable('B2_10f', 'f8', ('time','depth'), zlib=False)
     v_B2_10.long_name = 'Methane inflow scenario B2_10'
     v_B2_10.units = 'mmol CH4/m^2 sec'
     v_B2_10[:] = flux_B2_10 
 
-        
+    v_B2_50 = f1.createVariable('B2_50f', 'f8', ('time','depth'), zlib=False)
+    v_B2_50.long_name = 'Methane inflow scenario B2_50'
+    v_B2_50.units = 'mmol CH4/m^2 sec'
+    v_B2_50[:] = flux_B2_50
+ 
+    slb_year = scen.calculate_baseline(days_1)
+    slb_year = pd.concat([slb_year,slb_year,slb_year],axis = 0).iloc[:stop,:]
+    v_B1_slb = f1.createVariable('Slb', 'f8', ('time','depth'), zlib=False)
+    v_B1_slb.long_name = 'Methane solubility'
+    v_B1_slb.units = 'mmol/l CH4 '
+    v_B1_slb[:]  = slb_year  
+
     f1.close()
     f_brom.close()
     f_roms.close()
-    #time = f1.dimensions['time']
-    #z = f0.variables['depth'][:]
-    
-    """shape, days, depth,depth2 = make_nc.get_dimensions_2_year()
-    days_1 = np.arange(1,367)
-    
-    if ('swrad' in list(f1.variables)) == False:
-        v_swrad = f1.createVariable('swrad', 'f8', ('time',), zlib=False)
-        v_swrad.long_name = 'time-averaged solar shortwave radiation flux'
-        v_swrad.units = 'watt meter-2'
-        v_swrad.negative_value = 'upward flux,cooling'
-        v_swrad[:] = make_nc.get_averaged_value_1d_2_year('swrad')[0]
-        
-    if ('snow_thick' in list(f1.variables)) == False:
-        v_snow_thick = f1.createVariable('snow_thick', 'f8', ('time',), zlib=False)
-        v_snow_thick.long_name = 'time-averaged thickness of snow cover'
-        v_snow_thick.units = 'meter'
-        v_snow_thick[:] = make_nc.get_averaged_value_1d_2_year('snow_thick')[0]
-    
-    if ('B2_10f' in list(f1.variables)) == False:
-        flux_B2_10,cont_B1_10 = scen.calculate_scenarios(depth,False,days_1,'B2_10')
-        
-        flux_B2_10 = pd.concat([flux_B2_10,flux_B2_10],axis = 0).iloc[:731,:] 
-        
-        v_B2_10 = f1.createVariable('B2_10f', 'f8', ('time','z'), zlib=False)    
-        v_B2_10.long_name = 'Methane inflow scenario B2_10'
-        v_B2_10.units = 'mmol CH4/m^2 sec'
-        v_B2_10[:] = flux_B2_10 """
-        
+      
 make_nc_baseline()

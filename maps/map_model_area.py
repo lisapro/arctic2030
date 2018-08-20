@@ -28,7 +28,7 @@ ax = fig.add_subplot(gs[0])
 map = Basemap(
             resolution='l',projection='stere',\
             lat_0=76,lon_0=125,
-            llcrnrlon = 120 ,llcrnrlat = 75.9,
+            llcrnrlon = 120 ,llcrnrlat = 74,
             urcrnrlon = 140 ,urcrnrlat = 78,ax = ax)
 
 #map = Basemap(projection='npstere',boundinglat=70,lon_0=120,resolution='l',ax = ax)

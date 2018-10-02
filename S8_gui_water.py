@@ -5,18 +5,24 @@ Created on 28. jun. 2017
 '''
 
 import os,sys,datetime 
-from PyQt5 import QtWidgets,QtGui, QtCore
-from PyQt5.QtWidgets import QTableWidget,QTableWidgetItem
+from PyQt5 import QtWidgets,QtCore #, QtGui 
+#from PyQt5.QtWidgets import QTableWidget,QTableWidgetItem
 from netCDF4 import Dataset,num2date,date2num,date2index
 import numpy as np
+
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
-import numpy.ma as ma
-import matplotlib as mpl
+import matplotlib.colors as colors
+#from matplotlib.mlab import bivariate_normal
+#import matplotlib as mpl
 import matplotlib.dates as mdates
-import tkinter as tk 
-from tkinter.filedialog import askopenfilename,askdirectory  
 import matplotlib.ticker as ticker
+
+import numpy.ma as ma
+
+import tkinter as tk 
+from tkinter.filedialog import askdirectory  #askopenfilename
+
 import seaborn as sns
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas)
@@ -61,9 +67,9 @@ class Window(QtWidgets.QDialog):
                     
         self.names_vars =  sorted(self.names_vars, key=lambda s: s.lower())  
                
-        sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
+        QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding,
                                         QtWidgets.QSizePolicy.Expanding)
-        
+        #sizePolicy = 
 
         self.toolbar = NavigationToolbar(self.canvas, self)
         self.button = QtWidgets.QPushButton('Plot')
@@ -86,24 +92,16 @@ class Window(QtWidgets.QDialog):
         
         # fist line 
         layout.addWidget(self.toolbar,0,0,1,4)  
+        
         layout.addWidget(self.checkbox_title,1,0,1,1)         
         layout.addWidget(self.change_title,1,1,1,1)
         layout.addWidget(self.symbols,1,2,1,1)                         
-
-
-               
-
-        #layout.addWidget(self.label_start_year,0,4,1,1)
-        #layout.addWidget(self.combobox_start_year,1,4,1,1) 
-        #layout.addWidget(self.label_stop_year,0,5,1,1)
-        #layout.addWidget(self.combobox_stop_year,1,5,1,1)                 
-
+            
         layout.addWidget(self.button,1,3,1,1)         
         layout.addWidget(self.label_start_year,1,4,1,1)
         layout.addWidget(self.combobox_start_year,1,5,1,1)        
         layout.addWidget(self.label_stop_year,1,6,1,1)
         layout.addWidget(self.combobox_stop_year,1,7,1,1)                
-
 
         # third line             
         layout.addWidget(self.qlist_widget,2,0,1,1)      
@@ -228,8 +226,7 @@ class Window(QtWidgets.QDialog):
             b = int(b)
             return r'${} \times 10^{{{}}}$'.format(a, b)
         
-        import matplotlib.colors as colors
-        from matplotlib.mlab import bivariate_normal
+
         CS1 = ax0.stackplot(form_ice_time,ice[start_ice:stop_ice])
         ax0.set_xlim(to_start,to_stop)   
         ax0.set_ylim(0,max(ice[start_ice:stop_ice]))     

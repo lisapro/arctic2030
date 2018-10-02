@@ -135,7 +135,12 @@ def make_nc_baseline():
     v_no3.long_name = ' nitrate/nitrogen'
     v_no3.units = 'mmol N/m^3'
     v_no3[:] = f_brom.variables['B_NUT_NO3'][:,5:]
-        
+
+    v_no2 = f1.createVariable('NO2', 'f8', ('time','depth'), zlib=False)
+    v_no2.long_name = ' nitrite/nitrogen'
+    v_no2.units = 'mmol N/m^3'
+    v_no2[:] = f_brom.variables['B_NUT_NO2'][:,5:]
+    
     v_Si = f1.createVariable('Si', 'f8', ('time','depth'), zlib=False)
     v_Si.long_name = ' silicate/silicate'
     v_Si.units = 'mmol Si/m^3'
@@ -145,6 +150,11 @@ def make_nc_baseline():
     v_dic.long_name = 'Dissolved inorganic Carbon '
     v_dic.units = 'mmol c/m^3'
     v_dic[:] = f_brom.variables['B_C_DIC'][:,5:]     
+
+    v_alk = f1.createVariable('Alk', 'f8', ('time','depth'), zlib=False)
+    v_alk.long_name = 'Dissolved inorganic Carbon '
+    v_alk.units = 'mmol c/m^3'
+    v_alk[:] = f_brom.variables['B_C_Alk'][:,5:]  
 
     v_ch4 = f1.createVariable('CH4', 'f8', ('time','depth'), zlib=False)
     v_ch4.long_name = 'Methane'
@@ -162,7 +172,7 @@ def make_nc_baseline():
     flux_B2_50,cont_B2_50 = scen.calculate_scenarios(z,False,days_1,'B2_50')
        
     def three_years(flux):    
-        flux = (pd.concat([zeros,flux,flux],
+        flux = (pd.concat([flux,flux,flux],
                axis = 0,ignore_index=True)).iloc[:stop,:]       
         return flux     
 
@@ -207,7 +217,7 @@ def make_nc_baseline():
     v_B2_50.units = 'mmol CH4/m^2 sec'
     v_B2_50[:] = flux_B2_50
  
-    slb_year = scen.calculate_baseline(days_1)
+    slb_year = scen.calculate_baseline(days_1)/10
     slb_year = pd.concat([slb_year,slb_year,slb_year],axis = 0).iloc[:stop,:]
     v_B1_slb = f1.createVariable('Slb', 'f8', ('time','depth'), zlib=False)
     v_B1_slb.long_name = 'Methane solubility'

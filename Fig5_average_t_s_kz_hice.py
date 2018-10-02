@@ -67,8 +67,8 @@ def plot_average_values():
     cb = fig.colorbar(cax3, cax=cbax3)
     ax3.set_xlabel('Time')
     ax1.set_xlabel('Time')
-    #plt.show()
-    plt.savefig('Data/Figure5_mean_roms_tshicekz.png',transparent = False)
+    plt.show()
+    #plt.savefig('Data/Figure5_mean_roms_tshicekz.png',transparent = False)
     
 plot_average_values()    
     

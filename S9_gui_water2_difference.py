@@ -38,7 +38,8 @@ class Window(QtWidgets.QDialog):
                
         self.directory =  askdirectory()  #self.load_work_directory() 
         self.water_fname = os.path.join(self.directory,'water.nc')
-      
+        self.water_base_fname = os.path.join(self.directory,'baseline_water.nc')
+        self.fh_water_base = Dataset(self.water_base_fname)
         self.fh_water =  Dataset(self.water_fname)   
         try:
             self.time = self.fh_water.variables['time'][:]
@@ -121,11 +122,14 @@ class Window(QtWidgets.QDialog):
         self.setWindowTitle(str(self.directory[-20:] + self.long_name)) 
 
         var_water = np.array(
-            self.fh_water.variables[self.name][:]).T   
+            self.fh_water.variables[self.name][:]).T  
+        var_water_base  = np.array(
+            self.fh_water_base.variables[self.name][:]).T     
+        var_water_dif = var_water-var_water_base              
         data_units = self.fh_water.variables[self.name].units
         if len(self.change_title.text()) < 1: 
             self.change_title.setText(self.name+' '+ data_units)                    
-        return var_water,data_units
+        return var_water_dif,data_units
 
     def save_to_dir(self,dir_name):
         script_dir = os.path.abspath(os.path.dirname(__file__))
@@ -202,8 +206,8 @@ class Window(QtWidgets.QDialog):
         #cbax0 = self.figure.add_subplot(gs[1])   
         ax1 = self.figure.add_subplot(gs[2]) 
         cbax1 = self.figure.add_subplot(gs[3])                  
-        cmap_water = plt.get_cmap('CMRmap') 
-
+        cmap_water = plt.get_cmap('RdBu_r') 
+        
         #TODO: add ice here
         #without interpolation 
         ###CS1 = ax0.pcolor(X,Y,var_ice[:,start:stop],cmap = cmap )#) 3,edgecolor = 'w',
@@ -213,29 +217,29 @@ class Window(QtWidgets.QDialog):
             title = self.change_title.text()
             ax0.set_title(title)
         else:                 
-            ax0.set_title('B1_50 0.5 relaxation, '+self.long_name+' ['+ str(data_units)+']')
+            ax0.set_title('B1_, '+self.long_name+' ['+ str(data_units)+']')
                    
         def fmt(x, pos):
             a, b = '{:.2e}'.format(x).split('e')
             b = int(b)
             return r'${} \times 10^{{{}}}$'.format(a, b)
         
-        import matplotlib.colors as colors
-        from matplotlib.mlab import bivariate_normal
         CS1 = ax0.stackplot(form_ice_time,ice[start_ice:stop_ice])
         ax0.set_xlim(to_start,to_stop)   
         ax0.set_ylim(0,max(ice[start_ice:stop_ice]))     
-        print (np.max(var_water[:,start:stop]))
-    
-        try:   
-            bounds = np.linspace(np.min(var_water[:,start:stop]), 
-                             np.max(var_water[:,start:stop]), 10)
-            norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)        
-            CS4 = ax1.pcolor(X_water,Y_water,var_water[:,start:stop],norm=norm,
-                          cmap = cmap_water) 
-        except: 
-            CS4 = ax1.pcolor(X_water,Y_water,var_water[:,start:stop],norm=norm,
-                          cmap = cmap_water)                        
+ 
+        mm = np.max(var_water[:,start:stop])
+        mm2 = abs(np.min(var_water[:,start:stop]))
+        mm_tot = max(mm,mm2)
+        import matplotlib.colors as colors
+        from matplotlib.mlab import bivariate_normal
+        bounds = np.linspace(-mm_tot, mm_tot, 20)
+        norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)        
+        
+        print (max(mm,mm2))
+        CS4 = ax1.pcolor(X_water,Y_water,var_water[:,start:stop],norm = norm, #vmin=-mm_tot, vmax=mm_tot,
+                         cmap = cmap_water) 
+                   
         def add_colorbar(CS,axis,ma1):
 
             if ma1 > 10000 or ma1 < 0.001:

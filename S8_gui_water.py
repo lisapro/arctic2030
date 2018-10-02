@@ -20,6 +20,8 @@ import matplotlib.ticker as ticker
 import seaborn as sns
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas)
+from matplotlib.backends.backend_qt5agg import (
+    NavigationToolbar2QT as NavigationToolbar)
 from dateutil.relativedelta import relativedelta
 sns.set() 
 root = tk.Tk()
@@ -30,7 +32,7 @@ root.withdraw()
 class Window(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
-        
+        self.setWindowFlags(QtCore.Qt.Window) 
         self.figure = plt.figure(figsize=(7.3 ,4), dpi=150,
                         facecolor='None',edgecolor='None')        
         self.canvas = FigureCanvas(self.figure)  
@@ -63,9 +65,9 @@ class Window(QtWidgets.QDialog):
                                         QtWidgets.QSizePolicy.Expanding)
         
 
-        
+        self.toolbar = NavigationToolbar(self.canvas, self)
         self.button = QtWidgets.QPushButton('Plot')
-        self.save_button = QtWidgets.QPushButton('Plot and Save_pdf')
+        #self.save_button = QtWidgets.QPushButton('Plot and Save_pdf')
         #self.label_choose_var = QtWidgets.QLabel('Choose variable:')        
         self.change_title = QtWidgets.QLineEdit()
         self.symbols = QtWidgets.QLineEdit('Symbols: # \ $ / & % {} ^ *')
@@ -83,15 +85,17 @@ class Window(QtWidgets.QDialog):
         layout = QtWidgets.QGridLayout()
         
         # fist line 
-        layout.addWidget(self.checkbox_title,0,0,1,1)         
-        layout.addWidget(self.change_title,0,1,1,1)
-        layout.addWidget(self.symbols,0,2,1,1)                         
-        layout.addWidget(self.button,0,3,1,1)         
-        layout.addWidget(self.save_button,0,4,1,1)
-        layout.addWidget(self.label_start_year,0,5,1,1)
-        layout.addWidget(self.combobox_start_year,0,6,1,1)        
-        layout.addWidget(self.label_stop_year,0,7,1,1)
-        layout.addWidget(self.combobox_stop_year,0,8,1,1)                
+
+        layout.addWidget(self.toolbar,0,0,1,4)  
+        layout.addWidget(self.checkbox_title,1,0,1,1)         
+        layout.addWidget(self.change_title,1,1,1,1)
+        layout.addWidget(self.symbols,1,2,1,1)                         
+        layout.addWidget(self.button,1,3,1,1)         
+        #layout.addWidget(self.save_button,1,4,1,1)
+        layout.addWidget(self.label_start_year,1,4,1,1)
+        layout.addWidget(self.combobox_start_year,1,5,1,1)        
+        layout.addWidget(self.label_stop_year,1,6,1,1)
+        layout.addWidget(self.combobox_stop_year,1,7,1,1)                
 
         # second line             
         layout.addWidget(self.qlist_widget,2,0,1,1)      
@@ -100,15 +104,15 @@ class Window(QtWidgets.QDialog):
         self.setLayout(layout)  
               
         self.button.released.connect(self.call_show_3fig)  
-        self.save_button.released.connect(self.call_save_3fig) 
+        #self.save_button.released.connect(self.call_save_3fig) 
     
     def call_show_3fig(self):
         self.action = 'showfigure'
         self.plot_3fig()
      
-    def call_save_3fig(self):
-        self.action = 'savepdf'
-        self.plot_3fig()
+    #def call_save_3fig(self):
+    #    self.action = 'savepdf'
+    #    self.plot_3fig()
         
     def read_var(self):
 
@@ -124,7 +128,7 @@ class Window(QtWidgets.QDialog):
             self.change_title.setText(self.name+' '+ data_units)                    
         return var_water,data_units
 
-    def save_to_dir(self,dir_name):
+    ''' def save_to_dir(self,dir_name):
         script_dir = os.path.abspath(os.path.dirname(__file__))
         dir_to_save = os.path.abspath(os.path.join(script_dir,dir_name))
             
@@ -133,7 +137,7 @@ class Window(QtWidgets.QDialog):
         #TODO:add directory name
         filename = '{}\Results_brom{}.png'.format(dir_to_save,self.name)       
         #plt.savefig(results_dir+title+'.png')
-        plt.savefig(filename, format='png', dpi=300, transparent=True)
+        plt.savefig(filename, format='png', dpi=300, transparent=True)'''
            
     def plot_3fig(self):       
         plt.clf() 

@@ -72,7 +72,7 @@ def add_roms_plot(dss,axis,varname):
              'po4':'po4', 'no3':'no3'} 
     
     var_roms = funcs[varname]   
-    # Filter data: only septembers after 1990
+    # Filter data: only Septembers after 1990
     dss = dss.where((dss['time.month'] == 9) |  (dss['time.month'] == 10), 
                     drop=True) 
     dss['depth'] = dss['depth'].T      
@@ -89,14 +89,16 @@ def add_brom_plot(dss,axis,varname):
              'si':'Si', #'alk': 'Alk',
              'po4':'PO4', 'no3':'NO3'} 
     dss['depth'] = dss['depth'].T  #  | (dss['time.month'] == 10)
-    dss = dss.where(((dss['time.month'] == 9) ), drop=True)      
+    dss = dss.where(
+        ((dss['time.month'] == 9)  | (dss['time.month'] == 10)  | (dss['time.month'] == 8)),
+         drop=True)    
     var_brom = funcs[varname]   
 
     for n in range(0,len(dss.time),2):
         axis.scatter(dss[var_brom][n],dss.depth,  c ='#de7b5c', # '#4f542a',
             alpha = 0.5, s  = size-20, zorder = 9) #, label = 'Sept \nBROM')
          
-    # Take only september data from BROM simulation
+    # Take only September data from BROM simulation
     m = dss.groupby(dss.depth).mean()    
     axis.plot(m[var_brom],sorted(dss.depth), 'o--', c = '#6d3c2c',
             markersize  = 2, label = 'Sept mean \nBROM',zorder = 9)
@@ -174,7 +176,6 @@ def get_data_wod(ncfile,varname,pl,save,levels,axis,int_num = 1,
     
     return  clima_var_m,levels,ds[var_from_odv],ds['var1']    
 
-
 def plot_data_wod(ncfile,varname,pl,save,levels,axis,int_num = 1,
                         double_int = False,only_clima_mean = False,
                         plt_mean=False): 
@@ -188,11 +189,9 @@ def plot_data_wod(ncfile,varname,pl,save,levels,axis,int_num = 1,
     axis.scatter(var_from_odv,depth_raw,alpha = 0.5, s = size,
             c = '#5b5b5b', label = 'Sept WOD', zorder = 9)
      
-def plt_brom_ersem_wod(save = False) :
-    
+def plt_brom_ersem_wod(save = False) :   
     dss = xr.open_dataset('Data\Laptev_baseline.nc')
-    dss_brom_init = xr.open_dataset('Data\water.nc')
-    
+    #dss = xr.open_dataset('Data\water.nc')    
     levels = sorted(dss.depth.values)
     fig  = plt.figure(figsize=(7,7), dpi=100 )
     
@@ -209,8 +208,7 @@ def plt_brom_ersem_wod(save = False) :
     gs = gridspec.GridSpec(len(vars) // cols , cols)
     gs.update(hspace=0.3,wspace= 0.3,top = 0.92,bottom = 0.02,right = 0.97)
     
-    x_text = 0.0
-    y_text = 1.1
+    x_text,  y_text = 0.0, 1.1
     labels = ('A) ','B) ','C) ', 'D) ')
     interps = [1,3,10,3] #levels of interpolation     
     for n in range(0,4):
@@ -238,4 +236,4 @@ def plt_brom_ersem_wod(save = False) :
 size = 30
     
 if __name__ == '__main__':    
-    plt_brom_ersem_wod(save = True)   
+    plt_brom_ersem_wod(save = False)   

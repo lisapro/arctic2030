@@ -1,4 +1,4 @@
-#Set of scripts for the paper 
+# Set of scripts for the paper 
 
 ### main.py 
 Script to read all the nc files in a folder with different time periods from ROMS,

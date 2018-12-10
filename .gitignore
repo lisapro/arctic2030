@@ -9,7 +9,7 @@ fielddata_plot.py
 .pydevproject
 .settings/
 .vscode/
-/Figures
+/Fig
 /Data
 test.py
 /Figures_from_GUI

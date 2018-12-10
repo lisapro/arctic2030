@@ -29,6 +29,10 @@ import numpy.ma as ma
 import pandas as pd 
 
 sns.set()
+size = 30 
+wod_path = r'Data\Laptev_WOD_area_70_150_f_deeper.nc' 
+brom_path = r'Data\Laptev_baseline.nc' 
+amk_path = 'Data\seep_data_amk.txt'
         
 def choose_month(ds,m_num,var,clima_var_m,levels,double_int = False,int_num = 1):
     # get 1 month data 
@@ -65,50 +69,34 @@ def choose_month(ds,m_num,var,clima_var_m,levels,double_int = False,int_num = 1)
     except:
         var_m = clima_var_m      
     return var_m,month_ds 
-
-def add_roms_plot(dss,axis,varname):
-    funcs = {'Oxygen':'o2', 'Temperature': 'temp',
-             'si':'Si','alk': 'Alk',
-             'po4':'po4', 'no3':'no3'} 
-    
-    var_roms = funcs[varname]   
-    # Filter data: only Septembers after 1990
-    dss = dss.where((dss['time.month'] == 9) |  (dss['time.month'] == 10), 
-                    drop=True) 
-    dss['depth'] = dss['depth'].T      
-    # Take only september data from ROMS simulation 
-    m = dss.groupby(dss.depth).mean()
-    for n in range(0,len(dss.time),1):
-        axis.scatter(dss[var_roms][n],dss.depth,  c = 'y', #de7b5c',
-            alpha = 0.2, s  = 3, label = 'Sept \nROMS+ERSEM')
-    axis.plot(m[var_roms],sorted(dss.depth), 'o', c = '#660033',
-            markersize  = 3, label = 'Sept mean \nROMS+ERSEM',zorder = 8 )
     
 def add_brom_plot(dss,axis,varname):
     funcs = {'Oxygen':'o2', 'Temperature': 'temp',
-             'si':'Si', #'alk': 'Alk',
+             'si':'Si',
              'po4':'PO4', 'no3':'NO3'} 
-    dss['depth'] = dss['depth'].T  #  | (dss['time.month'] == 10)
+    dss['depth'] = dss['depth'].T  
+    
+    # Take only September and October data from BROM simulation
     dss = dss.where(
-        ((dss['time.month'] == 9)  | (dss['time.month'] == 10)  | (dss['time.month'] == 8)),
+        ((dss['time.month'] == 9)),  #| (dss['time.month'] == 10)
          drop=True)    
     var_brom = funcs[varname]   
 
     for n in range(0,len(dss.time),2):
-        axis.scatter(dss[var_brom][n],dss.depth,  c ='#de7b5c', # '#4f542a',
-            alpha = 0.5, s  = size-20, zorder = 9) #, label = 'Sept \nBROM')
+        axis.scatter(dss[var_brom][n],dss.depth,  c ='#de7b5c', 
+            alpha = 0.5, s  = size-20, zorder = 9) 
          
-    # Take only September data from BROM simulation
-    m = dss.groupby(dss.depth).mean()    
-    axis.plot(m[var_brom],sorted(dss.depth), 'o--', c = '#6d3c2c',
-            markersize  = 2, label = 'Sept mean \nBROM',zorder = 9)
+    m = dss.groupby(dss.depth).mean()
+        
+    axis.plot(m[var_brom],sorted(dss.depth),
+            'o--', c = '#6d3c2c',markersize  = 2,
+            label = 'Sept mean \nBROM',zorder = 9)
          
 
 def add_amk(axis,var):
     funcs = {'Oxygen': 'O2ml', 'Temperature': False,
-             'si':'Si', #'alk': 'Alk',
-             'po4':'PO4', 'no3':'NO3'}     
-    file = os.path.join('Data\seep_data_amk.txt') 
+             'si':'Si', 'po4':'PO4', 'no3':'NO3'}     
+    file = os.path.join(amk_path) 
     df = pd.read_csv(file,delimiter = '\t')    
     df['O2ml'] *= 44.6 
     v = funcs[var]
@@ -123,27 +111,20 @@ def get_data_wod(ncfile,varname,pl,save,levels,axis,int_num = 1,
              'si':'var6','alk': 'var12','chl': 'var10',
              'po4':'var5', 'no3':'var7','pH': 'var9'}  
     var_from_odv = funcs[varname]      
-    # read ncfile as xarray
+
     ds = xr.open_dataset(ncfile,drop_variables= ('metavar1'))        
     max_depth = np.int(np.max(ds.var1))
     
-    # get only data from 1950 and later
+    # get only data from 1940 and later
     ds = ds.where(ds.date_time.dt.year > 1940, drop = True) 
     
-    # remove all stations (for all variables) 
-    # where silicates > 40 micromoles    
-    ds = ds.where(ds.var6 < 15, drop=True)   
-    #ds = ds.where(ds.var1 < 81, drop=True)    
-    ds = ds.where(ds.var5 < 2, drop=True)
-    ds = ds.where(ds.var2 < 3, drop=True)  
     # group by depth and find mean for each depth 
     clima_mean = ds.groupby(ds['var1']).mean()    
     clima_depth = clima_mean.var1.values.copy()
     clima_df = clima_mean.to_dataframe()
     
     # interpolate nans 
-    clima_var = (clima_df[var_from_odv].interpolate(kind = 'nearest'))   
-      
+    clima_var = (clima_df[var_from_odv].interpolate(kind = 'nearest'))         
     # interpolations does not work if 1st variable is nan   
     if np.isnan(clima_var[0]) :
         clima_var[0] = clima_var[1]       
@@ -166,12 +147,10 @@ def get_data_wod(ncfile,varname,pl,save,levels,axis,int_num = 1,
     
     if varname == 'Oxygen':    
         clima_var_m = np.array(clima_var_m)*44.6 
-        #clima_means = np.array(clima_means)*44.6 
         ds[var_from_odv] = ds[var_from_odv]*44.6  
         
     elif varname == 'alk':   
         clima_var_m = np.array(clima_var_m)*1000   
-        #clima_means = np.array(clima_means)*1000   
         ds[var_from_odv] = ds[var_from_odv]*1000    
     
     return  clima_var_m,levels,ds[var_from_odv],ds['var1']    
@@ -190,8 +169,7 @@ def plot_data_wod(ncfile,varname,pl,save,levels,axis,int_num = 1,
             c = '#5b5b5b', label = 'Sept WOD', zorder = 9)
      
 def plt_brom_ersem_wod(save = False) :   
-    dss = xr.open_dataset('Data\Laptev_baseline.nc')
-    #dss = xr.open_dataset('Data\water.nc')    
+    dss = xr.open_dataset(brom_path)  
     levels = sorted(dss.depth.values)
     fig  = plt.figure(figsize=(7,7), dpi=100 )
     
@@ -199,7 +177,7 @@ def plt_brom_ersem_wod(save = False) :
     Data from World Ocean Database 
     https://www.nodc.noaa.gov/OC5/WOD/datageo.html 
     '''
-    ncfile = (r'Data\Laptev_WOD_area_70_150_f_deeper.nc')   
+    ncfile = (wod_path)   
     vars = ['Oxygen','po4','si','no3']
     titles = ['O$_2','PO$_4','Si $','NO$_3']
         
@@ -216,8 +194,7 @@ def plt_brom_ersem_wod(save = False) :
         col = n % cols    
         axes.append(fig.add_subplot(gs[row, col]))        
         add_brom_plot(dss,axes[n],vars[n])
-        add_amk(axes[n],vars[n])
-        #add_roms_plot(dss_roms,axes[n],vars[n])     
+        add_amk(axes[n],vars[n])  
         plot_data_wod(ncfile,vars[n],
                 True, True, levels, axes[n],
                 interps[n], double_int = True,
@@ -229,11 +206,13 @@ def plt_brom_ersem_wod(save = False) :
         axes[n].text(x_text, y_text, labels[n], transform=axes[n].transAxes,
                  fontsize=14, fontweight='bold', va='top', ha='right')
     if save == True: 
-        plt.savefig('Data/Figure6_WOD_vs_BROM.png')
+        plt.savefig('Fig/Figure6_WOD_vs_BROM.pdf',
+                    format =  'pdf',
+                    transparent = False)
     else:    
         plt.show()
   
-size = 30
+
     
 if __name__ == '__main__':    
-    plt_brom_ersem_wod(save = False)   
+    plt_brom_ersem_wod(save = True)   

@@ -107,7 +107,9 @@ def plot_rad_evol(save = False):
     ax1.set_xticks(x_ticks)
 
     if save == True:
-        plt.savefig('Data/Figure8_Bubbles_Diameters.png')
+        plt.savefig('Fig/Figure8_Bubbles_Diameters.pdf',
+                    format =  'pdf',
+                    transparent = False)
     else:
         plt.show()
 

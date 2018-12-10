@@ -48,7 +48,7 @@ def plt_flux_1bub(rad,save = False):
      
     f  = interpolate.interp1d(df2.depth,df2.rad_evol)
 
-    new_depth = np.arange(1.05,78,4)
+    new_depth = np.arange(70,78,4)
     radii = f(new_depth) 
     s_rad = (radii/max(radii))*100 
 
@@ -119,6 +119,7 @@ def plt_flux(save = False):
      
     df2.met_cont = df2.met_cont*1000 # milliM
     df1.met_cont = df1.met_cont*1000   
+    
     df2.met_flow = df2.met_flow*1000000 
     df1.met_flow = df1.met_flow*1000000 # microM
     
@@ -176,5 +177,5 @@ def plt_flux(save = False):
         
                 
 if __name__ == '__main__':   
-    #plt_flux_1bub(4) 
-    plt_flux()
+    plt_flux_1bub(1) 
+    #plt_flux()

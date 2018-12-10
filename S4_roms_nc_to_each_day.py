@@ -71,16 +71,6 @@ interp_swrad = interpolate_1d_var(swrad)
 interp_swradWm2 = interpolate_1d_var(swradWm2) 
 interp_pCO2atm = interpolate_1d_var(pCO2atm)
 
-'''
-to_interp_hice = interp1d(ocean_time, hice)
-to_interp_snow_thick = interp1d(ocean_time, snow_thick)
-to_interp_tisrf = interp1d(ocean_time, tisrf)
-    
-interp_hice = to_interp_hice(newtimes)
-interp_snow_thick = to_interp_snow_thick(newtimes)
-interp_tisrf = to_interp_tisrf(newtimes)
-'''
-
 # interpolate 2D variables 
 def interpolate_2d_var(var):
     to_interp_var = interp2d(ocean_time,sorted(depth),var.T,kind = 'linear')
@@ -106,19 +96,7 @@ interp_Z6_c = interpolate_2d_var(Z6_c)
 interp_Z6_n = interpolate_2d_var(Z6_n)
 interp_Z6_p = interpolate_2d_var(Z6_p)
 
-'''
-to_interp_sal = interp2d(ocean_time,depth,sal.T,kind = 'linear')
-interp_sal = to_interp_sal(newtimes,depth)
-interp_sal = interp_sal.T
 
-to_interp_temp = interp2d(ocean_time,depth,temp.T,kind = 'linear')
-interp_temp = to_interp_temp(newtimes,depth)
-interp_temp = interp_temp.T
-
-to_interp_rho = interp2d(ocean_time,depth,rho.T,kind = 'linear')
-interp_rho = to_interp_rho(newtimes,depth)
-interp_rho = interp_rho.T
-'''
 
 to_interp_kz = interp2d(ocean_time,depth2,kz.T,kind = 'linear')
 interp_kz = to_interp_kz(newtimes,depth2)
@@ -162,7 +140,7 @@ def write_nc():
     if not os.path.isdir(dir_to_save):
         os.makedirs(dir_to_save)    
     nc_format = 'NETCDF3_CLASSIC' 
-    f1 = Dataset('{}\ROMS_Laptev_Sea_{}_east_each_day.nc'.format(
+    f1 = Dataset('{}\ROMS_Laptev_Sea_{}_east_each_day_test.nc'.format(
         dir_to_save,nc_format), mode='w', format= nc_format)    
     f1.description= (
         "lat=%3.2f,lon=%3.2f file from ROMS data interpolated to 1day timedelta"%(
@@ -170,15 +148,15 @@ def write_nc():
     f1.source = 'Elizaveta Protsenko (elp@niva.no)'    
     f1.history = 'Created ' + time.ctime(time.time())    
     f1.createDimension('time', len(newtimes))
-    f1.createDimension('z', len(depth))
-    f1.createDimension('z2', len(depth2))
+    f1.createDimension('depth', len(depth))
+    f1.createDimension('depth2', len(depth2))
     
-    v_depth2 = f1.createVariable('depth2','f8',('z2',), zlib= False)
+    v_depth2 = f1.createVariable('depth2','f8',('depth2',), zlib= False)
     v_depth2.long_name = "Z-depth matrix for kz, direction up" ;
     v_depth2.units = "meter"
     v_depth2[:] = depth2
     
-    v_depth = f1.createVariable('depth','f8',('z',), zlib= False)
+    v_depth = f1.createVariable('depth','f8',('depth',), zlib= False)
     v_depth.long_name = "Z-depth matrix, direction down" ;
     v_depth.units = "meter"
     v_depth[:] = depth
@@ -190,22 +168,22 @@ def write_nc():
     v_time.calendar='standard'
     v_time[:] = newtimes
     
-    v_temp=f1.createVariable('temp', 'f8', ('time','z'), zlib=False)
+    v_temp=f1.createVariable('temp', 'f8', ('time','depth'), zlib=False)
     v_temp.long_name = "Ocean temperature"
     v_temp.units = "degree Celsius"
     v_temp[:,:] = interp_temp
     
-    v_sal = f1.createVariable('sal', 'f8', ('time','z'), zlib=False)
+    v_sal = f1.createVariable('sal', 'f8', ('time','depth'), zlib=False)
     v_sal.long_name = "Time-averaged salinity"
     v_sal.units = "psu"
     v_sal[:,:] = interp_sal
     
-    v_kz = f1.createVariable('Kz_s', 'float', ('time','z2'), zlib=False)
+    v_kz = f1.createVariable('Kz_s', 'float', ('time','depth2'), zlib=False)
     v_kz.long_name = 'Salinity vertical diffusion coefficient'
     v_kz.units = 'meter2 second-1'
     v_kz[:,:] = interp_kz
     
-    v_rho = f1.createVariable('rho', 'f8', ('time','z'), zlib=False)
+    v_rho = f1.createVariable('rho', 'f8', ('time','depth'), zlib=False)
     v_rho.long_name = 'time-averaged density anomaly'
     v_rho.units = 'kilogram meter-1'
     v_rho[:,:] = interp_rho
@@ -225,77 +203,77 @@ def write_nc():
     v_tisrf.units = 'degree Celsius'
     v_tisrf[:] = interp_tisrf
     
-    v_DIC = f1.createVariable('DIC', 'f8', ('time','z'), zlib=False)
+    v_DIC = f1.createVariable('DIC', 'f8', ('time','depth'), zlib=False)
     v_DIC.long_name = 'time-averaged carbonate/total dissolved inorganic carbon'
     v_DIC.units = 'mmol C/m^3 '
     v_DIC[:] = interp_DIC
     
-    v_o2 = f1.createVariable('o2', 'f8', ('time','z'), zlib=False)
+    v_o2 = f1.createVariable('o2', 'f8', ('time','depth'), zlib=False)
     v_o2.long_name = 'time-averaged oxygen/oxygen '
     v_o2.units = 'mmol O_2/m^3'
     v_o2[:] = interp_o2
     
-    v_Alk = f1.createVariable('Alk', 'f8', ('time','z'), zlib=False)
+    v_Alk = f1.createVariable('Alk', 'f8', ('time','depth'), zlib=False)
     v_Alk.long_name = 'time-averaged carbonate/total alkalinity"'
     v_Alk.units = 'umol/kg'
     v_Alk[:] = interp_Alk    
         
-    v_po4 = f1.createVariable('po4', 'f8', ('time','z'), zlib=False)
+    v_po4 = f1.createVariable('po4', 'f8', ('time','depth'), zlib=False)
     v_po4.long_name = 'time-averaged phosphate/phosphorus'
     v_po4.units = 'mmol P/m^3'
     v_po4[:] = interp_po4
         
-    v_no3 = f1.createVariable('no3', 'f8', ('time','z'), zlib=False)
+    v_no3 = f1.createVariable('no3', 'f8', ('time','depth'), zlib=False)
     v_no3.long_name = 'time-averaged nitrate/nitrogen'
     v_no3.units = 'mmol N/m^3'
     v_no3[:] = interp_no3
         
-    v_nh4 = f1.createVariable('nh4', 'f8', ('time','z'), zlib=False)
+    v_nh4 = f1.createVariable('nh4', 'f8', ('time','depth'), zlib=False)
     v_nh4.long_name = 'time-averaged ammonium/nitrogen'
     v_nh4.units = 'mmol N/m^3'
     v_nh4[:] = interp_nh4
     
-    v_Si = f1.createVariable('Si', 'f8', ('time','z'), zlib=False)
+    v_Si = f1.createVariable('Si', 'f8', ('time','depth'), zlib=False)
     v_Si.long_name = 'time-averaged silicate/silicate'
     v_Si.units = 'mmol Si/m^3'
     v_Si[:] = interp_Si
 
 
     #mesozooplankton
-    v_Z4_c = f1.createVariable('Z4_c', 'f8', ('time','z'), zlib=False)
+    v_Z4_c = f1.createVariable('Z4_c', 'f8', ('time','depth'), zlib=False)
     v_Z4_c.long_name = 'time-averaged mesozooplankton/carbon'
     v_Z4_c.units = 'mmol C/m^3'
     v_Z4_c[:] = interp_Z4_c
     
     
     #microzooplankton
-    v_Z5_c = f1.createVariable('Z5_c', 'f8', ('time','z'), zlib=False)
+    v_Z5_c = f1.createVariable('Z5_c', 'f8', ('time','depth'), zlib=False)
     v_Z5_c.long_name = 'time-averaged microzooplankton/carbon'
     v_Z5_c.units = 'mmol C/m^3'
     v_Z5_c[:] = interp_Z5_c
     
-    v_Z5_n = f1.createVariable('Z5_n', 'f8', ('time','z'), zlib=False)
+    v_Z5_n = f1.createVariable('Z5_n', 'f8', ('time','depth'), zlib=False)
     v_Z5_n.long_name = 'time-averaged microzooplankton/nitrogen'
     v_Z5_n.units = 'mmol N/m^3'
     v_Z5_n[:] = interp_Z5_n
     
-    v_Z5_p = f1.createVariable('Z5_p', 'f8', ('time','z'), zlib=False)
+    v_Z5_p = f1.createVariable('Z5_p', 'f8', ('time','depth'), zlib=False)
     v_Z5_p.long_name = 'time-averaged microzooplankton/phosphorus'
     v_Z5_p.units = 'mmol P/m^3'
     v_Z5_p[:] = interp_Z5_p
     
     #nanoflagellates
-    v_Z6_c = f1.createVariable('Z6_c', 'f8', ('time','z'), zlib=False)
+    v_Z6_c = f1.createVariable('Z6_c', 'f8', ('time','depth'), zlib=False)
     v_Z6_c.long_name = 'time-averaged nanoflagellates/carbon'
     v_Z6_c.units = 'mmol C/m^3'
     v_Z6_c[:] = interp_Z6_c
     
-    v_Z6_n = f1.createVariable('Z6_n', 'f8', ('time','z'), zlib=False)
+    v_Z6_n = f1.createVariable('Z6_n', 'f8', ('time','depth'), zlib=False)
     v_Z6_n.long_name = 'time-averaged nanoflagellates/nitrogen'
     v_Z6_n.units = 'mmol N/m^3'
     v_Z6_n[:] = interp_Z6_n
     
-    v_Z6_p = f1.createVariable('Z6_p', 'f8', ('time','z'), zlib=False)
+    v_Z6_p = f1.createVariable('Z6_p', 'f8', ('time','depth'), zlib=False)
     v_Z6_p.long_name = 'time-averaged nanoflagellates/phosphorus'
     v_Z6_p.units = 'mmol P/m^3'
     v_Z6_p[:] = interp_Z6_p
@@ -322,5 +300,5 @@ def write_nc():
     
     
 #plot_1d()   
-plot_2d()
-#write_nc()
+#plot_2d()
+write_nc()

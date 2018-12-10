@@ -9,7 +9,6 @@ import matplotlib.gridspec as gridspec
 from mpl_toolkits.basemap import Basemap
 import numpy as np       
 import datetime
-from datetime import time  
 #import pandas as pd
 import xarray as xr
 from scipy import interpolate 
@@ -506,7 +505,7 @@ def make_nc_2_year():
             axis = 0,ignore_index=True)).iloc[:stop,:]
     cont_B1 = pd.concat([zeros,cont_B1,cont_B1],axis = 0).iloc[:stop,:]
 
-    slb_year = scen.calculate_baseline(depth,days_1)/10
+    slb_year = scen.calculate_baseline(depth)/10
     slb_year = pd.concat([slb_year,slb_year,slb_year],axis = 0).iloc[:stop,:]
     v_B1_slb = f1.createVariable('Slb', 'f8', ('time','depth'), zlib=False)
     v_B1_slb.long_name = 'Methane solubility'

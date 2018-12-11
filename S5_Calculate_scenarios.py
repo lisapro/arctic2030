@@ -25,7 +25,7 @@ def make_df_sum(s,scen):
     df_sum.met_cont = df_sum.met_cont*1000 # milliM
     df_sum.met_flow = df_sum.met_flow*1000 # milliM/m2/sec  
     if scen == 'B2_10_30min':
-       df_sum.met_flow = df_sum.met_flow*(30/24*60)
+        df_sum.met_flow = df_sum.met_flow*(30/24*60)
     return df_sum
 
 def calculate_spin_up(z,days):

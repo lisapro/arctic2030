@@ -54,13 +54,11 @@ def plot_flux_scenario_one(sc_name,save = False):
     
     ds = xr.open_dataset(brom_path)
     f = ds[sc_name].loc['1992-1':'1992-12'] 
-<<<<<<< HEAD:Fig9_flux_scenario_year.py
+
     #f = f.where(f > 0)
     #f = f.where(f == 0)
     cm = plt.get_cmap('Greys') #'Reds')
-=======
 
->>>>>>> f7c597403b75c243eb3633d0e148b55b9388389b:x_Fig9_flux_scenario_year.py
     format = mtick.FuncFormatter(fmt)
     axes[0].set_facecolor('w')
     axes[1].set_facecolor('w')
@@ -74,22 +72,13 @@ def plot_flux_scenario_one(sc_name,save = False):
            vmin = 0,vmax = 0.00003,cmap = cm)
          
     plt.colorbar(cs2,ax = axes[1],format = format)    
-<<<<<<< HEAD:Fig9_flux_scenario_year.py
-     
-    axes[0].set_xticklabels(['Feb','Apr','June',
-                             'Aug','Oct','Dec'])
-    axes[1].set_xticklabels(['Feb','Apr','June',
-                             'Aug','Oct','Dec'])
-    axes[0].set_ylim(10,0)
-    axes[1].set_ylim(80,5)
-=======
+
     m = ['Feb','Apr','June','Aug','Oct','Dec'] 
     axes[0].set_xticklabels(m)
     axes[1].set_xticklabels(m)
     axes[0].set_ylim(5,0)
     axes[1].set_ylim(80,0)
->>>>>>> f7c597403b75c243eb3633d0e148b55b9388389b:x_Fig9_flux_scenario_year.py
-    
+
     for n in [0,1]:        
         axes[n].set_xlabel(' ')
         axes[n].set_ylabel('depth, m')   
@@ -145,12 +134,10 @@ def plot_flux_scenarios(sc_name,sc_name2,save = False):
         plt.show()
               
 if __name__ == '__main__':
-<<<<<<< HEAD:Fig9_flux_scenario_year.py
-    plot_flux_scenario_one_fig('B1_50f',save = True)
-    #plot_flux_scenario_one('B2_50f',save = False)
-    #plot_flux_scenarios('B1_50f','B2_50f',False)
-=======
 
     #plot_flux_scenario_one('B2_50f',save = False)
-    plot_flux_scenarios('B1_50f','B2_50f',False)
->>>>>>> f7c597403b75c243eb3633d0e148b55b9388389b:x_Fig9_flux_scenario_year.py
+    #plot_flux_scenarios('B1_50f','B2_50f',False)
+
+
+    plot_flux_scenario_one('B2_50f',save = False)
+    #plot_flux_scenarios('B1_50f','B2_50f',False)

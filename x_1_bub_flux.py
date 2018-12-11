@@ -176,5 +176,5 @@ def plt_flux(save = False):
         
                 
 if __name__ == '__main__':   
-    plt_flux_1bub(1) 
-    #plt_flux()
+    #plt_flux_1bub(1) 
+    plt_flux()

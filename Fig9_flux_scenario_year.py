@@ -15,7 +15,7 @@ def fmt(x, pos):
     b = int(b)
     return r'${} \times 10^{{{}}}$'.format(a, b)
     
-def plot_flux_scenario_one_fig(sc_name,save = False):    
+def Fig9_plot_flux_scenario(sc_name,save = False):    
     
     fig, ax =  plt.subplots(figsize = (8,2))
     
@@ -137,8 +137,8 @@ def plot_flux_scenarios(sc_name,sc_name2,save = False):
               
 if __name__ == '__main__':
 
-    plot_flux_scenario_one_fig('B2_50f',save = False)
+    Fig9_plot_flux_scenario('B2_50f',save = False)
 
-    plot_flux_scenarios('B1_50f','B2_50f',False)
+    #plot_flux_scenarios('B1_50f','B2_50f',False)
 
     #plot_flux_scenarios('B1_50f','B2_50f',False

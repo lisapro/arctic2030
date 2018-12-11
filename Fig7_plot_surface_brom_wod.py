@@ -12,7 +12,8 @@ import seaborn as sns
 import numpy.ma as ma
 
 sns.set()
-ncfile = r'Data/Laptev_WOD_area_70_150_f_deeper.nc'
+
+ncfile = (r'Data\Laptev_WOD_area_70_150_f_deeper.nc') 
 
 fig  = plt.figure(figsize = (7,6))
 

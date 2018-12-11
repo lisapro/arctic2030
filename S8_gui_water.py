@@ -219,7 +219,7 @@ class Window(QtWidgets.QDialog):
             title = self.change_title.text()
             ax0.set_title(title)
         else:                 
-            ax0.set_title('B1_50 0.5 relaxation, '+self.long_name+' ['+ str(data_units)+']')
+            ax0.set_title('B1_50, '+self.long_name+' ['+ str(data_units)+']')
                    
         def fmt(x, pos):
             a, b = '{:.2e}'.format(x).split('e')

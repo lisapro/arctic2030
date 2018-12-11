@@ -181,8 +181,8 @@ ax0_c.set_title(r'$D)\       pH$',fontsize = fontsize)
 fh_water.close()
                     
 #plt.show()
+
 plt.savefig('Fig/Figure11.pdf', format='pdf', dpi=300, transparent=True)
-       
 
                     
 if __name__ == '__main__':

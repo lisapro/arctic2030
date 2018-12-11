@@ -5,7 +5,7 @@ from statsmodels.nonparametric.smoothers_lowess import lowess
 import xarray as xr
 
 global roms_path,bub_path
-roms_path = r"C:\Users\elp\OneDrive\Python_workspace\arctic2030\Data\ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc"
+roms_path = r"Data/ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc"
 bub_path = r'Data/all_for_sbm_79_mm_tab.dat'
 
 def make_df_sum(s,scen):
@@ -25,7 +25,7 @@ def make_df_sum(s,scen):
     df_sum.met_cont = df_sum.met_cont*1000 # milliM
     df_sum.met_flow = df_sum.met_flow*1000 # milliM/m2/sec  
     if scen == 'B2_10_30min':
-       df_sum.met_flow = df_sum.met_flow*(30/24*60)
+        df_sum.met_flow = df_sum.met_flow*(30/24*60)
     return df_sum
 
 def calculate_spin_up(z,days):
@@ -73,6 +73,7 @@ def calculate_scenarios(d_roms,pl,days,sc):
     to_atm  = np.around(mi,decimals = 5)      
     perc = np.around(mi*100/ma,decimals = 2) 
     perc1 = np.around(100-perc,decimals = 2)
+    
     print ('Sum flow to water milliM/sec from the whole! seep {}'.format(sc),df_sum.met_flow.sum())    
     print ('Mean flow to water milliM/m2/sec from one horizont {}'.format(sc),df_sum.met_flow.mean())
     print ('To atmosphere  {} # milliM/sec '.format(sc), to_atm)
@@ -135,7 +136,12 @@ def calculate_scenarios(d_roms,pl,days,sc):
     return df_flow.T, df_cont.T
 
 
+
+ 
+
+
 if __name__ == '__main__': 
+
     days_1 = np.arange(1,32)
     #flux_B1_50,cont_B1_50 = calculate_scenarios([0,1,2,10,20,30,40,50,60,70,80],
                                 #False,days_1,'B1_50')
@@ -159,4 +165,3 @@ if __name__ == '__main__':
     plt.ylim(80,0)
     plt.show()
     print( df_sum.tail(),'\n',df_sum.met_flow.sum(),df_sum.met_flow.mean())
-    

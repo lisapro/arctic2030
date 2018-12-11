@@ -11,8 +11,7 @@ import S1_methane_equilibrium  as me
 import seaborn as sns
 sns.set()
 global bub_path 
-bub_path = (
-r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat")
+bub_path = (r"Data/all_for_sbm_79_mm_tab.dat")
 
 def plot_rad_evol(save = False):
     fig = plt.figure(figsize =(6,4), dpi=150)
@@ -115,4 +114,4 @@ def plot_rad_evol(save = False):
 
 
 if __name__ == '__main__':     
-    plot_rad_evol(True)
+    plot_rad_evol(False)

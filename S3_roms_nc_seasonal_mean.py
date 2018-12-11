@@ -1,12 +1,12 @@
 import os 
-from statsmodels.discrete.tests.test_constrained import junk
+#from statsmodels.discrete.tests.test_constrained import junk
 from matplotlib import gridspec as gs
 from scipy.interpolate import UnivariateSpline  
 from scipy import interpolate 
 from netCDF4 import Dataset,num2date, date2num
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-from mpl_toolkits.basemap import Basemap
+#from mpl_toolkits.basemap import Basemap
 import numpy as np       
 import datetime
 #import pandas as pd
@@ -199,7 +199,7 @@ def get_dimensions_N_year(n_years):
     arr = arr.reindex(index=arr.index[::-1])            
     return  arr.shape,arr.columns,d,d2
 
-def make_nc():
+'''def make_nc():
     nc_format = 'NETCDF3_CLASSIC'
     f1 = Dataset('Data\Laptev_average_year.nc', mode='w', format= nc_format)
     f1.description="file from ROMS averaged to one year" 
@@ -378,7 +378,7 @@ def make_nc():
  
     #cs = ax2.pcolormesh(X,Y,arr,cmap=plt.get_cmap(cmap),vmax = vmax,vmin = vmin) 
     
-    f1.close()
+    f1.close()'''
 
 def make_nc_2_year():
     nc_format = 'NETCDF3_CLASSIC'

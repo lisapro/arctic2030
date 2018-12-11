@@ -14,14 +14,14 @@ https://odv.awi.de/
 
 import seaborn as sns
 import os 
-from statsmodels.discrete.tests.test_constrained import junk
+
 from matplotlib import gridspec as gs
 from scipy.interpolate import UnivariateSpline ,griddata 
 from scipy import interpolate 
 from netCDF4 import Dataset,num2date, date2num
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-from mpl_toolkits.basemap import Basemap
+
 import numpy as np       
 from datetime import datetime,time  
 import xarray as xr
@@ -71,20 +71,26 @@ def choose_month(ds,m_num,var,clima_var_m,levels,double_int = False,int_num = 1)
     return var_m,month_ds 
     
 def add_brom_plot(dss,axis,varname):
+
     funcs = {'Oxygen':'o2', 'Temperature': 'temp',
              'si':'Si',
              'po4':'PO4', 'no3':'NO3'} 
+
     dss['depth'] = dss['depth'].T  
     
     # Take only September and October data from BROM simulation
     dss = dss.where(
-        ((dss['time.month'] == 9)),  #| (dss['time.month'] == 10)
+        ((dss['time.month'] == 9)), 
          drop=True)    
     var_brom = funcs[varname]   
 
     for n in range(0,len(dss.time),2):
-        axis.scatter(dss[var_brom][n],dss.depth,  c ='#de7b5c', 
-            alpha = 0.5, s  = size-20, zorder = 9) 
+
+        #axis.scatter(dss[var_brom][n],dss.depth,  c ='#de7b5c', 
+        #    alpha = 0.5, s  = size-20, zorder = 9) 
+
+        axis.plot(dss[var_brom][n],dss.depth,  c ='#de7b5c', # '#4f542a',
+            alpha = 0.5,  zorder = 9) #, label = 'Sept \nBROM')s  = size-20,
          
     m = dss.groupby(dss.depth).mean()
         

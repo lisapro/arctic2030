@@ -75,7 +75,7 @@ def calculate_scenarios(d_roms,pl,days,sc):
     perc1 = np.around(100-perc,decimals = 2)
     
     print ('Sum flow to water milliM/sec from the whole! seep {}'.format(sc),df_sum.met_flow.sum())    
-    print ('Mean flow to water milliM/m2/sec from the horizont {}'.format(sc),df_sum.met_flow.mean())
+    print ('Mean flow to water milliM/m2/sec from one horizont {}'.format(sc),df_sum.met_flow.mean())
     print ('To atmosphere  {} # milliM/sec '.format(sc), to_atm)
     print ('Percentage of dissolved CH4 {}'.format(sc), perc) 
     print ('Percentage of flux CH4 to atm {}'.format(sc), perc1) 
@@ -141,24 +141,9 @@ def calculate_scenarios(d_roms,pl,days,sc):
 
 
 if __name__ == '__main__': 
-    #days_1 = np.arange(1,32)
-    #flux_B2_10,cont_B1_10 = calculate_scenarios([0,1,2,10,20,30],
-    #                            False,days_1,'B2_10')
+
     flux_B2_50,cont_B1_50 = calculate_scenarios([0,1,2,10,20,30],
                                 False,2,'B1_50') 
     print (cont_B1_50)   
-    r''' Create scenario, sum fluxes from 
-        different bubles 
-    df = pd.read_csv(bub_path,delimiter = '\t' )    
-    sizes = [4,4,4,4]
-    df1 = df[df.radius == sizes[0]].reset_index()
-    df_sum = df1.loc[:,['depth','rad_evol','met_cont','met_flow','vbub']]
-    
-    for n,num in enumerate(sizes):          
-        df2 = df[df.radius == n].reset_index()      
-        for col in df_sum.columns[1:] :
-            df_sum[col] = df_sum[col].add(df2[col],fill_value= 0)      
-    df_sum.met_cont = df_sum.met_cont*1000000 # microM
-    df_sum.met_flow = df_sum.met_flow*1000000 # microM/m2/sec    
-    print (df_sum.head())'''
+
     

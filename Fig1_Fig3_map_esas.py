@@ -20,6 +20,7 @@ st_lat = 76.77
 
 seep_area_lats = [76.5, 77.5, 77.5, 76.5]
 seep_area_lons = [121., 121., 132., 132.]
+wod_path =  r'Data/Laptev_WOD_area_70_150_f_deeper.nc'
 
 def map_attr(m):
     m.drawmapboundary(fill_color='#cae2f7')
@@ -28,7 +29,7 @@ def map_attr(m):
     m.drawlsmask(ocean_color='#caedfd')
 
 def add_bathymetry(m,axis,case = 'Laptev'):    
-    etopo1name=r'C:\Users\elp\OneDrive\Python_workspace\arctic2030\Data\ETOPO1_Ice_g_gmt4.nc'
+    etopo1name=r'Data\ETOPO1_Ice_g_gmt4.nc'
     etopo1 = xr.open_dataset(etopo1name)
     etopo1  = etopo1.where(etopo1.z < 1, drop = True)   
      
@@ -63,7 +64,7 @@ def add_bathymetry(m,axis,case = 'Laptev'):
                   linewidths = 0.76,linestyles = 'dotted')
 
 def add_wod(m): 
-    ncfile = (r'C:\Users\elp\OneDrive\Python_workspace\arctic2030\Data\Laptev_WOD_area_70_150_f_deeper.nc')  
+    ncfile = (wod_path)  
     dss = xr.open_dataset(ncfile)
     lon, lat = m(dss.longitude.values,dss.latitude.values)
     m.scatter(lon,lat,marker='o', alpha = 0.7, s = 5,c = 'k', edgecolors ='k',zorder = 10)
@@ -74,7 +75,7 @@ def add_polygon(m,axis,a=0.7,c = '#db4832'):
                    facecolor=c , alpha=a,zorder = 9)
     axis.add_patch(poly) 
 
-def fig1_polar_map():
+def fig1_polar_map(save = False):
     global fig 
     fig = plt.figure(figsize=(4.69,3.27), dpi=100,facecolor='None',edgecolor='None')
     gs = gridspec.GridSpec(1, 1)
@@ -102,9 +103,14 @@ def fig1_polar_map():
                 fontweight='bold',
                 bbox=dict(facecolor='w', alpha=a ,edgecolor='none'), 
                         ha='left',va='bottom',color='k')
-    plt.savefig('Maps/Figure1_Polar_map.png', transparent = True)
+    if save == True: 
+        plt.savefig('Fig/Figure1_Polar_map.pdf',
+                    format =  'pdf',
+                    transparent = False)
+    else: 
+        plt.show()        
     
-def fig3_laptev_map():
+def fig3_laptev_map(save = False):
     global fig 
     fig = plt.figure(figsize=(4.69,3.27), dpi=100,facecolor='None',edgecolor='None')
     gs = gridspec.GridSpec(1, 1)
@@ -129,10 +135,15 @@ def fig3_laptev_map():
     axins.text(x_l, y_l, 'Laptev Sea',fontsize=f, fontweight='bold',
                 bbox=dict(facecolor='w', alpha=a ,edgecolor='none'), 
                         ha='left',va='bottom',color='k')    
-    plt.savefig('Maps/Fig3_Figure_Laptev_map.png', transparent = True)
+  
+    if save == True: 
+        plt.savefig('Fig/Figure3_Laptev_map.pdf',
+                    format =  'pdf',
+                    transparent = False)  
+    else: 
+        plt.show() 
 
 
-
-fig3_laptev_map()
-#fig1_polar_map()
+fig3_laptev_map(True)
+fig1_polar_map(True)
 #plt.show()

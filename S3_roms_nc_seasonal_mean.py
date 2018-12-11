@@ -1,15 +1,14 @@
 import os 
-from statsmodels.discrete.tests.test_constrained import junk
+#from statsmodels.discrete.tests.test_constrained import junk
 from matplotlib import gridspec as gs
 from scipy.interpolate import UnivariateSpline  
 from scipy import interpolate 
 from netCDF4 import Dataset,num2date, date2num
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-from mpl_toolkits.basemap import Basemap
+#from mpl_toolkits.basemap import Basemap
 import numpy as np       
 import datetime
-from datetime import time  
 #import pandas as pd
 import xarray as xr
 from scipy import interpolate 
@@ -200,7 +199,7 @@ def get_dimensions_N_year(n_years):
     arr = arr.reindex(index=arr.index[::-1])            
     return  arr.shape,arr.columns,d,d2
 
-def make_nc():
+'''def make_nc():
     nc_format = 'NETCDF3_CLASSIC'
     f1 = Dataset('Data\Laptev_average_year.nc', mode='w', format= nc_format)
     f1.description="file from ROMS averaged to one year" 
@@ -379,7 +378,7 @@ def make_nc():
  
     #cs = ax2.pcolormesh(X,Y,arr,cmap=plt.get_cmap(cmap),vmax = vmax,vmin = vmin) 
     
-    f1.close()
+    f1.close()'''
 
 def make_nc_2_year():
     nc_format = 'NETCDF3_CLASSIC'
@@ -506,7 +505,7 @@ def make_nc_2_year():
             axis = 0,ignore_index=True)).iloc[:stop,:]
     cont_B1 = pd.concat([zeros,cont_B1,cont_B1],axis = 0).iloc[:stop,:]
 
-    slb_year = scen.calculate_baseline(depth,days_1)/10
+    slb_year = scen.calculate_baseline(depth)/10
     slb_year = pd.concat([slb_year,slb_year,slb_year],axis = 0).iloc[:stop,:]
     v_B1_slb = f1.createVariable('Slb', 'f8', ('time','depth'), zlib=False)
     v_B1_slb.long_name = 'Methane solubility'

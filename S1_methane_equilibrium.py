@@ -48,12 +48,12 @@ def calc_methane_surf(temp,sal,fg):
 def calculate_vapor(temp,S):
 
     '''Vapor pressure of sea water
-    Copied from https://web.uvic.ca/~rhamme/
-    Changed from matlab to python 
+    Matlab code Copied from https://web.uvic.ca/~rhamme/
     Author: Roberta C. Hamme 
     (University of Victoria,rhamme@uvic.ca)
-    DESCRIPTION:
-    Vapor pressure of sea water
+    and changed from matlab to python 
+        
+    DESCRIPTION:  Vapor pressure of sea water
     S = salinity    [PSS-78]
     T = temperature [degree C]
     OUTPUT:vapor_press = vapor pressure of seawater  [atm] 
@@ -84,8 +84,9 @@ def calculate_vapor(temp,S):
                     0.00221*(0.5*molality)**4)
     vapor_press_kPa = vapor_0sal_kPa * math.exp(
                       -0.018 * osmotic_coef * molality)
-        
-    vapor_press_atm = vapor_press_kPa/101.32501 #Convert to atm
+    
+    #Convert to atm    
+    vapor_press_atm = vapor_press_kPa/101.32501 
     return vapor_press_atm
 
 
@@ -95,18 +96,19 @@ def calc_methane_depth(temp,sal,fg,depth):
         Bunsen  -  the volume of gas (corrected to st.temp 
         and pressure) absorbed in a unit volume of water 
         at the measured temp when the part.pressure of the gas is 760 mm.
+        
         Coefficients and bunsen equation are taken from the paper 
        'Solubility of Methane in Distilled Water and Seawater' 1972 
-       Sachio Yamamoto,' James B. Alcauskas, and Thomas E. Crozier2
+       Sachio Yamamoto,' James B. Alcauskas, and Thomas E. Crozier
     '''
     
     abs_temp = temp + 273.15 # Absoulte Temp Kelvins
-    a1 = -67.1962  #-68.8862 
-    a2 = 99.1624 # 101.4956
-    a3 = 27.9015 #28.7314 
-    b1 = -0.072909 #0.076146
-    b2 = 0.041674 #0.043970 
-    b3 = -0.0064603 #-0.0068672
+    a1 = -67.1962  
+    a2 = 99.1624 
+    a3 = 27.9015 
+    b1 = -0.072909
+    b2 = 0.041674  
+    b3 = -0.0064603 
       
     ln_bunsen = a1 + a2*(100. / abs_temp) + a3 * math.log(abs_temp / 100.) + (
          sal * ( b1 + b2 * (abs_temp / 100.)  + b3 * ((abs_temp / 100.)**2)) )
@@ -142,7 +144,7 @@ def call_met_profile():
         returns depth,temp,sal, 
         methane equilibrium solubility '''
     
-    file = r'Data\Laptev_average_year_2year.nc'            
+    file = r'Data\Laptev_average_year_3year.nc'            
     fh = Dataset(file)     
     
     # Here we take random day in a year 
@@ -174,7 +176,7 @@ def plot_eq_methane():
     ax = plt.subplot(gs[0])
     
     ax.plot(methane,depth,'ro--')   
-    ax.set_title('Methane solumbility nM')  
+    ax.set_title('Methane solubility nM')  
     ax.set_ylim(80,0)
     ax.set_xlim(0,35)    
     plt.show()       
@@ -212,7 +214,8 @@ def calculate_flux(windspeed,ch4_water,temp,sal,depth,pCH4_air):
     ch4_water - CH4 concentration at surface water layer,[nM/l] 
     temp [C], sal [psu], depth [m] '''
     
-    bunsen = calc_methane_depth(temp,sal,pCH4_air,depth)[1] # [ml CH4 / ml water]    
+    bunsen = calc_methane_depth(temp,sal,pCH4_air,depth)[1] # [ml CH4 / ml water]  
+      
     #p = nRt/v = c[nM/l] * R[atm*l*(mol**-1)*(K**-1)] * T[Kelvin]
     pCH4_water = ch4_water* 0.082057 * (temp + 273.15) * (10**-3) *22.4    #![uatm]
         
@@ -228,7 +231,7 @@ def calculate_flux(windspeed,ch4_water,temp,sal,depth,pCH4_air):
     return flux  
 
 
-
+'''
 def test(): 
     temp = 10 #Celsius
     sal = 34 
@@ -270,23 +273,20 @@ def convert():
     x  = ( 1 * input ) / 22.4 #[mole/l]
     x = x * 10 ** 9 #[nanomole/l]
     print (x, 'nM/l')   
-    return x 
+    return x '''
  
      
 #convert()
 
-#test2()
-#test()
-#test3()
+
 if __name__ == '__main__':
-    #call_met_profile1()
-    #plot_eq_methane()
-    plot_ts_eq_methane()
+
+    #plot_ts_eq_methane()
     
     # test values from table 1  L. Lapham et al.(2017)  
-    #test_1line = calculate_flux(windspeed = 4.53, ch4_water = 13.69,
-    #                 temp = 1.31,sal = 30.18, depth = 5.05,pCH4_air = 1.89)     
-    #print (test_1line)
-    #test_2line = calculate_flux(windspeed = 5.52, ch4_water =22.73 ,
-    #               temp = -0.66,sal = 29.11, depth = 5.03,pCH4_air = 1.89) 
+    '''test_1line = calculate_flux(windspeed = 4.53, ch4_water = 13.69,
+                     temp = 1.31,sal = 30.18, depth = 5.05,pCH4_air = 1.89)     
+    print (test_1line)
+    test_2line = calculate_flux(windspeed = 5.52, ch4_water =22.73 ,
+                   temp = -0.66,sal = 29.11, depth = 5.03,pCH4_air = 1.89) '''
     

@@ -60,9 +60,6 @@ def make_nc_baseline():
     f1.createDimension('depth', size= len(depth))
     f1.createDimension('depth2', size=len(depth2))
     
-    
-    print (len(times),len(seconds),len(days))
-    
     v_depth = f1.createVariable('depth','f8',('depth',), zlib= False)
     v_depth.long_name = "Z-depth matrix, direction up" 
     v_depth.units = "meter"

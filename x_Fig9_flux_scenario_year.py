@@ -5,7 +5,11 @@ import numpy as np
 import matplotlib.ticker as mtick 
 import seaborn as sns
 sns.set()
+brom_path = 'Data\Laptev_baseline.nc'
 
+#cm = plt.get_cmap('GnBu') #('gist_stern_r') # #('Reds')
+cm = plt.get_cmap('Reds')
+    
 def fmt(x, pos):
     a, b = '{:.2e}'.format(x).split('e')
     b = int(b)
@@ -48,11 +52,15 @@ def plot_flux_scenario_one(sc_name,save = False):
     
     fig, axes = plt.subplots(nrows = 2,figsize = (8,5))
     
-    ds = xr.open_dataset('Data\Laptev_baseline.nc')
+    ds = xr.open_dataset(brom_path)
     f = ds[sc_name].loc['1992-1':'1992-12'] 
+<<<<<<< HEAD:Fig9_flux_scenario_year.py
     #f = f.where(f > 0)
     #f = f.where(f == 0)
     cm = plt.get_cmap('Greys') #'Reds')
+=======
+
+>>>>>>> f7c597403b75c243eb3633d0e148b55b9388389b:x_Fig9_flux_scenario_year.py
     format = mtick.FuncFormatter(fmt)
     axes[0].set_facecolor('w')
     axes[1].set_facecolor('w')
@@ -66,6 +74,7 @@ def plot_flux_scenario_one(sc_name,save = False):
            vmin = 0,vmax = 0.00003,cmap = cm)
          
     plt.colorbar(cs2,ax = axes[1],format = format)    
+<<<<<<< HEAD:Fig9_flux_scenario_year.py
      
     axes[0].set_xticklabels(['Feb','Apr','June',
                              'Aug','Oct','Dec'])
@@ -73,6 +82,13 @@ def plot_flux_scenario_one(sc_name,save = False):
                              'Aug','Oct','Dec'])
     axes[0].set_ylim(10,0)
     axes[1].set_ylim(80,5)
+=======
+    m = ['Feb','Apr','June','Aug','Oct','Dec'] 
+    axes[0].set_xticklabels(m)
+    axes[1].set_xticklabels(m)
+    axes[0].set_ylim(5,0)
+    axes[1].set_ylim(80,0)
+>>>>>>> f7c597403b75c243eb3633d0e148b55b9388389b:x_Fig9_flux_scenario_year.py
     
     for n in [0,1]:        
         axes[n].set_xlabel(' ')
@@ -91,11 +107,11 @@ def plot_flux_scenarios(sc_name,sc_name2,save = False):
     
     fig, axes = plt.subplots(nrows = 2,figsize = (6,4), dpi=150)
     
-    ds = xr.open_dataset('Data\Laptev_baseline.nc')
+    ds = xr.open_dataset(brom_path)
     f = ds[sc_name].loc['1992-1':'1992-12'] 
     f2 = ds[sc_name2].loc['1992-1':'1992-12']    
     
-    cm = plt.get_cmap('GnBu') #('gist_stern_r') # #('Reds')
+
     format = mtick.FuncFormatter(fmt)
     
     cs = f.plot(x='time', y = 'depth', ax = axes[0],
@@ -118,8 +134,7 @@ def plot_flux_scenarios(sc_name,sc_name2,save = False):
     for n in [0,1]:        
         axes[n].set_xlabel(' ')
         axes[n].set_ylabel('depth, m')   
-         
-  
+           
     axes[0].set_title(r'Scenario B1_50 $ flux\  mmol\ CH_4 \cdot m^2 sec^{-1}$')
     axes[1].set_title(r'Scenario B2_50 $ flux\  mmol\ CH_4 \cdot m^2 sec^{-1}$')
     
@@ -130,6 +145,12 @@ def plot_flux_scenarios(sc_name,sc_name2,save = False):
         plt.show()
               
 if __name__ == '__main__':
+<<<<<<< HEAD:Fig9_flux_scenario_year.py
     plot_flux_scenario_one_fig('B1_50f',save = True)
     #plot_flux_scenario_one('B2_50f',save = False)
     #plot_flux_scenarios('B1_50f','B2_50f',False)
+=======
+
+    #plot_flux_scenario_one('B2_50f',save = False)
+    plot_flux_scenarios('B1_50f','B2_50f',False)
+>>>>>>> f7c597403b75c243eb3633d0e148b55b9388389b:x_Fig9_flux_scenario_year.py

@@ -10,7 +10,7 @@ import datetime
 
 '''
 Script to make nc file 
-for relaxation brom model scanerios 
+for relaxation brom model scenarios 
 based on baseline run of brom model 
 
 BROM reads ROMS and adds BBL to it,

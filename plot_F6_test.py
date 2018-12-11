@@ -14,14 +14,14 @@ https://odv.awi.de/
 
 import seaborn as sns
 import os 
-
+#from statsmodels.discrete.tests.test_constrained import junk
 from matplotlib import gridspec as gs
 from scipy.interpolate import UnivariateSpline ,griddata 
 from scipy import interpolate 
 from netCDF4 import Dataset,num2date, date2num
 import matplotlib.pyplot as plt
 import matplotlib.gridspec as gridspec
-
+#from mpl_toolkits.basemap import Basemap
 import numpy as np       
 from datetime import datetime,time  
 import xarray as xr
@@ -32,8 +32,7 @@ sns.set()
         
 def choose_month(ds,m_num,var,clima_var_m,levels,double_int = False,int_num = 1):
     # get 1 month data 
-    month_ds = ds.where(ds.date_time.dt.month == m_num, drop=True)
-    
+    month_ds = ds.where(ds.date_time.dt.month == m_num, drop=True)    
     try: # group by depth, find mean
         month_mean = month_ds.groupby(month_ds['var1']).mean()     
         month_depth = month_mean.var1.values.copy()
@@ -65,45 +64,34 @@ def choose_month(ds,m_num,var,clima_var_m,levels,double_int = False,int_num = 1)
     except:
         var_m = clima_var_m      
     return var_m,month_ds 
-
-def add_roms_plot(dss,axis,varname):
-    funcs = {'Oxygen':'o2', 'Temperature': 'temp',
-             'si':'Si','alk': 'Alk',
-             'po4':'po4', 'no3':'no3'} 
-    
-    var_roms = funcs[varname]   
-    # Filter data: only Septembers after 1990
-    dss = dss.where((dss['time.month'] == 9) |  (dss['time.month'] == 10), 
-                    drop=True) 
-    dss['depth'] = dss['depth'].T      
-    # Take only september data from ROMS simulation 
-    m = dss.groupby(dss.depth).mean()
-    for n in range(0,len(dss.time),1):
-        axis.scatter(dss[var_roms][n],dss.depth,  c = 'y', #de7b5c',
-            alpha = 0.2, s  = 3, label = 'Sept \nROMS+ERSEM')
-    axis.plot(m[var_roms],sorted(dss.depth), 'o', c = '#660033',
-            markersize  = 3, label = 'Sept mean \nROMS+ERSEM',zorder = 8 )
-    
+  
 def add_brom_plot(dss,axis,varname):
-    funcs = {'Oxygen':'O2', 'Temperature': 'temp',
+    funcs = {'Oxygen':'o2', 'Temperature': 'temp',
              'si':'Si', #'alk': 'Alk',
              'po4':'PO4', 'no3':'NO3'} 
-    dss['depth'] = dss['depth'].T  #  | (dss['time.month'] == 10)
-    dss = dss.where(
-        ((dss['time.month'] == 10) | (dss['time.month'] == 9) ), # |  (dss['time.month'] == 8)
-         drop=True)    
     var_brom = funcs[varname]   
-
-    for n in range(0,len(dss.time),2):
-        axis.plot(dss[var_brom][n],dss.depth,  c ='#de7b5c', # '#4f542a',
-            alpha = 0.5,  zorder = 9) #, label = 'Sept \nBROM')s  = size-20,
-         
+    dss['depth'] = dss['depth'].T  #  | (dss['time.month'] == 10)    
+    dss = dss.where(
+        ((dss['time.month'] == 9)), #| (dss['time.month'] == 8)
+         drop=True)  #| (dss['time.month'] == 10)
+    years = np.unique(dss['time.year'].values)
+    colors = {1991:'r',1992:'b',1993:'b',1994:'b',1995:'r',1996:'r'}
+    for year in years:
+        dss_y =  dss.where((dss['time.year'] == year)) 
+        colo = colors[year]
+        for n in range(0,len(dss_y.time)):
+            #print (n,dss_y[var_brom])
+            axis.plot(dss_y[funcs[varname]][n],dss_y.depth,  c = colo, # '#4f542a',
+                alpha = 0.5, zorder = 1) #, label = 'Sept \nBROM')        
+        #axis.scatter(dss[var_brom][n],dss.depth,  c ='#de7b5c', # '#4f542a',
+        #   alpha = 0.5, s  = size-20, zorder = 9) #, label = 'Sept \nBROM')
+      
     # Take only September data from BROM simulation
-    m = dss.groupby(dss.depth).mean()    
-    axis.plot(m[var_brom],sorted(dss.depth), 'o--', c = '#6d3c2c',
-            markersize  = 2, label = 'Sept mean \nBROM',zorder = 9)
+    #m = dss.groupby(dss.depth).mean()    
+    #
+    #axis.plot(m[var_brom],sorted(dss.depth), 'o--', c = '#6d3c2c',
+    #        markersize  = 2, label = 'Sept mean \nBROM',zorder = 9)
          
-
 def add_amk(axis,var):
     funcs = {'Oxygen': 'O2ml', 'Temperature': False,
              'si':'Si', #'alk': 'Alk',
@@ -125,11 +113,9 @@ def get_data_wod(ncfile,varname,pl,save,levels,axis,int_num = 1,
     var_from_odv = funcs[varname]      
     # read ncfile as xarray
     ds = xr.open_dataset(ncfile,drop_variables= ('metavar1'))        
-    max_depth = np.int(np.max(ds.var1))
-    
+    max_depth = np.int(np.max(ds.var1))    
     # get only data from 1950 and later
-    ds = ds.where(ds.date_time.dt.year > 1940, drop = True) 
-    
+    ds = ds.where(ds.date_time.dt.year > 1940, drop = True)     
     # remove all stations (for all variables) 
     # where silicates > 40 micromoles    
     ds = ds.where(ds.var6 < 15, drop=True)   
@@ -190,7 +176,7 @@ def plot_data_wod(ncfile,varname,pl,save,levels,axis,int_num = 1,
             c = '#5b5b5b', label = 'Sept WOD', zorder = 9)
      
 def plt_brom_ersem_wod(save = False) :   
-    dss = xr.open_dataset('Data\Laptev_baseline.nc')
+    dss = xr.open_dataset('Data\Laptev_baseline_1995.nc')
     #dss = xr.open_dataset('Data\water.nc')    
     levels = sorted(dss.depth.values)
     fig  = plt.figure(figsize=(7,7), dpi=100 )

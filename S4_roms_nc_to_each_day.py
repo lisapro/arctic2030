@@ -170,8 +170,8 @@ def write_nc():
     f1.source = 'Elizaveta Protsenko (elp@niva.no)'    
     f1.history = 'Created ' + time.ctime(time.time())    
     f1.createDimension('time', len(newtimes))
-    f1.createDimension('z', len(depth))
-    f1.createDimension('z2', len(depth2))
+    f1.createDimension('depth', len(depth))
+    f1.createDimension('depth2', len(depth2))
     
     v_depth2 = f1.createVariable('depth2','f8',('z2',), zlib= False)
     v_depth2.long_name = "Z-depth matrix for kz, direction up" ;

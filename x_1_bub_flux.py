@@ -3,7 +3,7 @@ import matplotlib.gridspec as gridspec
 import numpy as np 
 from scipy import interpolate 
 import pandas as pd
-
+path = r"Data\all_for_sbm_79_mm_tab.dat"
 
 def plt_flux_1bub(rad,save = False):    
     '''
@@ -13,10 +13,9 @@ def plt_flux_1bub(rad,save = False):
     based on calculations from the
     Single bubble model 
     https://github.com/zagoven/bubl
-    '''
-    
+    '''    
     plt.style.use('ggplot')
-    path = r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat"
+
     df = pd.read_csv(path,delimiter = '\t' )
     df2 = df[df.radius == rad].reset_index()
 
@@ -110,7 +109,7 @@ def plot_scenario(df_list, df_sum,smoothed_flow,
 
 def plt_flux(save = False):   
     ''' 'Figure for 2 bubble/sec scenario  '''
-    path = r"C:\Users\elp\OneDrive - NIVA\Documents\Projects\PERMAFLUX.TRK\Bubbles\re(1)\all_for_sbm_79_mm_tab.dat"
+    
     df = pd.read_csv(path,delimiter = '\t' )
     df = df.where(df.met_cont >= 0, 0)
 

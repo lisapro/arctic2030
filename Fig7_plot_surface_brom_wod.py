@@ -11,8 +11,8 @@ import xarray as xr
 import matplotlib.gridspec as gridspec
 import seaborn as sns
 sns.set()
-ncfile = r'C:/Users/elp/OneDrive/Python_workspace/Relaxation_WOD/src/data_from_WOD_COLLECTION_Laptev.nc'   
-
+#ncfile = r'C:/Users/elp/OneDrive/Python_workspace/Relaxation_WOD/src/data_from_WOD_COLLECTION_Laptev.nc'   
+ncfile = (r'Data\Laptev_WOD_area_70_150_f_deeper.nc') 
 
 fig  = plt.figure(figsize = (7,6))
 

@@ -22,7 +22,8 @@ from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas)
 from matplotlib.backends.backend_qt5agg import (
     NavigationToolbar2QT as NavigationToolbar)
-
+import matplotlib.colors as colors
+from matplotlib.mlab import bivariate_normal
 from dateutil.relativedelta import relativedelta
 sns.set() 
 root = tk.Tk()
@@ -32,7 +33,7 @@ class Window(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
         self.setWindowFlags(QtCore.Qt.Window) 
-        self.figure = plt.figure(figsize=(7.3 ,3), dpi=150,
+        self.figure = plt.figure(figsize=(9.3 ,3), dpi=150,
                         facecolor='None',edgecolor='None')        
         self.canvas = FigureCanvas(self.figure)  
                
@@ -217,38 +218,40 @@ class Window(QtWidgets.QDialog):
             title = self.change_title.text()
             ax0.set_title(title)
         else:                 
-            ax0.set_title('B1_, '+self.long_name+' ['+ str(data_units)+']')
+            ax0.set_title('B1_50, '+self.long_name+' ['+ str(data_units)+']')
                    
         def fmt(x, pos):
             a, b = '{:.2e}'.format(x).split('e')
             b = int(b)
             return r'${} \times 10^{{{}}}$'.format(a, b)
-        
-        CS1 = ax0.stackplot(form_ice_time,ice[start_ice:stop_ice])
+
+     
+        CS1 = ax0.stackplot(form_ice_time,ice[start_ice:stop_ice],color = '#7B98A8')
         ax0.set_xlim(to_start,to_stop)   
         ax0.set_ylim(0,max(ice[start_ice:stop_ice]))     
  
         mm = np.max(var_water[:,start:stop])
         mm2 = abs(np.min(var_water[:,start:stop]))
         mm_tot = max(mm,mm2)
-        import matplotlib.colors as colors
-        from matplotlib.mlab import bivariate_normal
-        bounds = np.linspace(-mm_tot, mm_tot, 20)
+
+        bounds = np.linspace(-mm_tot, mm_tot, 40)
         norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)        
         
         print (max(mm,mm2))
         CS4 = ax1.pcolor(X_water,Y_water,var_water[:,start:stop],norm = norm, #vmin=-mm_tot, vmax=mm_tot,
                          cmap = cmap_water) 
-                   
+        from matplotlib.ticker import FormatStrFormatter           
         def add_colorbar(CS,axis,ma1):
-
-            if ma1 > 10000 or ma1 < 0.001:
+            print (ma1)
+            if abs(ma1) > 10000 or abs(ma1) < 0.01:
                 cb = plt.colorbar(CS,cax = axis,
-                format=ticker.FuncFormatter(fmt))
+                format= ticker.FuncFormatter(fmt))
             else: 
-                cb = plt.colorbar(CS,cax = axis)
+                cb = plt.colorbar(CS,cax = axis,
+                format = FormatStrFormatter('%.2f'))
             return cb
         
+
         ma1 = ma.max(var_water[:,start:stop])
         cb1 = add_colorbar(CS4,cbax1,ma1)
               

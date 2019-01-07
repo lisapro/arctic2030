@@ -50,7 +50,12 @@ figure = plt.figure(figsize=(7.27, 9.1), dpi=100,
  
     
 #directory =  askdirectory()  #load_work_directory() 
-water_fname = 'Data\water_exp.nc'
+#water_fname = 'Data\water_exp.nc'
+
+water_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\B1_50\water.nc'
+#water_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\B2_50\water.nc'
+
+
 water_base_fname = 'Data\water_baseline.nc'
 fh_water_base = Dataset(water_base_fname)
 fh_water =  Dataset(water_fname)   
@@ -134,7 +139,7 @@ for axis in (ax0,ax0_a,ax0_b,ax0_c):
 
 def add_colorbar(CS,axis,ma1):
     print (ma1)
-    if abs(ma1) > 10000 or abs(ma1) < 0.01:
+    if abs(ma1) > 10000 or abs(ma1) < 1:
         #cb = plt.colorbar(CS,cax = axis,
         #format= ticker.FuncFormatter(fmt))
         
@@ -167,21 +172,21 @@ def to_plot(vname,axis,cb_axis):
     axis.set_ylabel('Depth,m', fontsize = fontsize) 
              
 to_plot('B_CH4_CH4',ax1,cbax1) 
-ax0.set_title(r'$A)\       CH_4\ \mu  M $',fontsize = fontsize) 
+ax0.set_title(r'$A)\      \delta CH_4\ \mu  M $',fontsize = fontsize) 
   
 to_plot('B_BIO_O2_rel_sat',ax1_a,cbax1_a) 
-ax0_a.set_title(r'$B)\        O_2\ saturation\ \%  $',fontsize = fontsize)   
+ax0_a.set_title(r'$B)\      \delta  O_2\ saturation\ \%  $',fontsize = fontsize)   
 
 to_plot('B_C_DIC',ax1_b,cbax1_b) 
-ax0_b.set_title(r'$C)\        DIC\ \mu  M $',fontsize = fontsize)  
+ax0_b.set_title(r'$C)\      \Delta\  DIC\ \mu  M $',fontsize = fontsize)  
  
 to_plot('B_pH_pH',ax1_c,cbax1_c) 
-ax0_c.set_title(r'$D)\       pH$',fontsize = fontsize)   
+ax0_c.set_title(r'$D)\    \Delta\   pH$',fontsize = fontsize)   
 
 fh_water.close()
                     
-#plt.show()
-plt.savefig('Fig/Figure11.pdf', format='pdf', dpi=300, transparent=True)
+plt.show()
+#plt.savefig('Fig/Figure11.pdf', format='pdf', dpi=300, transparent=True)
                    
 if __name__ == '__main__':
     pass   

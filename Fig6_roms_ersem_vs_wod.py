@@ -72,7 +72,7 @@ def choose_month(ds,m_num,var,clima_var_m,levels,double_int = False,int_num = 1)
     
 def add_brom_plot(dss,axis,varname):
 
-    funcs = {'Oxygen':'o2', 'Temperature': 'temp',
+    funcs = {'Oxygen':'O2', 'Temperature': 'temp',
              'si':'Si',
              'po4':'PO4', 'no3':'NO3'} 
 
@@ -221,4 +221,4 @@ def plt_brom_ersem_wod(save = False) :
 
     
 if __name__ == '__main__':    
-    plt_brom_ersem_wod(save = True)   
+    plt_brom_ersem_wod(save = False)   

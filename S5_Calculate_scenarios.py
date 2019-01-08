@@ -56,30 +56,31 @@ def calculate_baseline(days):
 def calculate_scenarios(d_roms,pl,days,sc): 
     ''' get sum flux for the scenario
        bubble sizes, fraction 3 is 1/3 '''
-    scenario_dict = {'B0_30':[[4,2,1],0.3],
-                     'B2_50':[[2,1],0.5],
-                     'B2_10':[[2,1],0.1],
-                     'B2_10_30min':[[2,1],0.1],
-                     'B0_50':[[4,2,1],0.5],
-                     'B1_30':[[4,3,2,1],0.3],
-                     'B1_50':[[4,3,2,1],0.5],
-                     'B1':[[4,3,2,1],1]}
+    scenario_dict = {#'B0_30':[[4,2,1],0.3],
+                    'B2_50':[[2,1],0.5],
+                    'B3_50':[[6,3,2],0.5],                     
+                    #'B2_10':[[2,1],0.1],
+                    #'B2_10_30min':[[2,1],0.1],
+                    #'B0_50':[[4,2,1],0.5],
+                    #'B1_30':[[4,3,2,1],0.3],
+                    'B1_50':[[4,3,2,1],0.5]}
+                    #'B1':[[4,3,2,1],1]
     
-    df_sum = make_df_sum(scenario_dict[sc],sc) 
+    df_sum = make_df_sum(scenario_dict[sc],sc) +mo
     frac = scenario_dict[sc][1]       
     # Calculate means,fluxes etc.    
     ma = np.around(df_sum.met_cont.max(),decimals = 4)
     mi = np.around(df_sum.met_cont.min(),decimals = 4)
     to_atm  = np.around(mi,decimals = 5)      
-    perc = np.around(mi*100/ma,decimals = 2) 
+    perc = np.around((mi/ma)*100,decimals = 2) 
     perc1 = np.around(100-perc,decimals = 2)
     
     print ('Sum flow to water milliM/sec from the whole! seep {}'.format(sc),df_sum.met_flow.sum())    
-    print ('Mean flow to water milliM/m2/sec from one horizont {}'.format(sc),df_sum.met_flow.mean())
-    print ('To atmosphere  {} # milliM/sec '.format(sc), to_atm)
-    print ('Percentage of dissolved CH4 {}'.format(sc), perc) 
-    print ('Percentage of flux CH4 to atm {}'.format(sc), perc1) 
-    
+    #print ('Mean flow to water milliM/m2/sec from one horizont {}'.format(sc),df_sum.met_flow.mean())
+    print ('To atmosphere  {} # milliM/sec '.format(sc), to_atm, 'max',ma,'min',mi)
+    print ('Percentage of dissolved CH4 {} {} %'.format(sc, perc1)) 
+    print ('Percentage of flux CH4 to atm {}  {}%'.format(sc, perc)) 
+    print ("     ")     
     ## Interpolate to roms depths and 365 days
     new_depth =  d_roms
 
@@ -106,9 +107,13 @@ def calculate_scenarios(d_roms,pl,days,sc):
     df_flow = pd.DataFrame(index = new_depth,columns = days)
     df_cont = pd.DataFrame(index = new_depth,columns = days)
     
+    start_ice = 233
+    stop_ice = 300
+    
+    
     if frac ==1 :
         for n in days:
-            if n < 215 or n> 308: # All the rest methane during ice-covered season
+            if n < start_ice or n> stop_ice: # All the rest methane during ice-covered season
                 df_flow[n] = smoothed_flow_ice
                 df_cont[n] = cont
             else:
@@ -126,7 +131,7 @@ def calculate_scenarios(d_roms,pl,days,sc):
         rand = random.sample(lst,n)
     
         for n in rand:
-            if n < 215 or n> 308: 
+            if n < start_ice or n> stop_ice: 
                 df_flow[n] = smoothed_flow_ice
                 df_cont[n] = cont
             else:

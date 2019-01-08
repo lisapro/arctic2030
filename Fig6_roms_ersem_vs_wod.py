@@ -31,7 +31,11 @@ import pandas as pd
 sns.set()
 size = 30 
 wod_path = r'Data\Laptev_WOD_area_70_150_f_deeper.nc' 
-brom_path = r'Data\Laptev_baseline.nc' 
+#brom_path = r'Data\Laptev_baseline.nc' 
+brom_path = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline-0.001\Laptev_baseline.nc'
+#brom_path = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline-0.01\Laptev_baseline.nc'
+#
+
 amk_path = 'Data\seep_data_amk.txt'
         
 def choose_month(ds,m_num,var,clima_var_m,levels,double_int = False,int_num = 1):
@@ -80,7 +84,7 @@ def add_brom_plot(dss,axis,varname):
     
     # Take only September and October data from BROM simulation
     dss = dss.where(
-        ((dss['time.month'] == 9)), 
+        ((dss['time.month'] == 9)| (dss['time.month'] == 10)) , 
          drop=True)    
     var_brom = funcs[varname]   
 
@@ -123,7 +127,7 @@ def get_data_wod(ncfile,varname,pl,save,levels,axis,int_num = 1,
     
     # get only data from 1940 and later
     ds = ds.where(ds.date_time.dt.year > 1940, drop = True) 
-    
+    ds = ds.where(ds.var6 < 15, drop = True) 
     # group by depth and find mean for each depth 
     clima_mean = ds.groupby(ds['var1']).mean()    
     clima_depth = clima_mean.var1.values.copy()
@@ -192,7 +196,7 @@ def plt_brom_ersem_wod(save = False) :
     gs = gridspec.GridSpec(len(vars) // cols , cols)
     gs.update(hspace=0.3,wspace= 0.3,top = 0.92,bottom = 0.02,right = 0.97)
     
-    x_text,  y_text = 0.0, 1.1
+    x_text,  y_text = -0.05, 1.1
     labels = ('A) ','B) ','C) ', 'D) ')
     interps = [1,3,10,3] #levels of interpolation     
     for n in range(0,4):

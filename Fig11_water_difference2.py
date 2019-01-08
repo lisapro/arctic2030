@@ -44,7 +44,7 @@ def fmt(x, pos):
          
 
         
-figure = plt.figure(figsize=(7.27, 9.1), dpi=100,
+figure = plt.figure(figsize=(7.27, 8.1), dpi=100,
                         facecolor='None',edgecolor='None')   
       
  
@@ -54,17 +54,26 @@ figure = plt.figure(figsize=(7.27, 9.1), dpi=100,
 
 
 #case = "scenario\ B1, "
-case ='B2'
-#case = "B1"
-save = True 
+#case ='B1'
+#case = "B2"
+case = "B3"
+#case='R1'
+save = True
 
 if case == "B1": 
-    water_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\B1_50\water.nc'
+    water_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\B1-0.001\water.nc'
+    water_base_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline-0.001\water.nc'
 elif case == "B2": 
-    water_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\B2_50\water.nc'
-
-
-water_base_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline\water.nc'
+    water_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\B2-0.001\water.nc'
+    water_base_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline-0.001\water.nc'
+elif case == "B3": 
+    water_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\B3-0.001\water.nc'
+    water_base_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline-0.001\water.nc'    
+elif case == "R1": 
+    water_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\R1-0.01\water.nc'
+    water_base_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline-0.01\water.nc'
+    
+    
 #water_base_fname = 'Data\water_baseline.nc'
 fh_water_base = Dataset(water_base_fname)
 fh_water =  Dataset(water_fname)   
@@ -150,14 +159,17 @@ for axis in (ax0,ax0_a,ax0_b,ax0_c):
     axis.yaxis.set_label_coords(-0.06, 0.5)
     axis.set_ylabel('Ice', fontsize = fontsize) 
 
-def add_colorbar(CS,axis,ma1):
-    print (ma1)
-    if abs(ma1) > 10000 or abs(ma1) < 1:
+def add_colorbar(CS,axis,ma1): 
+    if abs(ma1) < 0.1:
         #cb = plt.colorbar(CS,cax = axis,
-        #format= ticker.FuncFormatter(fmt))
-        
+        #format= ticker.FuncFormatter(fmt))        
         cb = plt.colorbar(CS,cax = axis,
-        format = FormatStrFormatter('%.2f'))        
+        format = FormatStrFormatter('%.3f'))
+    elif abs(ma1) > 10000 or abs(ma1) < 3:
+        #cb = plt.colorbar(CS,cax = axis,
+        #format= ticker.FuncFormatter(fmt))        
+        cb = plt.colorbar(CS,cax = axis,
+        format = FormatStrFormatter('%.1f'))                          
     else: 
         cb = plt.colorbar(CS,cax = axis,
         format = FormatStrFormatter('%i'))
@@ -168,6 +180,7 @@ def to_plot(vname,axis,cb_axis):
 
     mm = abs(np.max(var_water[:,start:stop]))
     mm2 = abs(np.min(var_water[:,start:stop]))
+    
     print (vname, 'max min' ,np.max(var_water[:,start:stop]),np.min(var_water[:,start:stop]))
     mm_tot = round(max(mm,mm2),2)
     bounds = np.linspace(-mm_tot, mm_tot, 40)
@@ -178,12 +191,13 @@ def to_plot(vname,axis,cb_axis):
                          cmap = cmap_water) 
     ma1 = ma.max(var_water[:,start:stop])
     cb1 = add_colorbar(CS4,cb_axis,ma1)
-    #axis.set_ylim(max_water,min_water)  
+    axis.set_ylim(max_water,min_water)  
     axis.xaxis.set_major_formatter(
         mdates.DateFormatter('%b')) 
     axis.yaxis.set_label_coords(-0.06, 0.5)
     axis.set_ylabel('Depth,m', fontsize = fontsize) 
-             
+    
+print (case)             
 to_plot('B_CH4_CH4',ax1,cbax1) 
 to_plot('B_BIO_O2_rel_sat',ax1_a,cbax1_a) 
 to_plot('B_C_DIC',ax1_b,cbax1_b) 

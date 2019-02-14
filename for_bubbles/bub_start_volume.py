@@ -32,7 +32,7 @@ def vol_mol_bub(r,t = 1):
     #n = pv / rT
     gas_mol=(Pres*vol)/(Rgas*Temp) #содержание газа в пузырьке, моли
     
-    return (r,vol,gas_mol*1000*3.6) # если так: ([r,vol,mol]) - вернет tuple
+    return (r,vol,gas_mol) # если так: ([r,vol,mol]) - вернет tuple
 
 print ('test1',vol_mol_bub(4,t = 1)) 
 
@@ -48,7 +48,7 @@ def calculate_nbub(r,flux):
     n_bub = flux*22.4/vol
     return (np.around(n_bub,decimals=2))
 
-#print ('ttt',vol_mol_bub(0.4)) 
+print ('ttt',vol_mol_bub(0.4)) 
 
 
 #print (vol_mol_bub(4))
@@ -70,6 +70,31 @@ mol_bub_list =[]
 radius = np.arange(0.25,8.25,0.25) 
 # создание набора радиусов (r, мм) с определенным шагом для подстчета формулой
 
+
+
+
+
+
+
+def vol_mol_l_bub(r,t = 1,pres):
+    Pres = pres #7.5 #A Pressure atm
+    Temp = t + 273.15 # Temprature °К
+    Rgas = 8.20575e-5  # R gas constant m3 atm K−1 mol−1 
+    r = r/1000 #  mm to m
+    vol = (4/3*np.pi*r**3) # Volume of bubble м^3
+    
+    gas_mol=(Pres*vol)/(Rgas*Temp) #содержание газа в пузырьке, моли [atm]*[m3]/[ m3 atm k mol] [k]
+    
+    return gas_mol/vol #(vol,gas_mol) # если так: ([r,vol,mol]) - вернет tuple
+
+#conc = vol_mol_l_bub(5,t = 1,8)
+# print (conc , 'mol/l')
+
+
+
+depths = [1,2,3,4,5,6,7,8]
+for n in depths:
+    
 
 
 '''

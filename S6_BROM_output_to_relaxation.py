@@ -167,6 +167,7 @@ def make_nc_baseline():
     flux_B1_50,cont_B1_50 = scen.calculate_scenarios(z,False,days_1,'B1_50')
     flux_B2_10,cont_B2_10 = scen.calculate_scenarios(z,False,days_1,'B2_10')
     flux_B2_50,cont_B2_50 = scen.calculate_scenarios(z,False,days_1,'B2_50')
+    flux_B3_50,cont_B3_50 = scen.calculate_scenarios(z,False,days_1,'B3_50')    
        
     def three_years(flux):    
         flux = (pd.concat([flux,flux,flux],
@@ -177,6 +178,7 @@ def make_nc_baseline():
     flux_B1_50 = three_years(flux_B1_50)
     flux_B2_10 = three_years(flux_B2_10)
     flux_B2_50 = three_years(flux_B2_50)  
+    flux_B3_50 = three_years(flux_B3_50)
       
     cont_B1 =three_years(cont_B1)
     cont_B1_50 = three_years(cont_B1_50) 
@@ -213,6 +215,12 @@ def make_nc_baseline():
     v_B2_50.long_name = 'Methane inflow scenario B2_50'
     v_B2_50.units = 'mmol CH4/m^2 sec'
     v_B2_50[:] = flux_B2_50
+
+    v_B3_50 = f1.createVariable('B3_50f', 'f8', ('time','depth'), zlib=False)
+    v_B3_50.long_name = 'Methane inflow scenario B3_50'
+    v_B3_50.units = 'mmol CH4/m^2 sec'
+    v_B3_50[:] = flux_B3_50
+
  
     slb_year = scen.calculate_baseline(days_1)/10
     slb_year = pd.concat([slb_year,slb_year,slb_year],axis = 0).iloc[:stop,:]

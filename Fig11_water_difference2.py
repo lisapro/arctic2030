@@ -44,14 +44,37 @@ def fmt(x, pos):
          
 
         
-figure = plt.figure(figsize=(7.27, 9.1), dpi=100,
+figure = plt.figure(figsize=(7.27, 8.1), dpi=100,
                         facecolor='None',edgecolor='None')   
       
  
     
 #directory =  askdirectory()  #load_work_directory() 
-water_fname = 'Data\water_exp.nc'
-water_base_fname = 'Data\water_baseline.nc'
+#water_fname = 'Data\water_exp.nc'
+
+
+#case = "scenario\ B1, "
+#case ='B1'
+#case = "B2"
+case = "B3"
+#case='R1'
+save = True
+
+if case == "B1": 
+    water_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\B1-0.001\water.nc'
+    water_base_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline-0.001\water.nc'
+elif case == "B2": 
+    water_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\B2-0.001\water.nc'
+    water_base_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline-0.001\water.nc'
+elif case == "B3": 
+    water_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\B3-0.001\water.nc'
+    water_base_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline-0.001\water.nc'    
+elif case == "R1": 
+    water_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\R1-0.01\water.nc'
+    water_base_fname = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline-0.01\water.nc'
+    
+    
+#water_base_fname = 'Data\water_baseline.nc'
 fh_water_base = Dataset(water_base_fname)
 fh_water =  Dataset(water_fname)   
 
@@ -83,10 +106,14 @@ gs0.update(left=0.1, right= 0.9,top = 0.96,bottom = 0.03,
                    wspace=0.03, hspace=0.35)  
 w = 0.01
 h = 0.
-gs = gridspec.GridSpecFromSubplotSpec(2, 2, wspace=w,hspace=h,subplot_spec=gs0[0],width_ratios=[17, 1], height_ratios=[1, 4])
-gs1 = gridspec.GridSpecFromSubplotSpec(2, 2, wspace=w,hspace=h,subplot_spec=gs0[1],width_ratios=[17, 1], height_ratios=[1, 4])
-gs2 = gridspec.GridSpecFromSubplotSpec(2, 2, wspace=w,hspace=h,subplot_spec=gs0[2],width_ratios=[17, 1], height_ratios=[1, 4])
-gs3  = gridspec.GridSpecFromSubplotSpec(2, 2, wspace=w,hspace=h,subplot_spec=gs0[3],width_ratios=[17, 1], height_ratios=[1, 4])
+gs = gridspec.GridSpecFromSubplotSpec(2, 2, wspace=w,hspace=h,
+    subplot_spec=gs0[0],width_ratios=[17, 1], height_ratios=[1, 4])
+gs1 = gridspec.GridSpecFromSubplotSpec(2, 2, wspace=w,hspace=h,
+    subplot_spec=gs0[1],width_ratios=[17, 1], height_ratios=[1, 4])
+gs2 = gridspec.GridSpecFromSubplotSpec(2, 2, wspace=w,hspace=h,
+    subplot_spec=gs0[2],width_ratios=[17, 1], height_ratios=[1, 4])
+gs3  = gridspec.GridSpecFromSubplotSpec(2, 2, wspace=w,hspace=h,
+    subplot_spec=gs0[3],width_ratios=[17, 1], height_ratios=[1, 4])
    
 #add subplots
 ax0 = figure.add_subplot(gs[0])   
@@ -132,14 +159,17 @@ for axis in (ax0,ax0_a,ax0_b,ax0_c):
     axis.yaxis.set_label_coords(-0.06, 0.5)
     axis.set_ylabel('Ice', fontsize = fontsize) 
 
-def add_colorbar(CS,axis,ma1):
-    print (ma1)
-    if abs(ma1) > 10000 or abs(ma1) < 0.01:
+def add_colorbar(CS,axis,ma1): 
+    if abs(ma1) < 0.1:
         #cb = plt.colorbar(CS,cax = axis,
-        #format= ticker.FuncFormatter(fmt))
-        
+        #format= ticker.FuncFormatter(fmt))        
         cb = plt.colorbar(CS,cax = axis,
-        format = FormatStrFormatter('%.2f'))        
+        format = FormatStrFormatter('%.3f'))
+    elif abs(ma1) > 10000 or abs(ma1) < 3:
+        #cb = plt.colorbar(CS,cax = axis,
+        #format= ticker.FuncFormatter(fmt))        
+        cb = plt.colorbar(CS,cax = axis,
+        format = FormatStrFormatter('%.1f'))                          
     else: 
         cb = plt.colorbar(CS,cax = axis,
         format = FormatStrFormatter('%i'))
@@ -150,7 +180,8 @@ def to_plot(vname,axis,cb_axis):
 
     mm = abs(np.max(var_water[:,start:stop]))
     mm2 = abs(np.min(var_water[:,start:stop]))
-    print ('mm' ,np.max(var_water[:,start:stop]),np.min(var_water[:,start:stop]))
+    
+    print (vname, 'max min' ,np.max(var_water[:,start:stop]),np.min(var_water[:,start:stop]))
     mm_tot = round(max(mm,mm2),2)
     bounds = np.linspace(-mm_tot, mm_tot, 40)
 
@@ -165,23 +196,26 @@ def to_plot(vname,axis,cb_axis):
         mdates.DateFormatter('%b')) 
     axis.yaxis.set_label_coords(-0.06, 0.5)
     axis.set_ylabel('Depth,m', fontsize = fontsize) 
-             
+    
+print (case)             
 to_plot('B_CH4_CH4',ax1,cbax1) 
-ax0.set_title(r'$A)\       CH_4\ \mu  M $',fontsize = fontsize) 
-  
 to_plot('B_BIO_O2_rel_sat',ax1_a,cbax1_a) 
-ax0_a.set_title(r'$B)\        O_2\ saturation\ \%  $',fontsize = fontsize)   
-
 to_plot('B_C_DIC',ax1_b,cbax1_b) 
-ax0_b.set_title(r'$C)\        DIC\ \mu  M $',fontsize = fontsize)  
- 
 to_plot('B_pH_pH',ax1_c,cbax1_c) 
-ax0_c.set_title(r'$D)\       pH$',fontsize = fontsize)   
+
+ax0.set_title(  r'$A)\ scenario\ {}\ , \Delta\ CH_4\ \mu  M $'.format(case),fontsize = fontsize) 
+ax0_a.set_title(r'$B)\ scenario\ {}\ , \Delta\  O_2\ saturation\ \%  $'.format(case),fontsize = fontsize)
+ax0_b.set_title(r'$C)\ scenario\ {}\ , \Delta\  DIC\ \mu  M $'.format(case),fontsize = fontsize) 
+ax0_c.set_title(r'$D)\ scenario\ {}\ , \Delta\   pH$'.format(case),fontsize = fontsize)   
 
 fh_water.close()
-                    
-#plt.show()
-plt.savefig('Fig/Figure11.pdf', format='pdf', dpi=300, transparent=True)
+   
+if save == True: 
+    #plt.savefig('Fig/Figure11_{}.pdf'.format(case), format='pdf', dpi=300, transparent=True)     
+    plt.savefig('Fig/Figure11_{}.png'.format(case), format='png', dpi=300, transparent=True)             
+elif save == False:      
+    plt.show()
+#
                    
 if __name__ == '__main__':
     pass   

@@ -55,8 +55,8 @@ figure = plt.figure(figsize=(7.27, 8.1), dpi=100,
 
 #case = "scenario\ B1, "
 #case ='B1'
-#case = "B2"
-case = "B3"
+case = "B2"
+#case = "B3"
 #case='R1'
 save = True
 
@@ -160,7 +160,9 @@ for axis in (ax0,ax0_a,ax0_b,ax0_c):
     axis.set_ylabel('Ice', fontsize = fontsize) 
 
 def add_colorbar(CS,axis,ma1): 
-    if abs(ma1) < 0.1:
+    
+    
+    '''if abs(ma1) < 0.1:
         #cb = plt.colorbar(CS,cax = axis,
         #format= ticker.FuncFormatter(fmt))        
         cb = plt.colorbar(CS,cax = axis,
@@ -172,7 +174,17 @@ def add_colorbar(CS,axis,ma1):
         format = FormatStrFormatter('%.1f'))                          
     else: 
         cb = plt.colorbar(CS,cax = axis,
-        format = FormatStrFormatter('%i'))
+        format = FormatStrFormatter('%i'))'''
+
+    if axis == cbax1_c:
+        cb = plt.colorbar(CS,cax = axis,
+        format = FormatStrFormatter('%.3f'))
+    elif axis in (cbax1_a,cbax1_b):   
+        cb = plt.colorbar(CS,cax = axis,      
+        format = FormatStrFormatter('%.1f')) 
+    elif axis == cbax1:   
+        cb = plt.colorbar(CS,cax = axis,      
+        format = FormatStrFormatter('%i'))        
     return cb
 
 def to_plot(vname,axis,cb_axis):
@@ -181,14 +193,26 @@ def to_plot(vname,axis,cb_axis):
     mm = abs(np.max(var_water[:,start:stop]))
     mm2 = abs(np.min(var_water[:,start:stop]))
     
-    print (vname, 'max min' ,np.max(var_water[:,start:stop]),np.min(var_water[:,start:stop]))
+    print (vname, 'max min' ,round(np.max(var_water[:,start:stop]),2),round(np.min(var_water[:,start:stop]),2))
     mm_tot = round(max(mm,mm2),2)
-    bounds = np.linspace(-mm_tot, mm_tot, 40)
+    if (case in ('B1','R1','B3') and axis == ax1):
+        mm_tot = 1345        
+        
+    elif (case in ('B1','B3') and axis == ax1_a):
+        mm_tot = 29       
 
+    elif (case in ('B1','B3') and axis == ax1_b):
+        mm_tot = 44       
+    elif (case in ('B1','B3') and axis == ax1_c):
+        mm_tot = 0.16
+         
+    bounds = np.linspace(-mm_tot, mm_tot, 40)     
+    print (bounds) 
     norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)        
         
     CS4 = axis.pcolor(X_water,Y_water,var_water[:,start:stop],norm = norm, #vmin=-mm_tot, vmax=mm_tot,
                          cmap = cmap_water) 
+    
     ma1 = ma.max(var_water[:,start:stop])
     cb1 = add_colorbar(CS4,cb_axis,ma1)
     axis.set_ylim(max_water,min_water)  

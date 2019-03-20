@@ -163,9 +163,9 @@ def make_nc_baseline():
     days_1 = np.arange(1,367)
     zeros = scen.calculate_spin_up(z,days_1) 
      
-    flux_B1,cont_B1 = scen.calculate_scenarios(z,False,days_1,'B1') 
+    #flux_B1,cont_B1 = scen.calculate_scenarios(z,False,days_1,'B1') 
     flux_B1_50,cont_B1_50 = scen.calculate_scenarios(z,False,days_1,'B1_50')
-    flux_B2_10,cont_B2_10 = scen.calculate_scenarios(z,False,days_1,'B2_10')
+    #flux_B2_10,cont_B2_10 = scen.calculate_scenarios(z,False,days_1,'B2_10')
     flux_B2_50,cont_B2_50 = scen.calculate_scenarios(z,False,days_1,'B2_50')
     flux_B3_50,cont_B3_50 = scen.calculate_scenarios(z,False,days_1,'B3_50')    
        
@@ -174,42 +174,43 @@ def make_nc_baseline():
                axis = 0,ignore_index=True)).iloc[:stop,:]       
         return flux     
 
-    flux_B1 = three_years(flux_B1)
+    #flux_B1 = three_years(flux_B1)
     flux_B1_50 = three_years(flux_B1_50)
-    flux_B2_10 = three_years(flux_B2_10)
+    #flux_B2_10 = three_years(flux_B2_10)
     flux_B2_50 = three_years(flux_B2_50)  
     flux_B3_50 = three_years(flux_B3_50)
       
-    cont_B1 =three_years(cont_B1)
-    cont_B1_50 = three_years(cont_B1_50) 
+    #cont_B1 =three_years(cont_B1)
+    #
+    #cont_B1_50 = three_years(cont_B1_50) 
        
-    conc_B2_10 = three_years(cont_B2_10)
-    conc_B2_50 = three_years(cont_B2_50)    
+    #conc_B2_10 = three_years(cont_B2_10)
+    #conc_B2_50 = three_years(cont_B2_50)    
                
-    v_B1 = f1.createVariable('B1f', 'f8', ('time','depth'), zlib=False)
-    v_B1.long_name = 'Methane inflow scenario B1'
-    v_B1.units = 'mmol CH4/m^2 sec'
-    v_B1[:] = flux_B1 
+    #v_B1 = f1.createVariable('B1f', 'f8', ('time','depth'), zlib=False)
+    #v_B1.long_name = 'Methane inflow scenario B1'
+    #v_B1.units = 'mmol CH4/m^2 sec'
+    #v_B1[:] = flux_B1 
 
-    v_B1_cont = f1.createVariable('B1c', 'f8', ('time','depth'), zlib=False)
-    v_B1_cont.long_name = 'Methane content in bubbles B1 '
-    v_B1_cont.units = 'mmol CH4 in bubbles'
-    v_B1_cont[:] =  cont_B1 
+    #v_B1_cont = f1.createVariable('B1c', 'f8', ('time','depth'), zlib=False)
+    #v_B1_cont.long_name = 'Methane content in bubbles B1 '
+    #v_B1_cont.units = 'mmol CH4 in bubbles'
+    #v_B1_cont[:] =  cont_B1 
 
     v_B1_50 = f1.createVariable('B1_50f', 'f8', ('time','depth'), zlib=False)
     v_B1_50.long_name = 'Methane inflow scenario B1_50 4 bubbles 50% of time'
     v_B1_50.units = 'mmol CH4/m^2 sec'
     v_B1_50[:] = flux_B1_50 
 
-    v_B1_50_cont = f1.createVariable('B1_50c', 'f8', ('time','depth'), zlib=False)
-    v_B1_50_cont.long_name = 'Methane content in bubbles B1'
-    v_B1_50_cont.units = 'mmol CH4 in bubbles'
-    v_B1_50_cont[:] =  cont_B1_50    
+    #v_B1_50_cont = f1.createVariable('B1_50c', 'f8', ('time','depth'), zlib=False)
+    #v_B1_50_cont.long_name = 'Methane content in bubbles B1'
+    #v_B1_50_cont.units = 'mmol CH4 in bubbles'
+    #v_B1_50_cont[:] =  cont_B1_50    
 
-    v_B2_10 = f1.createVariable('B2_10f', 'f8', ('time','depth'), zlib=False)
-    v_B2_10.long_name = 'Methane inflow scenario B2_10'
-    v_B2_10.units = 'mmol CH4/m^2 sec'
-    v_B2_10[:] = flux_B2_10 
+    #v_B2_10 = f1.createVariable('B2_10f', 'f8', ('time','depth'), zlib=False)
+    #v_B2_10.long_name = 'Methane inflow scenario B2_10'
+    #v_B2_10.units = 'mmol CH4/m^2 sec'
+    #v_B2_10[:] = flux_B2_10 
 
     v_B2_50 = f1.createVariable('B2_50f', 'f8', ('time','depth'), zlib=False)
     v_B2_50.long_name = 'Methane inflow scenario B2_50'

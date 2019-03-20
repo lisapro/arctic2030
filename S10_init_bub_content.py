@@ -15,6 +15,7 @@ def vol_mol_bub(r,t = -1):
     gas_mol=(Pres*vol)/(Rgas*Temp)*1000  
     return gas_mol
 
+r8 = vol_mol_bub(8) 
 r6 = vol_mol_bub(6) 
 r5 = vol_mol_bub(5)
 r4 = vol_mol_bub(4)
@@ -28,3 +29,5 @@ B3 = r3+r6+r2
 print ('B1 SWI flux',B1, 'Millimole/sec')
 print ('B2 SWI flux',B2, 'Millimole/sec')
 print ('B3 SWI flux big bubbles', B3, 'Millimole/sec')
+print ('8mm',r8, 'Millimole/sec')
+print (1.15/1000,' micromol/m2 sec measured ')

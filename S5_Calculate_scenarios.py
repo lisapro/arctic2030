@@ -66,11 +66,13 @@ def calculate_scenarios(d_roms,pl,days,sc):
                     'B1_50':[[4,3,2,1],0.5]}
                     #'B1':[[4,3,2,1],1]
     
-    df_sum = make_df_sum(scenario_dict[sc],sc) +mo
+    df_sum = make_df_sum(scenario_dict[sc],sc)
     frac = scenario_dict[sc][1]       
     # Calculate means,fluxes etc.    
     ma = np.around(df_sum.met_cont.max(),decimals = 4)
     mi = np.around(df_sum.met_cont.min(),decimals = 4)
+    
+
     to_atm  = np.around(mi,decimals = 5)      
     perc = np.around((mi/ma)*100,decimals = 2) 
     perc1 = np.around(100-perc,decimals = 2)
@@ -107,17 +109,17 @@ def calculate_scenarios(d_roms,pl,days,sc):
     df_flow = pd.DataFrame(index = new_depth,columns = days)
     df_cont = pd.DataFrame(index = new_depth,columns = days)
     
-    start_ice = 233
-    stop_ice = 300
+    start_wat = 236 # 27 aug
+    stop_wat = 303 # 28 oct 
     
     
     if frac ==1 :
         for n in days:
-            if n < start_ice or n> stop_ice: # All the rest methane during ice-covered season
+            if n < start_wat or n> stop_wat: 
                 df_flow[n] = smoothed_flow_ice
                 df_cont[n] = cont
             else:
-                df_flow[n] = smoothed_flow      
+                df_flow[n] = smoothed_flow  # All the rest methane during ice-covered season    
                 df_cont[n] = cont               
     
     else:        
@@ -126,12 +128,13 @@ def calculate_scenarios(d_roms,pl,days,sc):
             df_cont[n] = np.nan #cont
 
         import random
+        random.seed(14)
         lst = range(1,366)
         n = int(365*frac)
         rand = random.sample(lst,n)
-    
+
         for n in rand:
-            if n < start_ice or n> stop_ice: 
+            if n < start_wat or n> stop_wat: 
                 df_flow[n] = smoothed_flow_ice
                 df_cont[n] = cont
             else:

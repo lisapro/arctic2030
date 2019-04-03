@@ -161,7 +161,7 @@ def make_nc_baseline():
     import S5_Calculate_scenarios as scen 
     stop = 365*n_years
     days_1 = np.arange(1,367)
-    zeros = scen.calculate_spin_up(z,days_1) 
+    #zeros = scen.calculate_spin_up(z,days_1) 
 
     def three_years(flux):    
         flux = (pd.concat([flux,flux,flux],
@@ -183,27 +183,37 @@ def make_nc_baseline():
     flux_S = three_years(flux_S)
     flux_F = three_years(flux_F)
 
-    v_BOM = f1.createVariable('BOM_Scenarios_Basic_seep', 'f8', ('time','depth'), zlib=False)
+    v_BOM = f1.createVariable('Scenario_BOM_Basic_seep_flux', 'f8', ('time','depth'), zlib=False)
     v_BOM.long_name = 'Methane inflow scenario B_Basic_seep,O_Increased_oxidation_rate,M_Increased_mixing_rate, 4 bubbles 4mm 50% of time'
     v_BOM.units = 'mmol CH4/m^2 sec'
     v_BOM[:] = flux_BOM
 
-    v_S = f1.createVariable('S_Small_bubbles', 'f8', ('time','depth'), zlib=False)
+    v_S = f1.createVariable('Scenario_S_flux', 'f8', ('time','depth'), zlib=False)
     v_S.long_name = 'Methane inflow scenario S_Small_bubbles 32 bubbles 2 mm 50% of time'
     v_S.units = 'mmol CH4/m^2 sec'
     v_S[:] = flux_S 
 
-    v_F = f1.createVariable('F_Reduced_flux', 'f8', ('time','depth'), zlib=False)
+    v_F = f1.createVariable('Scenario_F_flux', 'f8', ('time','depth'), zlib=False)
     v_F.long_name = 'Methane inflow scenario F_Reduced_flux 2 bubbles 4 mm 50% of time'
     v_F.units = 'mmol CH4/m^2 sec'
     v_F[:] = flux_F
 
-    slb_year = scen.calculate_baseline(days_1)/10
-    slb_year = pd.concat([slb_year,slb_year,slb_year],axis = 0).iloc[:stop,:]
-    v_B1_slb = f1.createVariable('Slb', 'f8', ('time','depth'), zlib=False)
+    import S1_methane_equilibrium  as me
+    slb_year = me.calculate_equilibrium_solubility(days_1) 
+    slb_year = three_years(slb_year)
+
+    v_B1_slb = f1.createVariable('CH4_Slb', 'f8', ('time','depth'), zlib=False)
     v_B1_slb.long_name = 'Methane equilibrium solubility'
     v_B1_slb.units = 'mmol/l CH4 '
     v_B1_slb[:]  = slb_year  
+
+    sat_year = me.calculate_saturation_solubility(days_1) 
+    sat_year = three_years(sat_year) 
+    v_sat = f1.createVariable('Sat_sol', 'f8', ('time','depth'), zlib=False)
+    v_sat.long_name = 'Methane saturation solubility'
+    v_sat.units = 'micrommol/l CH4 '
+    v_sat[:]  = sat_year 
+
 
     f1.close()
     f_brom.close()

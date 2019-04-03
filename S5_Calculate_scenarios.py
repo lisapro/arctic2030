@@ -31,7 +31,7 @@ def make_df_sum(s,scen):
 def calculate_spin_up(z,days):
     return pd.DataFrame(0, index = z,columns = days).T
 
-def slblt():
+def slblt_1d():
     import S1_methane_equilibrium  as me
     ds = xr.open_dataset(roms_path)      
     d_roms = ds.depth.values 
@@ -40,19 +40,15 @@ def slblt():
     fg = 1.8*10**(-6) # 1.87987 ppb to check 
     methane2 = []
     for n in range(0,len(temp)):
-        met2 = me.calc_methane_depth(temp[n],sal[n],fg,d_roms[n])[0] /1000000 # to mmol/l
+        met2 = me.calc_methane_depth(temp[n],sal[n],fg,d_roms[n])[0] /1.e6 # to mmol/l
         methane2.append(met2)
     return methane2
 
 
 def calculate_baseline(days):
     import S1_methane_equilibrium  as me
-    #ds = xr.open_dataset(roms_path) 
-    df_slb = me.calculate_equilibrium_solubility(days) #slblt()
-    #df_slb = pd.DataFrame(index = ds.depth.values,columns = days)      
-    #for n in days:
-    #    df_slb[n] = slb     
-    return df_slb.T
+    df_slb = me.calculate_equilibrium_solubility(days) 
+    return df_slb #.T
 
 def calculate_scenarios(d_roms,days,sc): 
     ''' get sum flux for the scenario
@@ -141,27 +137,4 @@ def calculate_scenarios(d_roms,days,sc):
     return df_flow.T #, df_cont.T
 
 if __name__ == '__main__': 
-
-    days_1 = np.arange(1,32)
-    #flux_B1_50,cont_B1_50 = calculate_scenarios([0,1,2,10,20,30,40,50,60,70,80],
-                                #False,days_1,'B1_50')
-
-
-    df = pd.read_csv(bub_path,delimiter = '\t' )    
-    sizes=[4,3,2,1]
-    df1 = df[df.radius == sizes[0]].reset_index()
-    df_sum = df1.loc[:,['depth','rad_evol','met_cont','met_flow','vbub']]
-    
-    for n,num in enumerate(sizes):          
-        df2 = df[df.radius == n].reset_index()      
-        for col in df_sum.columns[1:] :
-            df_sum[col] = df_sum[col].add(df2[col],fill_value= 0)   
-              
-    df_sum.met_cont = df_sum.met_cont*1000 # milliM
-    df_sum.met_flow = df_sum.met_flow*1000 # milliM/m2/sec  
-
-    import matplotlib.pyplot as plt
-    plt.plot(df_sum.met_cont,df_sum.depth)
-    plt.ylim(80,0)
-    plt.show()
-    print( df_sum.tail(),'\n',df_sum.met_flow.sum(),df_sum.met_flow.mean())
+    pass

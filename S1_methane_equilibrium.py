@@ -132,11 +132,10 @@ def calc_methane_depth(temp,sal,fg,depth):
     p_vapor = calculate_vapor(temp,sal)
      
     # Equation from Weisenburg 
-    
     c = (bunsen * (p_tot - ((h/100.) * p_vapor)) * 
         fg * 44.6 * 10**6) #(nanomoles)  
     
-    return c,bunsen
+    return c #,bunsen
   
 def call_met_profile():
     
@@ -243,26 +242,39 @@ import numpy as np
 def calculate_equilibrium_solubility(days):
     roms_path = 'Data\Laptev_average_year_3year.nc'
     ds = xr.open_dataset(roms_path) 
-    #slb = slblt()
-    #days = np.arange(1,367)
+    sal = ds.sal.values
+    temp = ds.temp.values
+    depth = ds.depth.values
     df_slb = pd.DataFrame(index = ds.depth.values,columns = days)      
     fg = 1.8*10**(-6) # 1.87987 ppb to check 
     for n in days:
-        met = []
-        for k,d in enumerate(ds.depth.values):
-            met.append(calc_methane_depth(ds.temp[n][k].values,ds.sal[n][k].values,fg,d)[0]/1000000 ) # to mmol/l            
-        df_slb[n] = met    
-    return df_slb #.T
+        df_slb[n] = [calc_methane_depth(temp[n][k],sal[n][k],fg,d)/1.e6 for k,d in enumerate(depth)]            
+    return df_slb.T
+
+def calc_methane_saturation(temp,sal,d):
+    Kh_theta = 1.4e-5 * 101.325 # mol/m3 Pa #Convert to M/atm  
+    coef = 1900 #[K]
+    T = temp + 273.15
+    k_sal = 10**(-(sal/58)*0.127)
+    press = 1 + d/10
+    conc_sat = Kh_theta*1.e6*press*np.exp((coef)*(1/T - 1/298.15))*k_sal #Micromol/l
+    return conc_sat
+
+def calculate_saturation_solubility(days):
+    roms_path = 'Data\Laptev_average_year_3year.nc'
+    ds = xr.open_dataset(roms_path) 
+    sal = ds.sal.values
+    temp = ds.temp.values
+    depth = ds.depth.values    
+    df_satur = pd.DataFrame(index = ds.depth.values,columns = days)  
+    for n in days:
+        df_satur[n] = [calc_methane_saturation(temp[n][k],sal[n][k],d) for k,d in enumerate(depth)]          
+    return df_satur.T       
+
+
 
 if __name__ == '__main__':
-
-    #plot_ts_eq_methane()
-    
-    # test values from table 1  L. Lapham et al.(2017)  
-    '''test_1line = calculate_flux(windspeed = 4.53, ch4_water = 13.69,
-                     temp = 1.31,sal = 30.18, depth = 5.05,pCH4_air = 1.89)     
-    print (test_1line)
-    test_2line = calculate_flux(windspeed = 5.52, ch4_water =22.73 ,
-                   temp = -0.66,sal = 29.11, depth = 5.03,pCH4_air = 1.89) '''
-    slb = calculate_solubility()
-    print (slb.head())
+    #slb = calculate_equilibrium_solubility(np.arange(13))
+    #print (slb.head())
+    sat = calculate_saturation_solubility(np.arange(13)).T
+    print (sat[0])

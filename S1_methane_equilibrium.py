@@ -13,7 +13,7 @@ root = tk.Tk()
 root.withdraw()
 import os
 import matplotlib.gridspec as gridspec
-    
+
 def calc_methane_surf(temp,sal,fg):
     
     '''        ONLY FOR SURFACE      
@@ -109,7 +109,7 @@ def calc_methane_depth(temp,sal,fg,depth):
     b1 = -0.072909
     b2 = 0.041674  
     b3 = -0.0064603 
-      
+    #print (temp,sal,depth)  
     ln_bunsen = a1 + a2*(100. / abs_temp) + a3 * math.log(abs_temp / 100.) + (
          sal * ( b1 + b2 * (abs_temp / 100.)  + b3 * ((abs_temp / 100.)**2)) )
     
@@ -120,13 +120,13 @@ def calc_methane_depth(temp,sal,fg,depth):
     # h is the relative humidity (percent)
     # p_vapor is vapor pressure of the solution (atm).
     
-    try:
-        import seawater as sw
-        st_lat = 76.47
-        p_dbar = sw.pres(depth,st_lat) # dbars
-        p_tot = 0.987 * p_dbar/10. # convert dbars to atm 
-    except ModuleNotFoundError:
-        p_tot = 1 + depth/10.3 # in atm
+    #try:
+    #    import seawater as sw
+    #    st_lat = 76.47
+    #    p_dbar = sw.pres(depth,st_lat) # dbars
+    #    p_tot = 0.987 * p_dbar/10. # convert dbars to atm 
+    #except ModuleNotFoundError:
+    p_tot = 1 + depth/10.3 # in atm
             
     h = 100
     p_vapor = calculate_vapor(temp,sal)
@@ -228,56 +228,26 @@ def calculate_flux(windspeed,ch4_water,temp,sal,depth,pCH4_air):
     k = ( 0.24 * (windspeed**2 )) * ((Sc_ch4/ 660.)**-0.5) # [cm/h] 
     flux = k * s * (pCH4_water - pCH4_air) * 24 / 100 # [muM m**-2 d**-1]
     flux_sec = flux / 86400. # [muM m**-2 sec**-1]
-    return flux  
-
-
-'''
-def test(): 
-    temp = 10 #Celsius
-    sal = 34 
-    # Molecular Fraction of Atmospheric Gases Used for Test Value Calculations, ppm     
-    fg = 1.41*10**(-6) 
-    value = calc_methane_surf(temp,sal,fg)  
-    test_value_nmol = 2.146
-    print ('test1',test_value_nmol, value)
- 
-        
-def test2(): 
-    temp = 10 #0.73  #Celsius
-    sal = 34 #33.629 # commented values for bunsen test
-    # Molecular Fraction of Atmospheric Gases Used for Test Value Calculations, ppm     
-    fg = 1.41*10**(-6) 
-    value = calc_methane_depth(temp,sal,fg,0) 
-    conc = value[0]
-    bunsen = value[1]
-    print ('test 2 ',value)
-    test_bunsen = 0.04409
-
-def test3():
-    temp = 0 #C
-    depth = 100 
-    sal = 34 
-    fg = 1.81*10**(-6) 
-    value = calc_methane_depth(temp,sal,fg,depth)
-    conc = value[0] 
-    bunsen = value[1]
-    print (value)
-  
-  
-def convert():
-    # 22.4 liter - 1 mole 
-    # 1 liter - x 
-    # x = ( (1 [mole] * input[liter]) / 22.4 liter )[mole]
-    input = 3. *10 **(-5) # ml/l 
-    input = input * 10**(-3) # convert ml to l
-    x  = ( 1 * input ) / 22.4 #[mole/l]
-    x = x * 10 ** 9 #[nanomole/l]
-    print (x, 'nM/l')   
-    return x '''
- 
+    return flux   
      
 #convert()
+import xarray as xr
+import pandas as pd
+import numpy as np
 
+def calculate_equilibrium_solubility(days):
+    roms_path = 'Data\Laptev_average_year_3year.nc'
+    ds = xr.open_dataset(roms_path) 
+    #slb = slblt()
+    #days = np.arange(1,367)
+    df_slb = pd.DataFrame(index = ds.depth.values,columns = days)      
+    fg = 1.8*10**(-6) # 1.87987 ppb to check 
+    for n in days:
+        met = []
+        for k,d in enumerate(ds.depth.values):
+            met.append(calc_methane_depth(ds.temp[n][k].values,ds.sal[n][k].values,fg,d)[0]/1000000 ) # to mmol/l            
+        df_slb[n] = met    
+    return df_slb #.T
 
 if __name__ == '__main__':
 
@@ -289,4 +259,5 @@ if __name__ == '__main__':
     print (test_1line)
     test_2line = calculate_flux(windspeed = 5.52, ch4_water =22.73 ,
                    temp = -0.66,sal = 29.11, depth = 5.03,pCH4_air = 1.89) '''
-    
+    slb = calculate_solubility()
+    print (slb.head())

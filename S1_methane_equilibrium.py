@@ -131,7 +131,8 @@ def calc_methane_depth(temp,sal,fg,depth):
     h = 100
     p_vapor = calculate_vapor(temp,sal)
      
-    # Equation 
+    # Equation from Weisenburg 
+    
     c = (bunsen * (p_tot - ((h/100.) * p_vapor)) * 
         fg * 44.6 * 10**6) #(nanomoles)  
     
@@ -154,6 +155,9 @@ def call_met_profile():
     depth =  fh.variables['depth'][:]    
     temp =  fh.variables['temp'][10,:]  
     sal =  fh.variables['sal'][10,:]
+    
+    # get values from the ROMS (averaged)
+    
     
     methane = []        
     fg = 1.8*10**(-6) # 1.87987 ppb to check 
@@ -182,6 +186,7 @@ def plot_eq_methane():
     plt.show()       
 
 def plot_ts_eq_methane():
+    
     
     depth,temp,sal,methane = call_met_profile()
     fig = plt.figure(figsize = (10,5))

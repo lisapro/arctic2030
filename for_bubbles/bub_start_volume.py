@@ -51,7 +51,7 @@ def calculate_nbub(r,flux):
     n_bub = flux*22.4/vol
     return (np.around(n_bub,decimals=2))
 
-#print ('ttt',vol_mol_bub(0.4)) 
+print ('ttt',vol_mol_bub(0.4)) 
 
 
 #print (vol_mol_bub(4))
@@ -73,26 +73,15 @@ mol_bub_list =[]
 radius = np.arange(0.25,8.25,0.25) 
 # создание набора радиусов (r, мм) с определенным шагом для подстчета формулой
 
+def vol_mol_l_bub(r,t = 1,pres):
+    Pres = pres #7.5 #A Pressure atm
+    Temp = t + 273.15 # Temprature °К
+    Rgas = 8.20575e-5  # R gas constant m3 atm K−1 mol−1 
+    r = r/1000 #  mm to m
+    vol = (4/3*np.pi*r**3) # Volume of bubble м^3
+    
+    gas_mol=(Pres*vol)/(Rgas*Temp) #содержание газа в пузырьке, моли [atm]*[m3]/[ m3 atm k mol] [k]
+    
+    return gas_mol/vol #(vol,gas_mol) # если так: ([r,vol,mol]) - вернет tuple
 
 
-'''
-for r in radius:
-    vol_mol_bub = vol_mol_bub(r)
-    mol_bub_list.append(vol_mol_bub)
-mol_bub_array=np.array(mol_bub_list)
-np.savetxt('{}\mol_vol_res.dat'.format(dir_to_save),mol_bub_array, delimiter=' ')
-# In[31]:
-
-#Если считаем все газовые составляющие(метан, углекислый, кислород):
-met=95 #задаем процентное соотношение газа в пузырьке
-co2=4
-o2=1
-met_bub=mol_bub_array[:,2]/100*met #обращение к 3 столбцу
-co2_bub=mol_bub_array[:,2]/100*co2
-o2_bub = mol_bub_array[:,2]/100*o2
-results = np.column_stack((mol_bub_array,met_bub,co2_bub,o2_bub))
-
-
-np.savetxt('{}\start_data.dat'.format(dir_to_save),results,delimiter=' ')
-
-'''

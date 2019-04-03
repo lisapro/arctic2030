@@ -32,7 +32,7 @@ def d2n(delta):
     return s 
 
 def make_nc_baseline():
-    f_brom = Dataset('Data\water.nc', mode='r')
+    f_brom = Dataset(r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\water.nc', mode='r')
     f_roms = Dataset('Data\Laptev_average_year_3year.nc', mode='r')
     
     # remove bbl! 
@@ -235,7 +235,10 @@ def make_nc_baseline():
     f_roms.close()
     
     
-make_nc_baseline()    
+make_nc_baseline()  
+
+
+
 def make_nc_baseline_1995():
     f_brom = Dataset('Data\water.nc', mode='r')
     f_roms = Dataset('Data\ROMS_Laptev_Sea_1995-2000_cut.nc', mode='r')

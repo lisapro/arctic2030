@@ -32,10 +32,13 @@ def vol_mol_bub(r,t = 1):
     #n = pv / rT
     gas_mol=(Pres*vol)/(Rgas*Temp) #содержание газа в пузырьке, моли
     
-    return (r,vol,gas_mol*1000*3.6) # если так: ([r,vol,mol]) - вернет tuple
+    #return (r,vol,gas_mol*1000) # если так: ([r,vol,mol]) - вернет tuple
+    return (gas_mol*1000)
 
-print ('test1',vol_mol_bub(4,t = 1)) 
-
+print ('B, Basic seep',np.around(vol_mol_bub(4,t = 1)*4,decimals=3)) 
+print ('F, Reduced Flux ',np.around(vol_mol_bub(4,t = 1)*2,decimals=3)) 
+print ('F, small Bubbles ',np.around(vol_mol_bub(2,t = 1)*32,decimals=3))
+#print ((vol_mol_bub(4)+vol_mol_bub(3)+vol_mol_bub(2)+vol_mol_bub(1))*3.6/4)
 def calculate_flux(r,n_bub):
     vol = (4./3.)*np.pi*r**3.*1e-06 #Liter  radius in mm liter   to liter **1e-06
     met_cont_sec = n_bub*vol /(22.413) # mole/sec
@@ -55,9 +58,9 @@ def calculate_nbub(r,flux):
 n_bub_init = 3.6 #bub
 rad = 2 #mm
 flux = calculate_flux(rad,n_bub_init)
-print (np.around(flux*60*60*24,decimals = 3) ,'Flux Mole CH4 /day;\n',np.around(flux*1.e3,decimals = 4),'Millimole /sec ' )
+#print (np.around(flux*60*60*24,decimals = 3) ,'Flux Mole CH4 /day;\n',np.around(flux*1.e3,decimals = 4),'Millimole /sec ' )
 n_bub_calc = calculate_nbub(rad,flux)
-print (n_bub_calc,n_bub_calc == n_bub_init)
+#print (n_bub_calc,n_bub_calc == n_bub_init)
 
 dir_name = 'Data'   
 script_dir = os.path.abspath(os.path.dirname(__file__))

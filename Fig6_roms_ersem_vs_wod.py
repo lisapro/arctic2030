@@ -31,8 +31,8 @@ import pandas as pd
 sns.set()
 size = 30 
 wod_path = r'Data\Laptev_WOD_area_70_150_f_deeper.nc' 
-#brom_path = r'Data\Laptev_baseline.nc' 
-brom_path = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline-0.001\Laptev_baseline.nc'
+brom_path = r'Data\Laptev_baseline.nc' 
+#brom_path = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline-0.001\Laptev_baseline.nc'
 #brom_path = r'E:\Users\ELP\Fortran\Ice_model_bubbles\data_spbm_laptev\baseline-0.01\Laptev_baseline.nc'
 #
 

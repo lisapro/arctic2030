@@ -277,4 +277,11 @@ if __name__ == '__main__':
     #slb = calculate_equilibrium_solubility(np.arange(13))
     #print (slb.head())
     sat = calculate_saturation_solubility(np.arange(13)).T
-    print (sat[0])
+    depth = sat.index.values
+    difs = []
+    for k in range(0,39): #k,v in enumerate(depth-6):
+        difs.append(depth[k+1]-depth[k])
+
+    print (depth)
+    print (max(difs),min(difs)  )   
+    print ('*****',len(sat.index.values))

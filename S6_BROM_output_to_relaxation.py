@@ -24,6 +24,7 @@ sec_start = date2num(start,
                 units = time_units,
                 calendar = 'standard')
 
+  
 def d2n(delta): 
     d  = datetime.timedelta(days=int(delta))  
     s = date2num((d+start), 
@@ -31,8 +32,8 @@ def d2n(delta):
                 calendar = 'standard')
     return s 
 
-def make_nc_baseline():
-    f_brom = Dataset(r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\water.nc', mode='r')
+def make_nc_baseline(path_brom_input,path_brom_output):
+    f_brom = Dataset(path_brom_input , mode='r')
     f_roms = Dataset('Data\Laptev_average_year_3year.nc', mode='r')
     
     # remove bbl! 
@@ -49,7 +50,7 @@ def make_nc_baseline():
     days = [day for day in np.arange(1,365*n_years+1)]
 
     nc_format = 'NETCDF3_CLASSIC'
-    f1 = Dataset('Data\Laptev_baseline.nc', mode='w', format= nc_format)
+    f1 = Dataset(path_brom_output, mode='w', format= nc_format) 
     f1.description="Baseline after BROM run" 
     f1.source = 'Elizaveta Protsenko (elp@niva.no)'
     f1.history = 'Created ' + time.ctime(time.time())
@@ -111,6 +112,11 @@ def make_nc_baseline():
     v_hice.long_name = 'time-averaged ice thickness in cell'
     v_hice.units = 'meter'
     v_hice[:] = f_roms.variables['hice'][:] 
+
+    v_snow_thick = f1.createVariable('snow_thick', 'f8', ('time',), zlib=False)
+    v_snow_thick.long_name = 'time-averaged isnow_thick in cell'
+    v_snow_thick.units = 'meter'
+    v_snow_thick[:] = f_roms.variables['snow_thick'][:] 
 
     v_tisrf = f1.createVariable('tisrf', 'f8', ('time',), zlib=False)
     v_tisrf.long_name = 'time-averaged temperature of ice surface'
@@ -179,7 +185,6 @@ def make_nc_baseline():
                      
     # 2 step write it in three years 
     flux_BOM = three_years(flux_BOM)
-
     flux_S = three_years(flux_S)
     flux_F = three_years(flux_F)
 
@@ -221,4 +226,11 @@ def make_nc_baseline():
     
 
 if __name__=='__main__':
-    make_nc_baseline()
+    path_b_in = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_B\water.nc'
+    path_b_out = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_B\Laptev_Baseline_B.nc'  #'Data\Laptev_baseline.nc'
+
+    path_o_in = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_O\water.nc'
+    path_o_out = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_O\Laptev_Baseline_O.nc'  #'Data\Laptev_baseline.nc'
+
+    make_nc_baseline(path_b_in,path_b_out)
+    #make_nc_baseline(path_o_in,path_o_out)

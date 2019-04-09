@@ -5,7 +5,7 @@ import numpy as np
 # с использованием уравнения Менделеева-Клайперона (PV = nRT)
 
 def vol_mol_bub(r,t = -1):
-    Pres = 7.9             # Pressure atm
+    Pres = 7.9          # Pressure atm
     Temp = t + 273.15      # Temprature °К
     Rgas = 82.0575         # Gas constant cm3 atm K−1 mol−1 
     r = r/10               # radius, cm
@@ -31,3 +31,6 @@ print ('B2 SWI flux',B2, 'Millimole/sec')
 print ('B3 SWI flux big bubbles', B3, 'Millimole/sec')
 print ('8mm',r8, 'Millimole/sec')
 print (1.15/1000,' micromol/m2 sec measured ')
+print (vol_mol_bub(4,t=-1)*4)
+print (vol_mol_bub(4,t=0)*4)
+print (vol_mol_bub(4)*3)

@@ -60,7 +60,7 @@ def calculate_scenarios(d_roms,days,sc):
                      #'O_Increased_oxidation_rate':[[4]*4,0.5],                    
                      #'M_Increased_mixing_rate':[[4]*4,0.5],
                      'S_Small_bubbles':[[2]*32,0.5],
-                     'F_Reduced_flux':[[4,4],0.5]}
+                     'F_Reduced_flux':[[4]*3,0.5]}
     
     df_sum = make_df_sum(scenario_dict[sc],sc)
     frac = scenario_dict[sc][1]    

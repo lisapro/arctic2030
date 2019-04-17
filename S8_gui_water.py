@@ -3,32 +3,25 @@ Created on 28. jun. 2017
 
 @author: ELP
 '''
-
+from pandas.plotting import register_matplotlib_converters
+register_matplotlib_converters()
 import os,sys,datetime 
-from PyQt5 import QtWidgets,QtCore #, QtGui 
-#from PyQt5.QtWidgets import QTableWidget,QTableWidgetItem
+from PyQt5 import QtWidgets,QtCore 
 from netCDF4 import Dataset,num2date,date2num,date2index
 import numpy as np
-
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import matplotlib.colors as colors
-#from matplotlib.mlab import bivariate_normal
-#import matplotlib as mpl
 import matplotlib.dates as mdates
 import matplotlib.ticker as ticker
-
 import numpy.ma as ma
-
 import tkinter as tk 
 from tkinter.filedialog import askdirectory  #askopenfilename
-
 import seaborn as sns
 from matplotlib.backends.backend_qt5agg import (
     FigureCanvasQTAgg as FigureCanvas)
 from matplotlib.backends.backend_qt5agg import (
     NavigationToolbar2QT as NavigationToolbar)
-
 from dateutil.relativedelta import relativedelta
 sns.set() 
 root = tk.Tk()

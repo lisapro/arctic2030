@@ -179,9 +179,9 @@ def make_nc_baseline(path_brom_input,path_brom_output):
     #flux_B3_50,cont_B3_50 = scen.calculate_scenarios(z,False,days_1,'B3_50')   
 
     # 1 step create scenario for one year  
-    flux_BOM = scen.calculate_scenarios(z,days_1,'BOM_Basic_seep')      
-    flux_S = scen.calculate_scenarios(z,days_1,'S_Small_bubbles')                                      
-    flux_F = scen.calculate_scenarios(z,days_1,'F_Reduced_flux')                        
+    flux_BOM = scen.calculate_scenarios(z,days_1,sc ='BOM_Basic_seep')      
+    flux_S = scen.calculate_scenarios(z,days_1,sc ='S_Small_bubbles')                                      
+    flux_F = scen.calculate_scenarios(z,days_1,sc ='F_Reduced_flux')                        
                      
     # 2 step write it in three years 
     flux_BOM = three_years(flux_BOM)
@@ -232,5 +232,5 @@ if __name__=='__main__':
     path_o_in = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_O\water.nc'
     path_o_out = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_O\Laptev_Baseline_O.nc'  #'Data\Laptev_baseline.nc'
 
-    make_nc_baseline(path_b_in,path_b_out)
-    #make_nc_baseline(path_o_in,path_o_out)
+    #make_nc_baseline(path_b_in,path_b_out)
+    make_nc_baseline(path_o_in,path_o_out)

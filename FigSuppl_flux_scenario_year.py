@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.ticker as mtick 
 import seaborn as sns
 sns.set()
-brom_path = 'Data\Laptev_baseline.nc'
+brom_path =  r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_B\Laptev_Baseline_B.nc'
 
 #cm = plt.get_cmap('GnBu') #('gist_stern_r') # #('Reds')
 cm = plt.get_cmap('Reds')
@@ -17,14 +17,14 @@ def fmt(x, pos):
     
 def Fig9_plot_flux_scenario(sc_name,save = False):    
     
-    fig, ax =  plt.subplots(figsize = (8,2))
+    fig, ax =  plt.subplots(figsize = (8,4))
     
     ds = xr.open_dataset(brom_path)
     f = ds[sc_name].loc['1992-1':'1992-12'] 
 
     #f = f.where(f > 0)
-    f = f.where(f == 0)
-    cm = plt.get_cmap('Greys') #'Reds')
+    #f = f.where(f == 0)
+    cm = plt.get_cmap('Reds')
     format = mtick.FuncFormatter(fmt)
     ax.set_facecolor('k')
 
@@ -32,7 +32,7 @@ def Fig9_plot_flux_scenario(sc_name,save = False):
                 add_colorbar = False,levels = 5, 
             cmap = cm,vmin = 0,vmax = 0.0003) 
 
-    #plt.colorbar(cs,ax = ax,format = format) 
+    plt.colorbar(cs,ax = ax,format = format) 
          
     ax.set_xticklabels(['Feb','Apr','June',
                              'Aug','Oct','Dec'])
@@ -44,7 +44,7 @@ def Fig9_plot_flux_scenario(sc_name,save = False):
     plt.tight_layout()#pad, h_pad, w_pad, rect
     
     if save == True:
-        plt.savefig('Data/Random_seep_day.png'.format(sc_name),
+        plt.savefig('Fig/Fig_suppl_Random_seep_day.png'.format(sc_name),
                     transparent = False)
     else:    
         plt.show()
@@ -89,7 +89,7 @@ def plot_flux_scenario_one(sc_name,save = False):
     
     
     if save == True:
-        plt.savefig('Data/fluxes_experiment_{}.png'.format(sc_name),
+        plt.savefig('Data/Fig_supplement_fluxes_experiment_{}.png'.format(sc_name),
                     transparent = False)
     else:    
         plt.show()
@@ -126,18 +126,18 @@ def plot_flux_scenarios(sc_name,sc_name2,save = False):
         axes[n].set_xlabel(' ')
         axes[n].set_ylabel('depth, m')   
            
-    axes[0].set_title(r'Scenario B1_50 $ flux\  mmol\ CH_4 \cdot m^2 sec^{-1}$')
-    axes[1].set_title(r'Scenario B2_50 $ flux\  mmol\ CH_4 \cdot m^2 sec^{-1}$')
+    #axes[0].set_title(r'Scenario B1_50 $ flux\  mmol\ CH_4 \cdot m^2 sec^{-1}$')
+    #axes[1].set_title(r'Scenario B2_50 $ flux\  mmol\ CH_4 \cdot m^2 sec^{-1}$')
     
     if save == True:
-        plt.savefig('Data/Fig9_fluxes_experiments.png',
+        plt.savefig('Fig/Fig_Suppl_fluxes_experiments.png',
                     transparent = False)
     else:    
         plt.show()
               
 if __name__ == '__main__':
 
-    Fig9_plot_flux_scenario('B2_50f',save = False)
+    Fig9_plot_flux_scenario('Scenario_BOM_Basic_seep_flux',save = True)
 
     #plot_flux_scenarios('B1_50f','B2_50f',False)
 

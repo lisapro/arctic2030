@@ -5,22 +5,15 @@ Created on 28. jun. 2017
 '''
 
 import os,sys,datetime 
-#from PyQt5 import QtWidgets,QtGui, QtCore
-#from PyQt5.QtWidgets import QTableWidget,QTableWidgetItem
 from netCDF4 import Dataset,num2date,date2num,date2index
-
 import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib import gridspec
 import numpy.ma as ma
-
-import matplotlib.dates as mdates
-#import tkinter as tk 
- 
+import matplotlib.dates as mdates 
 import matplotlib.ticker as ticker
 import seaborn as sns
 import matplotlib.colors as colors
-#from matplotlib.mlab import bivariate_normal
 from dateutil.relativedelta import relativedelta
 #from bokeh.colors import color
 sns.set() 
@@ -133,15 +126,9 @@ def make_plot(water_fname,water_base_fname,case,save = True):
         axis.set_ylabel('Ice', fontsize = fontsize) 
 
     def add_colorbar(CS,axis):# ,ma1
-        if axis == cbax1_c:
-            cb = plt.colorbar(CS,cax = axis,
-            format = FormatStrFormatter('%.3f'))
-        elif axis in (cbax1_a,cbax1_b):   
-            cb = plt.colorbar(CS,cax = axis,      
-            format = FormatStrFormatter('%.1f')) 
-        elif axis == cbax1:   
-            cb = plt.colorbar(CS,cax = axis,      
-            format = FormatStrFormatter('%i'))        
+        formats = {cbax1_c:'%.3f',cbax1_a:'%.1f',cbax1_b:'%.1f',cbax1:'%i'}
+        cb = plt.colorbar(CS,cax = axis,      
+        format = FormatStrFormatter(formats[axis]))       
         return cb
 
     def to_plot(vname,axis,cb_axis,cmap_water):
@@ -151,19 +138,14 @@ def make_plot(water_fname,water_base_fname,case,save = True):
         mm2 = abs(np.min(var_water[:,start:stop]))
         mm_tot = round(max(mm,mm2),2)
         
-        #bounds = np.linspace(-mm_tot, mm_tot, 40)     
-        #norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)        
-            
-        #CS4 = axis.pcolor(X_water,Y_water,var_water[:,start:stop],#norm = norm, #vmin=-mm_tot, vmax=mm_tot,
-        #                    cmap = cmap_water) 
-      
-        axis.contour(X_water,Y_water,var_water[:,start:stop],10,linewidths=0.1, colors='k')
-        CS4 = axis.contourf(X_water,Y_water,var_water[:,start:stop],100,#norm = norm, #vmin=-mm_tot, vmax=mm_tot,
+        CS = axis.contourf(X_water,Y_water,var_water[:,start:stop],10,#norm = norm, #vmin=-mm_tot, vmax=mm_tot,
                             cmap = cmap_water) 
-
-
         ma1 = ma.max(var_water[:,start:stop])
-        cb1 = add_colorbar(CS4,cb_axis) #,ma1
+        cb1 = add_colorbar(CS,cb_axis) #,ma1        
+        #if axis == ax1:                    
+        #    #CS_1 = axis.contour(X_water,Y_water,var_water[:,start:stop],np.arange(0,2500,250),linewidths=0.2, colors='k')
+        #    #cb1.add_lines(CS_1)
+
         axis.set_ylim(max_water,min_water)  
         axis.xaxis.set_major_formatter(
             mdates.DateFormatter('%b')) 
@@ -185,7 +167,7 @@ def make_plot(water_fname,water_base_fname,case,save = True):
     fh_water.close()
     
     if save == True: 
-        plt.savefig('Fig/Figure11_{}.png'.format(case), format='png') #, dpi=300, transparent=True)             
+        plt.savefig('Fig/Figure9_{}.png'.format(case), format='png') #, dpi=300, transparent=True)             
     elif save == False:      
         plt.show()
 
@@ -205,9 +187,9 @@ water_S  = r'{}\{}\water.nc'.format(base_cap,'S-Small-bubbles')
 
 if __name__ == '__main__':
 
-    make_plot(water_B, water_base_b_fname,case = 'B',save = False)      
-    '''make_plot(water_FR,water_base_b_fname,case = 'FR')       
+    make_plot(water_B, water_base_b_fname,case = 'B',save = True)      
+    make_plot(water_FR,water_base_b_fname,case = 'FR')       
     make_plot(water_MR,water_base_b_fname,case = 'MR')  
     make_plot(water_MI,water_base_b_fname,case = 'MI')     
     make_plot(water_S, water_base_b_fname,case = 'S')          
-    make_plot(water_OI,water_base_o_fname,case = 'OI')'''
+    make_plot(water_OI,water_base_o_fname,case = 'OI')

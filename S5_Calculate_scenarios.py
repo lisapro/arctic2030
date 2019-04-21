@@ -11,21 +11,18 @@ bub_path = r'Data/all_for_sbm_79_mm_tab.dat'
 def make_df_sum(s,scen):
     ''' Create scenario, sum fluxes from 
         different bubles '''
-
     df = pd.read_csv(bub_path,delimiter = '\t' )    
     sizes,fraction = s
     df1 = df[df.radius == sizes[0]].reset_index()
     df_sum = df1.loc[:,['depth','rad_evol','met_cont','met_flow','vbub']]
     
     for n,num in enumerate(sizes):          
-        df2 = df[df.radius == n].reset_index()      
+        df2 = df[df.radius == num].reset_index()      
         for col in df_sum.columns[1:] :
             df_sum[col] = df_sum[col].add(df2[col],fill_value= 0)   
-              
+                      
     df_sum.met_cont = df_sum.met_cont*1000 # milliM
     df_sum.met_flow = df_sum.met_flow*1000 # milliM/m2/sec  
-    if scen == 'B2_10_30min':
-        df_sum.met_flow = df_sum.met_flow*(30/24*60)
     return df_sum
 
 def calculate_spin_up(z,days):
@@ -56,26 +53,26 @@ def calculate_scenarios(d_roms,days,sc):
     scenario_dict = {#'B0_30':[[4,2,1],0.3],
                      #'B2_50':[[2,1],0.5],
                      #'B3_50':[[6,3,2],0.5],                     
-                     'BOM_Basic_seep':[[4]*4,0.5],
+                     'BOM_Basic_seep':[[4]*4,0.5],                    
                      #'O_Increased_oxidation_rate':[[4]*4,0.5],                    
                      #'M_Increased_mixing_rate':[[4]*4,0.5],
                      'S_Small_bubbles':[[2]*32,0.5],
                      'F_Reduced_flux':[[4]*3,0.5]}
     
-    df_sum = make_df_sum(scenario_dict[sc],sc)
+    df_sum = make_df_sum(s = scenario_dict[sc],scen = sc)
     frac = scenario_dict[sc][1]    
 
     # Calculate means,fluxes etc.    
-    ma = np.around(df_sum.met_cont.max(),decimals = 4)
-    mi = np.around(df_sum.met_cont.min(),decimals = 4)
-    to_atm  = np.around(mi,decimals = 5)      
-    perc = np.around((mi/ma)*100,decimals = 2) 
-    perc1 = np.around(100-perc,decimals = 2)
+    ma = df_sum.met_cont.max()
+    mi = df_sum.met_cont.min()
+    to_atm  = np.around(mi,decimals=2) 
+    perc = np.around((mi/ma)*100,decimals=2)
+    perc1 = np.around(100-perc,decimals=2)
     
     print ('Sum flow to water milliM/sec from the whole! seep {}'.format(sc),df_sum.met_flow.sum())    
     #print ('Mean flow to water milliM/m2/sec from one horizont {}'.format(sc),df_sum.met_flow.mean())
     print ('To atmosphere  {} # milliM/sec '.format(sc), to_atm, 'max',ma,'min',mi)
-    print ('CH4 dissolved in the water during uplifting,scenario:  , {} {} %'.format(sc, perc1)) 
+    print ('CH4 dissolved in the water during uplifting,scenario:{} {} %'.format(sc, perc1)) 
     print ('Percentage of flux CH4 to atm {}  {}%'.format(sc, perc)) 
     print ("     ")     
 

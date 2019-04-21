@@ -31,7 +31,7 @@ class Window(QtWidgets.QDialog):
     def __init__(self, parent=None):
         super(Window, self).__init__(parent)
         self.setWindowFlags(QtCore.Qt.Window) 
-        self.figure = plt.figure(figsize=(7.3 ,4), dpi=150,
+        self.figure = plt.figure(figsize=(7.3,3), dpi=150,
 
                         facecolor='None',edgecolor='None')        
         self.canvas = FigureCanvas(self.figure)  
@@ -145,8 +145,6 @@ class Window(QtWidgets.QDialog):
         self.min_water = np.amin(self.depth_water)
         self.max_water = np.amax(self.depth_water)
                   
-        #ice_time_format  = num2date(ice_time) 
-        #print (ice_time_format[0:10])
         try:
             self.time = self.fh_water.variables['time']      
             self.time2 = self.fh_water.variables['time'][:]
@@ -185,11 +183,11 @@ class Window(QtWidgets.QDialog):
                             calendar=None, select='nearest')
         stop_ice = date2index(to_stop, ice_time,
                             calendar=None, select='nearest')    
-        print (start,start_ice,stop,stop_ice)    
+ 
         
         units = ice_data.variables['time'].units
         form_ice_time = num2date(ice_time[start_ice:stop_ice],units = units)
-        print ('form_ice_time made ')       
+   
         self.fh_water.close()
         ice_data.close()
         
@@ -223,7 +221,7 @@ class Window(QtWidgets.QDialog):
         CS1 = ax0.stackplot(form_ice_time,ice[start_ice:stop_ice])
         ax0.set_xlim(to_start,to_stop)   
         ax0.set_ylim(0,max(ice[start_ice:stop_ice]))     
-        print (np.max(var_water[:,start:stop]))
+
     
         try:   
             bounds = np.linspace(np.min(var_water[:,start:stop]), 

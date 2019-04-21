@@ -141,7 +141,7 @@ class Window(QtWidgets.QDialog):
         plt.clf() 
              
         self.fh_water =  Dataset(self.water_fname)     
-        self.depth_water = np.array(self.fh_water.variables['z_faces'][:])        
+        self.depth_water = np.array(self.fh_water.variables['z'][:])        
         self.min_water = np.amin(self.depth_water)
         self.max_water = np.amax(self.depth_water)
                   
@@ -223,15 +223,17 @@ class Window(QtWidgets.QDialog):
         ax0.set_ylim(0,max(ice[start_ice:stop_ice]))     
 
     
-        try:   
-            bounds = np.linspace(np.min(var_water[:,start:stop]), 
-                             np.max(var_water[:,start:stop]), 10)
-            norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)        
-            CS4 = ax1.pcolor(X_water,Y_water,var_water[:,start:stop],norm=norm,
-                          cmap = cmap_water) 
-        except: 
-            CS4 = ax1.pcolor(X_water,Y_water,var_water[:,start:stop],norm=norm,
-                          cmap = cmap_water)                        
+        #try:   
+        bounds = np.linspace(np.min(var_water[:,start:stop]), 
+                            np.max(var_water[:,start:stop]), 10)
+        norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)        
+        #CS4 = ax1.pcolor(X_water,Y_water,var_water[:,start:stop],norm=norm,
+        #              cmap = cmap_water) 
+        CS4 = ax1.contourf(X_water,Y_water,var_water[:,start:stop],10,#norm=norm,
+                        cmap = cmap_water)                       
+        #except: 
+        #   # CS4 = ax1.pcolor(X_water,Y_water,var_water[:,start:stop],norm=norm,
+        #   #               cmap = cmap_water)                        
         def add_colorbar(CS,axis,ma1):
 
             if ma1 > 10000 or ma1 < 0.001:

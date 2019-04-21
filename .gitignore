@@ -5,7 +5,11 @@
 seep_data.txt
 fielddata_plot.py
 *.dat
-
-/Figures
+.project
+.pydevproject
+.settings/
+.vscode/
+/Fig
 /Data
-
+test.py
+/Figures_from_GUI

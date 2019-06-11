@@ -182,11 +182,12 @@ def make_nc_baseline(path_brom_input,path_brom_output):
     flux_BOM = scen.calculate_scenarios(z,days_1,sc ='BOM_Basic_seep')      
     flux_S = scen.calculate_scenarios(z,days_1,sc ='S_Small_bubbles')                                      
     flux_F = scen.calculate_scenarios(z,days_1,sc ='F_Reduced_flux')                        
-                     
+    flux_F2 = scen.calculate_scenarios(z,days_1,sc ='F2_Reduced_flux')                       
     # 2 step write it in three years 
     flux_BOM = three_years(flux_BOM)
     flux_S = three_years(flux_S)
     flux_F = three_years(flux_F)
+    flux_F2 = three_years(flux_F2)
 
     v_BOM = f1.createVariable('Scenario_BOM_Basic_seep_flux', 'f8', ('time','depth'), zlib=False)
     v_BOM.long_name = 'Methane inflow scenario B_Basic_seep,O_Increased_oxidation_rate,M_Increased_mixing_rate, 4 bubbles 4mm 50% of time'
@@ -199,9 +200,14 @@ def make_nc_baseline(path_brom_input,path_brom_output):
     v_S[:] = flux_S 
 
     v_F = f1.createVariable('Scenario_F_flux', 'f8', ('time','depth'), zlib=False)
-    v_F.long_name = 'Methane inflow scenario F_Reduced_flux 2 bubbles 4 mm 50% of time'
+    v_F.long_name = 'Methane inflow scenario F_Reduced_flux 3 bubbles 4 mm 50% of time'
     v_F.units = 'mmol CH4/m^2 sec'
     v_F[:] = flux_F
+
+    v_F2 = f1.createVariable('Scenario_F2_flux', 'f8', ('time','depth'), zlib=False)
+    v_F2.long_name = 'Methane inflow scenario F2_Reduced_flux 2 bubbles 4 mm 50% of time'
+    v_F2.units = 'mmol CH4/m^2 sec'
+    v_F2[:] = flux_F2
 
     import S1_methane_equilibrium  as me
     slb_year = me.calculate_equilibrium_solubility(days_1) 
@@ -232,5 +238,5 @@ if __name__=='__main__':
     path_o_in = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_O\water.nc'
     path_o_out = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_O\Laptev_Baseline_O.nc'  #'Data\Laptev_baseline.nc'
 
-    #make_nc_baseline(path_b_in,path_b_out)
+    make_nc_baseline(path_b_in,path_b_out)
     make_nc_baseline(path_o_in,path_o_out)

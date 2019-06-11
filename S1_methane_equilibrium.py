@@ -4,6 +4,9 @@ Created on 30. nov. 2017
 @author: ELP
 '''
 
+import xarray as xr
+import pandas as pd
+import numpy as np
 import math
 import matplotlib.pyplot as plt
 from netCDF4 import Dataset
@@ -65,7 +68,7 @@ def calculate_vapor(temp,S):
     #Calculate temperature in Kelvin and modified 
     # temperature for Chebyshev polynomial
     temp_K = temp + 273.15
-    temp_mod = 1-temp_K/647.096;
+    temp_mod = 1-temp_K/647.096
     
     #Calculate value of Wagner polynomial
     Wagner = (-7.85951783*temp_mod +1.84408259*temp_mod**1.5 - 
@@ -90,9 +93,9 @@ def calculate_vapor(temp,S):
     return vapor_press_atm
 
 
-def calc_methane_depth(temp,sal,fg,depth):
+def calc_atm_equil_methane_depth(temp,sal,fg,depth):
     
-    ''' Calculate equilibrium methane concentration
+    ''' Calculate atmospheric equilibrium methane concentration
         Bunsen  -  the volume of gas (corrected to st.temp 
         and pressure) absorbed in a unit volume of water 
         at the measured temp when the part.pressure of the gas is 760 mm.
@@ -116,22 +119,21 @@ def calc_methane_depth(temp,sal,fg,depth):
     bunsen = math.e ** ln_bunsen
         
     # p_tot - the total pressure (atm) 
+    try:
+        import seawater as sw
+        st_lat = 76.47
+        p_dbar = sw.pres(depth,st_lat) # dbars
+        p_tot = 0.987 * p_dbar/10. # convert dbars to atm 
+    except ModuleNotFoundError:
+        p_tot = 1 + depth/10.3 # in atm   
+
     # fg -  the mole fraction of gas (fG) in the dry atmosphere
-    # h is the relative humidity (percent)
-    # p_vapor is vapor pressure of the solution (atm).
-    
-    #try:
-    #    import seawater as sw
-    #    st_lat = 76.47
-    #    p_dbar = sw.pres(depth,st_lat) # dbars
-    #    p_tot = 0.987 * p_dbar/10. # convert dbars to atm 
-    #except ModuleNotFoundError:
-    p_tot = 1 + depth/10.3 # in atm
-            
-    h = 100
+    h = 100 # h is the relative humidity (percent)
+
+    # p_vapor is vapor pressure of the solution (atm).   
     p_vapor = calculate_vapor(temp,sal)
      
-    # Equation from Weisenburg 
+    # Equation (4) from Weisenburg 1979 
     c = (bunsen * (p_tot - ((h/100.) * p_vapor)) * 
         fg * 44.6 * 10**6) #(nanomoles)  
     
@@ -155,16 +157,14 @@ def call_met_profile():
     temp =  fh.variables['temp'][10,:]  
     sal =  fh.variables['sal'][10,:]
     
-    # get values from the ROMS (averaged)
-    
-    
+    # get values from the ROMS (averaged)   
     methane = []        
     fg = 1.8*10**(-6) # 1.87987 ppb to check 
     for n in range(0,len(temp)):
         t = temp[n]  
         s = sal[n]
         d = depth[n]
-        met = calc_methane_depth(t,s,fg,d)[0] 
+        met = calc_atm_equil_methane_depth(t,s,fg,d)[0] 
         methane.append(met)
      
     return depth,temp,sal,methane 
@@ -185,7 +185,6 @@ def plot_eq_methane():
     plt.show()       
 
 def plot_ts_eq_methane():
-    
     
     depth,temp,sal,methane = call_met_profile()
     fig = plt.figure(figsize = (10,5))
@@ -218,7 +217,7 @@ def calculate_flux(windspeed,ch4_water,temp,sal,depth,pCH4_air):
     ch4_water - CH4 concentration at surface water layer,[nM/l] 
     temp [C], sal [psu], depth [m] '''
     
-    bunsen = calc_methane_depth(temp,sal,pCH4_air,depth)[1] # [ml CH4 / ml water]  
+    bunsen = calc_atm_equil_methane_depth(temp,sal,pCH4_air,depth)[1] # [ml CH4 / ml water]  
       
     #p = nRt/v = c[nM/l] * R[atm*l*(mol**-1)*(K**-1)] * T[Kelvin]
     pCH4_water = ch4_water* 0.082057 * (temp + 273.15) * (10**-3) *22.4    #![uatm]
@@ -234,11 +233,6 @@ def calculate_flux(windspeed,ch4_water,temp,sal,depth,pCH4_air):
     flux_sec = flux / 86400. # [muM m**-2 sec**-1]
     return flux   
      
-#convert()
-import xarray as xr
-import pandas as pd
-import numpy as np
-
 def calculate_equilibrium_solubility(days):
     roms_path = 'Data\Laptev_average_year_3year.nc'
     ds = xr.open_dataset(roms_path) 
@@ -248,7 +242,7 @@ def calculate_equilibrium_solubility(days):
     df_slb = pd.DataFrame(index = ds.depth.values,columns = days)      
     fg = 1.8*10**(-6) # 1.87987 ppb to check 
     for n in days:
-        df_slb[n] = [calc_methane_depth(temp[n][k],sal[n][k],fg,d)/1.e6 for k,d in enumerate(depth)]            
+        df_slb[n] = [calc_atm_equil_methane_depth(temp[n][k],sal[n][k],fg,d)/1.e6 for k,d in enumerate(depth)]            
     return df_slb.T
 
 def calc_methane_saturation(temp,sal,d):
@@ -270,8 +264,6 @@ def calculate_saturation_solubility(days):
     for n in days:
         df_satur[n] = [calc_methane_saturation(temp[n][k],sal[n][k],d) for k,d in enumerate(depth)]          
     return df_satur.T       
-
-
 
 if __name__ == '__main__':
     #slb = calculate_equilibrium_solubility(np.arange(13))

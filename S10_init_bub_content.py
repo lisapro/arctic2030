@@ -26,6 +26,7 @@ r1 = vol_mol_bub(1)
 B1 = r4+r3+r2+r1
 B2 = r3+r1
 B3 = r3+r6+r2
+
 print ('B1 SWI flux',B1, 'Millimole/sec')
 print ('B2 SWI flux',B2, 'Millimole/sec')
 print ('B3 SWI flux big bubbles', B3, 'Millimole/sec')
@@ -33,4 +34,6 @@ print ('8mm',r8, 'Millimole/sec')
 print (1.15/1000,' micromol/m2 sec measured ')
 print (vol_mol_bub(4,t=-1)*4)
 print (vol_mol_bub(4,t=0)*4)
-print (vol_mol_bub(4)*3)
+print (vol_mol_bub(4,t=0)*4)
+print (vol_mol_bub(4)*3) #Flux scenario
+print (vol_mol_bub(4)*2) #Flux2 scenario

@@ -16,13 +16,16 @@ import seaborn as sns
 import matplotlib.colors as colors
 from dateutil.relativedelta import relativedelta
 #from bokeh.colors import color
+
+import matplotlib.ticker as mtick
+
+from matplotlib.ticker import MaxNLocator
 sns.set() 
 sns.axes_style({ 'axes.grid': True,'axes.spines.right': True})
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
 
 def read_var(name):
-
     var_water = np.array(
         fh_water.variables[name][:]).T  
     var_water_base  = np.array(
@@ -52,7 +55,6 @@ def make_plot(water_fname,water_base_fname,case,save = True):
     max_water = np.amax(depth_water)
             
     #ice_time_format  = num2date(ice_time) 
-
     time = fh_water.variables['time']      
     time2 = fh_water.variables['time'][:]
     time_units = fh_water.variables['time'].units
@@ -74,15 +76,18 @@ def make_plot(water_fname,water_base_fname,case,save = True):
                     wspace=0.03, hspace=0.35)  
     w = 0.01
     h = 0.
-    gs = gridspec.GridSpecFromSubplotSpec(2, 2, wspace=w,hspace=h,
-        subplot_spec=gs0[0],width_ratios=[17, 1], height_ratios=[1, 4])
-    gs1 = gridspec.GridSpecFromSubplotSpec(2, 2, wspace=w,hspace=h,
-        subplot_spec=gs0[1],width_ratios=[17, 1], height_ratios=[1, 4])
-    gs2 = gridspec.GridSpecFromSubplotSpec(2, 2, wspace=w,hspace=h,
-        subplot_spec=gs0[2],width_ratios=[17, 1], height_ratios=[1, 4])
-    gs3  = gridspec.GridSpecFromSubplotSpec(2, 2, wspace=w,hspace=h,
-        subplot_spec=gs0[3],width_ratios=[17, 1], height_ratios=[1, 4])
-    
+    def make_gridspec(n): 
+        return gridspec.GridSpecFromSubplotSpec(2, 2, 
+                                    wspace=w,hspace=h,
+                                    subplot_spec=gs0[n],
+                                    width_ratios=[17, 1], 
+                                    height_ratios=[1, 4])
+
+    gs = make_gridspec(0) 
+    gs1 = make_gridspec(1) 
+    gs2 = make_gridspec(2)
+    gs3  = make_gridspec(3)
+  
     #add subplots
     ax0 = figure.add_subplot(gs[0])   
     ax1 = figure.add_subplot(gs[2]) 
@@ -133,18 +138,38 @@ def make_plot(water_fname,water_base_fname,case,save = True):
 
     def to_plot(vname,axis,cb_axis,cmap_water):
         var_water,data_units = read_var(vname)
+        v = var_water[:,start:stop]
+        from matplotlib import cm
+        mm = np.max(v)
+        mm2 = np.min(v)
+        mm_tot = round(max(abs(mm),abs(mm2)),4)
+        levels_wat = MaxNLocator(nbins=25).tick_values(mm2,mm)
+              
+        if vname == 'B_CH4_CH4':
+            #norm = cm.colors.Normalize(vmax=2400, vmin=0)
+            levels_wat = MaxNLocator(nbins=25).tick_values(0,2400) #2400)             
+            CS = axis.contourf(X_water,Y_water,v,levels = levels_wat,
+                cmap = cmap_water)  
 
-        mm = abs(np.max(var_water[:,start:stop]))
-        mm2 = abs(np.min(var_water[:,start:stop]))
-        mm_tot = round(max(mm,mm2),2)
-        
-        CS = axis.contourf(X_water,Y_water,var_water[:,start:stop],10,#norm = norm, #vmin=-mm_tot, vmax=mm_tot,
-                            cmap = cmap_water) 
-        ma1 = ma.max(var_water[:,start:stop])
-        cb1 = add_colorbar(CS,cb_axis) #,ma1        
-        #if axis == ax1:                    
-        #    #CS_1 = axis.contour(X_water,Y_water,var_water[:,start:stop],np.arange(0,2500,250),linewidths=0.2, colors='k')
-        #    #cb1.add_lines(CS_1)
+            '''elif vname == 'B_BIO_O2_rel_sat':
+                #norm = cm.colors.Normalize(vmax=2400, vmin=0)
+                levels_wat = MaxNLocator(nbins=50).tick_values(0,-100)             
+                CS = axis.contourf(X_water,Y_water,v,levels = levels_wat,
+                    cmap = cmap_water)
+
+                levels_wat2 = MaxNLocator(nbins=100).tick_values(0,-100)             
+                CS2 = axis.contour(X_water,Y_water,v,levels = levels_wat2,colors = 'k',linewidths=0.2)      '''          
+        else : 
+            CS = axis.contourf(X_water,Y_water,v,levels = levels_wat,cmap = cmap_water)         
+
+        if (mm * mm2) < 0:
+            CS = axis.contourf(X_water,Y_water,v,25,vmin=-mm_tot, vmax=mm_tot,
+                cmap = plt.get_cmap('coolwarm')) 
+            CS_1 = axis.contour(X_water,Y_water,v,[0],linewidths=0.2, colors='k')  
+
+        cb1 = add_colorbar(CS,cb_axis)
+
+        ma1 = ma.max(v)
 
         axis.set_ylim(max_water,min_water)  
         axis.xaxis.set_major_formatter(
@@ -167,7 +192,7 @@ def make_plot(water_fname,water_base_fname,case,save = True):
     fh_water.close()
     
     if save == True: 
-        plt.savefig('Fig/Figure9_{}.png'.format(case), format='png') #, dpi=300, transparent=True)             
+        plt.savefig('Fig/Figure8_{}.png'.format(case), format='png') #, dpi=300, transparent=True)             
     elif save == False:      
         plt.show()
 
@@ -180,16 +205,18 @@ water_base_o_fname = r'{}\Baseline_O\water.nc'.format(base)
 
 water_B  = r'{}\{}\water.nc'.format(base_cap,'B-Basic-seep')      
 water_FR = r'{}\{}\water.nc'.format(base_cap,'FR-Reduced-flux')
+water_FR2 = r'{}\{}\water.nc'.format(base_cap,'FR2-Reduced-flux')
 water_MI = r'{}\{}\water.nc'.format(base_cap,'MI-Increased-horizontal-mixing')       
 water_MR = r'{}\{}\water.nc'.format(base_cap,'MR-Reduced-horizontal-mixing')
 water_OI = r'{}\{}\water.nc'.format(base_cap,'OI-Increased-Oxidation-Rate')
 water_S  = r'{}\{}\water.nc'.format(base_cap,'S-Small-bubbles')      
 
 if __name__ == '__main__':
-
-    make_plot(water_B, water_base_b_fname,case = 'B',save = True)      
-    make_plot(water_FR,water_base_b_fname,case = 'FR')       
+    make_plot(water_FR2,water_base_b_fname,case = 'FR')       
+    make_plot(water_B, water_base_b_fname,case = 'B')      
+    #make_plot(water_FR,water_base_b_fname,case = 'FR')       
     make_plot(water_MR,water_base_b_fname,case = 'MR')  
     make_plot(water_MI,water_base_b_fname,case = 'MI')     
     make_plot(water_S, water_base_b_fname,case = 'S')          
     make_plot(water_OI,water_base_o_fname,case = 'OI')
+    

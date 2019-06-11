@@ -5,18 +5,16 @@ Created on 28. jun. 2017
 '''
 from pandas.plotting import register_matplotlib_converters
 register_matplotlib_converters()
-from pandas.plotting import register_matplotlib_converters
-register_matplotlib_converters()
 import os,sys,datetime 
 import numpy as np
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
 import seaborn as sns
 import xarray as xr
-import pandas as pd
+#import pandas as pd
 from matplotlib import gridspec
 sns.set() 
-
+from matplotlib.ticker import MaxNLocator
 base = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output'
 base_nocap = r'{}\no_capping'.format(base)
 base_cap = r'{}\with_capping'.format(base)
@@ -68,17 +66,17 @@ def make_figure(scenario,scen_name):
     ax3.set_title('"%" of equilibrium concentration')
 
     [a.set_ylim(80,0) for a in (ax1,ax2,ax3)]
-
-    plt.savefig('Fig/Fig13_{}'.format(scen_name))
+    plt.tight_layout()
+    plt.savefig('Fig/Fig9_{}'.format(scen_name))
     #plt.show()
     
-def make_figure_all_scen():
+def make_figure_all_scen(toperc = True):
     df_b = xr.open_dataset(scenarios[0])
     pal = sns.cubehelix_palette(as_cmap= True,light = 1,dark= 0)
     z = np.reshape(np.tile(df_b.z.values, 366),(366,45))
     slb = np.array(list(map(lambda t,s,d: calc_methane_saturation(t,s,d), df_b.temp, df_b.sal, z))).T
     X,Y = np.meshgrid(df_b.time.values[:366],df_b.z.values)
-
+     
     def getvar(path):
        return xr.open_dataset(path)['B_CH4_CH4'].values.T[:,:366] 
 
@@ -98,23 +96,51 @@ def make_figure_all_scen():
         return 100*(var/slb)
     ticks = np.arange(0,100,10) 
 
-    dfs = [getvar(water_B_cap),getvar(water_OI_cap),getvar(water_MI_cap),
+    dfs = [getvar(water_OI_cap),getvar(water_MI_cap),
            getvar(water_MR_cap),getvar(water_FR_cap),getvar(water_S_cap)]
 
-    CS1 = ax1.contourf(X,Y,perc(dfs[0]),10, vmin = 0, vmax = 100,cmap = pal)
-    fig.colorbar(CS1,cax=ax7,ticks=ticks)
-
-    titles = ('A) Scenario B ','B) Scenario OI','C) Scenario MI',
+    titles = ('B) Scenario OI','C) Scenario MI',
               'D) Scenario MR','E) Scenario FR','G) Scenario S')
-    axes = (ax1,ax2,ax3,ax4,ax5,ax6)
-    [a.contourf(X,Y,perc(dfs[k]),10, vmin = 0, vmax = 100,cmap = pal) for k,a in enumerate(axes)]
-    [a.set_ylim(80,0) for a in axes]
+    #
+    axes = (ax2,ax3,ax4,ax5,ax6)
+    if toperc == True:
+        ticks = [0,95,100]
+        #CS1 = ax1.contourf(X,Y,perc(getvar(water_B_cap)),levels = ticks,alpha = 0.6,cmap = plt.get_cmap('Greys'))   
+        CS1 = ax1.contour(X,Y,perc(getvar(water_B_cap)),90)         
+        ax1.set_title('A) Scenario B')
+        ax1.set_ylim(3,0.65)
+        ax1.set_xticks([])
+        ax1.set_ylabel('Depth,m')
+        [a.contourf(X,Y,perc(dfs[k]),levels = ticks,alpha = 0.6, cmap = plt.get_cmap('Greys'))for k,a in enumerate(axes,start = 0)]
+        [a.set_title('{} - ratio to solubility %'.format(titles[n])) for n,a in enumerate(axes,start = 0)]
+         
+        fig.colorbar(CS1,cax=ax7,ticks=ticks)
+    else:
+        levels_wat = MaxNLocator(nbins=100).tick_values(0,2400)  
+
+        CS1 = ax1.contourf(X,Y,getvar(water_B_cap),levels = levels_wat,cmap = pal)  
+        fig.colorbar(CS1,cax=ax7) #,ticks=ticks)         
+        ax1.set_title('A) Scenario B')
+        ax1.set_ylim(80,0)
+        ax1.set_xticks([])
+        ax1.set_ylabel('Depth,m')     
+
+        [a.contourf(X,Y,dfs[k],levels = levels_wat, cmap = pal) for k,a in enumerate(axes,start = 0)]       
+        [a.set_title('{} - CH4'.format(titles[n])) for n,a in enumerate(axes,start = 0)]
+
+    [a.set_ylim(3,0.65) for a in axes]
+
     [a.set_xticks([]) for a in axes[:-1]]
     [a.set_ylabel('Depth,m') for a in axes]
-    [a.set_title('{} - ratio to solubility %'.format(titles[n])) for n,a in enumerate(axes)]
+    ax6.xaxis.set_major_locator = mdates.MonthLocator()
     ax6.xaxis.set_major_formatter(
             mdates.DateFormatter('%b')) 
-    plt.savefig('Fig/Fig10_to_solubility_perc.png',format = 'png')
+
+
+    if toperc == True:            
+        plt.savefig('Fig/Fig10_to_solubility_perc2col.png',format = 'png')
+    else: 
+        plt.savefig('Fig/Fig10_B_CH4_all.png',format = 'png')            
     #plt.show()
 
 
@@ -127,6 +153,6 @@ if __name__ == '__main__':
     #make_figure(water_F_cap,'F')
     #make_figure(water_OI_cap,'OI')
     #make_figure(water_S_cap,'S')
-   make_figure_all_scen()
-
+   #make_figure_all_scen(toperc = False)
+   make_figure_all_scen(toperc =True)
 

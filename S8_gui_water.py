@@ -210,7 +210,7 @@ class Window(QtWidgets.QDialog):
             title = self.change_title.text()
             ax0.set_title(title)
         else:                 
-            ax0.set_title('B1_50, '+self.long_name+' ['+ str(data_units)+']')
+            ax0.set_title(' ' + self.long_name+' ['+ str(data_units)+']')
                    
         def fmt(x, pos):
             a, b = '{:.2e}'.format(x).split('e')
@@ -225,11 +225,11 @@ class Window(QtWidgets.QDialog):
     
         #try:   
         bounds = np.linspace(np.min(var_water[:,start:stop]), 
-                            np.max(var_water[:,start:stop]), 10)
+                            np.max(var_water[:,start:stop]), 30)
         norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)        
         #CS4 = ax1.pcolor(X_water,Y_water,var_water[:,start:stop],norm=norm,
         #              cmap = cmap_water) 
-        CS4 = ax1.contourf(X_water,Y_water,var_water[:,start:stop],10,#norm=norm,
+        CS4 = ax1.contourf(X_water,Y_water,var_water[:,start:stop],30,#norm=norm,
                         cmap = cmap_water)                       
         #except: 
         #   # CS4 = ax1.pcolor(X_water,Y_water,var_water[:,start:stop],norm=norm,

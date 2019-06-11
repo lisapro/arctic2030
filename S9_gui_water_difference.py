@@ -39,7 +39,10 @@ class Window(QtWidgets.QDialog):
                
         self.directory =  askdirectory()  #self.load_work_directory() 
         self.water_fname = os.path.join(self.directory,'water.nc')
-        self.water_base_fname = os.path.join(self.directory,'baseline_water.nc')
+        self.water_base_fname = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_B\water.nc'
+            
+        #self.water_base_fname = os.path.join(self.directory,'baseline_water.nc')
+
         self.fh_water_base = Dataset(self.water_base_fname)
         self.fh_water =  Dataset(self.water_fname)   
         try:
@@ -218,7 +221,7 @@ class Window(QtWidgets.QDialog):
             title = self.change_title.text()
             ax0.set_title(title)
         else:                 
-            ax0.set_title('B1_50, '+self.long_name+' ['+ str(data_units)+']')
+            ax0.set_title('MI, '+self.long_name+' ['+ str(data_units)+']')
                    
         def fmt(x, pos):
             a, b = '{:.2e}'.format(x).split('e')
@@ -279,7 +282,7 @@ class Window(QtWidgets.QDialog):
         ax0.set_xticklabels([])  
             
         if dtime >= 367:
-            ax1.set_xticklabels(['Jan 1','Jan 1','Jan 3','Jan 4'])  
+            ax1.set_xticklabels(['Jan 1','Jan 2','Jan 3','Jan 4'])  
             for n in time_ticks:  
                 ax1.axvline(x=n, ls= '--',  lw = 1 )  
         elif dtime  < 367:

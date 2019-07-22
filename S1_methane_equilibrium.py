@@ -8,7 +8,7 @@ import xarray as xr
 import pandas as pd
 import numpy as np
 import math
-import matplotlib.pyplot as plt
+#import matplotlib.pyplot as plt
 from netCDF4 import Dataset
 import tkinter as tk 
 from tkinter.filedialog import askopenfilename 

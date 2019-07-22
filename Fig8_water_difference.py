@@ -20,6 +20,8 @@ from dateutil.relativedelta import relativedelta
 import matplotlib.ticker as mtick
 
 from matplotlib.ticker import MaxNLocator
+import matplotlib
+matplotlib.use('qt5agg')
 sns.set() 
 sns.axes_style({ 'axes.grid': True,'axes.spines.right': True})
 from pandas.plotting import register_matplotlib_converters
@@ -91,19 +93,19 @@ def make_plot(water_fname,water_base_fname,case,save = True):
     #add subplots
     ax0 = figure.add_subplot(gs[0])   
     ax1 = figure.add_subplot(gs[2]) 
-    cbax1 = figure.add_subplot(gs[:0, -1]) 
+    cbax1 = figure.add_subplot(gs[3]) #:0, -1]) 
 
     ax0_a = figure.add_subplot(gs1[0])   
     ax1_a = figure.add_subplot(gs1[2]) 
-    cbax1_a = figure.add_subplot(gs1[:0, -1])
+    cbax1_a = figure.add_subplot(gs1[3]) #:0, -1])
 
     ax0_b = figure.add_subplot(gs2[0])   
     ax1_b = figure.add_subplot(gs2[2]) 
-    cbax1_b = figure.add_subplot(gs2[:0, -1])
+    cbax1_b = figure.add_subplot(gs2[3]) #[:0, -1])
 
     ax0_c = figure.add_subplot(gs3[0])  
     ax1_c = figure.add_subplot(gs3[2]) 
-    cbax1_c = figure.add_subplot(gs3[:0, -1])
+    cbax1_c = figure.add_subplot(gs3[3]) #[:0, -1])
                 
     ice_data = Dataset('Data\Laptev_average_year_3year.nc')    
     ice = ice_data.variables['hice'][:]        
@@ -145,7 +147,7 @@ def make_plot(water_fname,water_base_fname,case,save = True):
         mm_tot = round(max(abs(mm),abs(mm2)),4)
         levels_wat = MaxNLocator(nbins=25).tick_values(mm2,mm)
               
-        if vname == 'B_CH4_CH4':
+        if vname == 'B_CH4_CH4' and mm_tot > 1000:
             #norm = cm.colors.Normalize(vmax=2400, vmin=0)
             levels_wat = MaxNLocator(nbins=25).tick_values(0,2400) #2400)             
             CS = axis.contourf(X_water,Y_water,v,levels = levels_wat,
@@ -199,24 +201,26 @@ def make_plot(water_fname,water_base_fname,case,save = True):
 base = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output'
 #base_nocap = r'{}\no_capping'.format(base)
 base_cap = r'{}\with_capping'.format(base)
+#base_cap = r'{}\new_diffusion'.format(base)
 
 water_base_b_fname = r'{}\Baseline_B\water.nc'.format(base)
 water_base_o_fname = r'{}\Baseline_O\water.nc'.format(base)
 
 water_B  = r'{}\{}\water.nc'.format(base_cap,'B-Basic-seep')      
 water_FR = r'{}\{}\water.nc'.format(base_cap,'FR-Reduced-flux')
-water_FR2 = r'{}\{}\water.nc'.format(base_cap,'FR2-Reduced-flux')
 water_MI = r'{}\{}\water.nc'.format(base_cap,'MI-Increased-horizontal-mixing')       
 water_MR = r'{}\{}\water.nc'.format(base_cap,'MR-Reduced-horizontal-mixing')
 water_OI = r'{}\{}\water.nc'.format(base_cap,'OI-Increased-Oxidation-Rate')
 water_S  = r'{}\{}\water.nc'.format(base_cap,'S-Small-bubbles')      
+water_B_noice  = r'{}\{}\water.nc'.format(base_cap,'B-noice')      
+#water_B_noice_diff  = r'{}\{}\water.nc'.format(base_cap,'B-no-ice-diff')  
 
 if __name__ == '__main__':
-    make_plot(water_FR2,water_base_b_fname,case = 'FR')       
+    make_plot(water_FR,water_base_b_fname,case = 'FR')       
     make_plot(water_B, water_base_b_fname,case = 'B')      
-    #make_plot(water_FR,water_base_b_fname,case = 'FR')       
     make_plot(water_MR,water_base_b_fname,case = 'MR')  
     make_plot(water_MI,water_base_b_fname,case = 'MI')     
-    make_plot(water_S, water_base_b_fname,case = 'S')          
+    make_plot(water_S, water_base_b_fname,case = 'S')       
     make_plot(water_OI,water_base_o_fname,case = 'OI')
-    
+    make_plot(water_B_noice,water_base_b_fname,case = 'B no ice')    
+    #make_plot(water_B_noice_diff,water_base_b_fname,case = 'B no ice diff')  

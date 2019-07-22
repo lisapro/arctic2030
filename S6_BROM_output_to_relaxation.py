@@ -34,7 +34,7 @@ def d2n(delta):
 
 def make_nc_baseline(path_brom_input,path_brom_output):
     f_brom = Dataset(path_brom_input , mode='r')
-    f_roms = Dataset('Data\Laptev_average_year_3year.nc', mode='r')
+    f_roms = Dataset(r'Data\Laptev_average_year_3year.nc', mode='r')
     
     # remove bbl! 
     z = f_brom.variables['z'][5:]
@@ -54,7 +54,6 @@ def make_nc_baseline(path_brom_input,path_brom_output):
     f1.description="Baseline after BROM run" 
     f1.source = 'Elizaveta Protsenko (elp@niva.no)'
     f1.history = 'Created ' + time.ctime(time.time())
-    
     
     f1.createDimension('time',  size=len(times))
     f1.createDimension('days',  size=len(days))    
@@ -113,6 +112,11 @@ def make_nc_baseline(path_brom_input,path_brom_output):
     v_hice.units = 'meter'
     v_hice[:] = f_roms.variables['hice'][:] 
 
+    v__no_hice = f1.createVariable('no_hice', 'f8', ('time',), zlib=False)
+    v__no_hice.long_name = 'time-averaged ice thickness in cell NO ICE'
+    v__no_hice.units = 'meter'
+    v__no_hice[:] = f_roms.variables['hice'][:] * 0.   
+
     v_snow_thick = f1.createVariable('snow_thick', 'f8', ('time',), zlib=False)
     v_snow_thick.long_name = 'time-averaged isnow_thick in cell'
     v_snow_thick.units = 'meter'
@@ -167,64 +171,65 @@ def make_nc_baseline(path_brom_input,path_brom_output):
     import S5_Calculate_scenarios as scen 
     stop = 365*n_years
     days_1 = np.arange(1,367)
-    #zeros = scen.calculate_spin_up(z,days_1) 
 
     def three_years(flux):    
         flux = (pd.concat([flux,flux,flux],
                axis = 0,ignore_index=True)).iloc[:stop,:]       
         return flux     
 
-    #flux_B1_50,cont_B1_50 = scen.calculate_scenarios(z,False,days_1,'B1_50')
-    #flux_B2_50,cont_B2_50 = scen.calculate_scenarios(z,False,days_1,'B2_50')
-    #flux_B3_50,cont_B3_50 = scen.calculate_scenarios(z,False,days_1,'B3_50')   
-
     # 1 step create scenario for one year  
-    flux_BOM = scen.calculate_scenarios(z,days_1,sc ='BOM_Basic_seep')      
-    flux_S = scen.calculate_scenarios(z,days_1,sc ='S_Small_bubbles')                                      
-    flux_F = scen.calculate_scenarios(z,days_1,sc ='F_Reduced_flux')                        
-    flux_F2 = scen.calculate_scenarios(z,days_1,sc ='F2_Reduced_flux')                       
+    flux_B =       scen.calculate_scenarios(z,days_1, sc ='BS_Basic_seep')      
+    flux_B_noice = scen.calculate_scenarios(z,days_1, sc ='BS_no_ice')     
+    flux_S =       scen.calculate_scenarios(z,days_1, sc ='SB_Small_bubbles')                                      
+    flux_RF =       three_years(scen.calculate_scenarios(z,days_1, sc ='RF_Reduced_flux'))    
+    flux_IF =       three_years(scen.calculate_scenarios(z,days_1, sc ='IF_Increased_flux'))    
+
     # 2 step write it in three years 
-    flux_BOM = three_years(flux_BOM)
+    flux_B = three_years(flux_B)
+    flux_B_noice = three_years(flux_B_noice)    
     flux_S = three_years(flux_S)
-    flux_F = three_years(flux_F)
-    flux_F2 = three_years(flux_F2)
+    #flux_F = three_years(flux_F)
 
-    v_BOM = f1.createVariable('Scenario_BOM_Basic_seep_flux', 'f8', ('time','depth'), zlib=False)
-    v_BOM.long_name = 'Methane inflow scenario B_Basic_seep,O_Increased_oxidation_rate,M_Increased_mixing_rate, 4 bubbles 4mm 50% of time'
-    v_BOM.units = 'mmol CH4/m^2 sec'
-    v_BOM[:] = flux_BOM
+    v_B = f1.createVariable('Scenario_BS_Basic_seep_flux', 'f8', ('time','depth'), zlib=False)
+    v_B.long_name = 'Methane inflow scenarios BS_Basic_seep,IOI_Increased_oxidation_rate,IMR_Increased_mixing_rate, 4 bubbles 4mm 50% of time'
+    v_B.units = 'mmol CH4/m^3 sec'
+    v_B[:] = flux_B
 
-    v_S = f1.createVariable('Scenario_S_flux', 'f8', ('time','depth'), zlib=False)
+    v_B_noice = f1.createVariable('Scenario_Basic_seep_flux_no_ice', 'f8', ('time','depth'), zlib=False)
+    v_B_noice.long_name = 'Methane inflow scenario B_Basic_seep,O_Increased_oxidation_rate,M_Increased_mixing_rate, 4 bubbles 4mm 50% of time _noice'
+    v_B_noice.units = 'mmol CH4/m^3 sec'
+    v_B_noice[:] = flux_B_noice 
+
+    v_S = f1.createVariable('Scenario_SB_flux', 'f8', ('time','depth'), zlib=False)
     v_S.long_name = 'Methane inflow scenario S_Small_bubbles 32 bubbles 2 mm 50% of time'
-    v_S.units = 'mmol CH4/m^2 sec'
+    v_S.units = 'mmol CH4/m^3 sec'
     v_S[:] = flux_S 
 
-    v_F = f1.createVariable('Scenario_F_flux', 'f8', ('time','depth'), zlib=False)
-    v_F.long_name = 'Methane inflow scenario F_Reduced_flux 3 bubbles 4 mm 50% of time'
-    v_F.units = 'mmol CH4/m^2 sec'
-    v_F[:] = flux_F
+    v_RF = f1.createVariable('Scenario_RF_flux', 'f8', ('time','depth'), zlib=False)
+    v_RF.long_name = 'Methane inflow scenario RF_Reduced_flux 2 bubbles 4 mm 50% of time'
+    v_RF.units = 'mmol CH4/m^3 sec'
+    v_RF[:] = flux_RF
 
-    v_F2 = f1.createVariable('Scenario_F2_flux', 'f8', ('time','depth'), zlib=False)
-    v_F2.long_name = 'Methane inflow scenario F2_Reduced_flux 2 bubbles 4 mm 50% of time'
-    v_F2.units = 'mmol CH4/m^2 sec'
-    v_F2[:] = flux_F2
+
+    v_IF = f1.createVariable('Scenario_IF_flux', 'f8', ('time','depth'), zlib=False)
+    v_IF.long_name = 'Methane inflow scenario IF_Reduced_flux 8 bubbles 4 mm 50% of time'
+    v_IF.units = 'mmol CH4/m^3 sec'
+    v_IF[:] = flux_IF
+
 
     import S1_methane_equilibrium  as me
-    slb_year = me.calculate_equilibrium_solubility(days_1) 
-    slb_year = three_years(slb_year)
+    slb_year = three_years(me.calculate_equilibrium_solubility(days_1))
 
     v_B1_slb = f1.createVariable('CH4_Slb', 'f8', ('time','depth'), zlib=False)
     v_B1_slb.long_name = 'Methane equilibrium solubility'
     v_B1_slb.units = 'mmol/l CH4 '
     v_B1_slb[:]  = slb_year  
-
-    sat_year = me.calculate_saturation_solubility(days_1) 
-    sat_year = three_years(sat_year) 
+ 
+    sat_year = three_years(me.calculate_saturation_solubility(days_1)) 
     v_sat = f1.createVariable('Sat_sol', 'f8', ('time','depth'), zlib=False)
     v_sat.long_name = 'Methane saturation solubility'
     v_sat.units = 'micrommol/l CH4 '
     v_sat[:]  = sat_year 
-
 
     f1.close()
     f_brom.close()

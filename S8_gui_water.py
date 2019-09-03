@@ -199,12 +199,12 @@ class Window(QtWidgets.QDialog):
         #cbax0 = self.figure.add_subplot(gs[1])   
         ax1 = self.figure.add_subplot(gs[2]) 
         cbax1 = self.figure.add_subplot(gs[3])                  
-        cmap_water = plt.get_cmap('CMRmap') 
+        #cmap_water = plt.get_cmap('CMRmap') 
+        from copy import copy
+        cmap_water = copy(plt.get_cmap('CMRmap'))
 
-        #TODO: add ice here
-        #without interpolation 
-        ###CS1 = ax0.pcolor(X,Y,var_ice[:,start:stop],cmap = cmap )#) 3,edgecolor = 'w',
-        ####                 #linewidth = 0.000005)
+        ####cmap_water.set_under('#a7a7a7', 1)
+
                         
         if self.checkbox_title.isChecked() == True:
             title = self.change_title.text()
@@ -229,8 +229,11 @@ class Window(QtWidgets.QDialog):
         norm = colors.BoundaryNorm(boundaries=bounds, ncolors=256)        
         #CS4 = ax1.pcolor(X_water,Y_water,var_water[:,start:stop],norm=norm,
         #              cmap = cmap_water) 
-        CS4 = ax1.contourf(X_water,Y_water,var_water[:,start:stop],30,#norm=norm,
-                        cmap = cmap_water)                       
+
+        levels = np.linspace(np.amin(var_water[:,start:stop]),np.amax(var_water[:,start:stop]),20)
+
+        CS4 = ax1.contourf(X_water,Y_water,var_water[:,start:stop],levels,#norm=norm,
+                        cmap = cmap_water,extend = 'min')                       
         #except: 
         #   # CS4 = ax1.pcolor(X_water,Y_water,var_water[:,start:stop],norm=norm,
         #   #               cmap = cmap_water)                        

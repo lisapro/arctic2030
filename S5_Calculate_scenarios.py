@@ -6,8 +6,8 @@ import xarray as xr
 
 global roms_path,bub_path
 roms_path = r"Data/ROMS_Laptev_Sea_NETCDF3_CLASSIC_east_var2.nc"
-bub_path = r'Data/all_for_sbm_79_mm_tab.dat'
-
+#bub_path = r'Data/all_for_sbm_79_mm_tab.dat'
+bub_path = r'Data/all_for_sbm_79_mm_tab_shift.dat'
 def make_df_sum(s):
     ''' Create scenario, sum rates of dissolution  from 
         different bubbles milliM/sec '''
@@ -15,17 +15,18 @@ def make_df_sum(s):
     # Get rates of dissolution calculated in the Single Bubble Model
     df = pd.read_csv(bub_path,delimiter = '\t' )    
 
-    sizes = s[0]
-    df1 = df[df.radius == sizes[0]].reset_index()
+    size,num,frac = s
 
+    df1 = df[df.radius == size].reset_index()
     df_sum = df1.loc[:,['depth','rad_evol','met_cont','met_flow','vbub']]
-    
+    df_sum['met_cont'] = df_sum['met_cont'] * num
+    df_sum['met_flow'] = df_sum['met_flow'] * num
 
-    # Make sum according to scenario 
-    for n,num in enumerate(sizes):          
-        df2 = df[df.radius == num].reset_index()      
-        for col in df_sum.columns[1:] :
-            df_sum[col] = df_sum[col].add(df2[col],fill_value= 0)   
+    ## Make sum according to scenario 
+    #for n,num in enumerate(sizes):          
+    #    df2 = df[df.radius == num].reset_index()      
+    #    for col in df_sum.columns[1:] :
+    #        df_sum[col] = df_sum[col].add(df2[col],fill_value= 0)   
 
     #frac = s[1]  # fraction of the day the seep is active 
     df_sum.met_cont = df_sum.met_cont*1000 #* frac # milliM
@@ -84,13 +85,15 @@ def calculate_scenarios(new_depth,days,sc):
     ''' get sum flux for the scenario
        bubble sizes'''
     scenario_dict = {                  
-                     'BS_Basic_seep':                [[4]*4,0.5],  
-                     'BS_no_ice':                    [[4]*4,0.5],                    
-                     'IOI_Increased_oxidation_rate': [[4]*4,0.5],                    
-                     'IMR_Increased_mixing_rate':    [[4]*4,0.5],
-                     'SB_Small_bubbles':             [[2]*32,0.5],
-                     'RF_Reduced_flux':              [[4]*2,0.5],
-                     'IF_Increased_flux':            [[4]*8,0.5]
+                     'BS_Basic_seep':                [4,4,0.5],  
+                     'BS_no_ice':                    [4,4,0.5],                    
+                     'IOI_Increased_oxidation_rate': [4,4,0.5],                    
+                     'IMR_Increased_mixing_rate':    [4,4,0.5],
+                     'SB_Small_bubbles':             [2,32,0.5],
+                     'RF_Reduced_flux':              [4,2,0.5],
+                     'IF_Increased_flux':            [4,8,0.5],
+                     'IF_Increased_flux_2':          [4,4000,0.5],
+                     'IA_Increased_activity':        [4,40,1]
                      }
     
     df_sum = make_df_sum(s = scenario_dict[sc])
@@ -101,8 +104,9 @@ def calculate_scenarios(new_depth,days,sc):
                                    fill_value = 'extrapolate',
                                    kind='nearest') 
 
-    int_flow = f_flow(new_depth)
-
+    print ([0,5,10,40,70],new_depth )
+    int_flow = f_flow(list(new_depth))
+    print (int_flow)
     smoothed_flow = lowess(new_depth,int_flow,frac=1,is_sorted = False)[:,0]     # here frac is the fraction of the data used when estimating each y-value.
     smoothed_flow_vol,difs_x, volumes  = rate_to_flow(smoothed_flow,new_depth)   # millimole m3 sec 
 
@@ -111,8 +115,9 @@ def calculate_scenarios(new_depth,days,sc):
     mi = df_sum.met_cont.min()
     to_atm  = np.around(mi,decimals=2)
 
-    base_area = 10# area of the base, m2 
-    to_atm_vol = to_atm / (base_area*np.abs(new_depth[1] - new_depth[0])) 
+    base_area = 10 # area of the base, m2 
+    to_atm_vol = mi / (base_area*np.abs(new_depth[1] - new_depth[0])) 
+    flux_to_SWI = ma / base_area #millimole/m2/sec 
     flux_to_atm = to_atm / base_area #millimole/m2/sec 
     perc = np.around((mi/ma)*100,decimals=2)
     perc1 = np.around(100-perc, decimals=2)
@@ -120,6 +125,7 @@ def calculate_scenarios(new_depth,days,sc):
     print ('Sum flow to water milliM/sec from the whole! seep {}'.format(sc),df_sum.met_flow.sum())    
     #print ('Mean flow to water milliM/m2/sec from one horizont {}'.format(sc),df_sum.met_flow.mean())
     print ('Scen {} Flux To atmosphere  {} milliM/m2/sec '.format(sc, flux_to_atm), 'max content milliM',ma,'min content in the bubbles milliM',mi)
+    print ('Flux to SWI',flux_to_SWI)
     print ('CH4 dissolved in the water during uplifting,scenario:{} {} %'.format(sc, perc1)) 
     print ('Percentage of flux CH4 to atm {}  {}%'.format(sc, perc)) 
     print ("     ")    
@@ -145,10 +151,10 @@ def calculate_scenarios(new_depth,days,sc):
     start_wat = 236 # 27 aug
     stop_wat = 303 # 28 oct 
 
-    frac = scenario_dict[sc][1] 
+    frac = scenario_dict[sc][2] 
     if frac == 1 :
         for n in days:
-            if n < start_wat or n > stop_wat: 
+            if ((n < start_wat or n > stop_wat)) and sc != 'BS_no_ice': 
                 df_flow[n] = flx_v_ice
             else:
                 df_flow[n] = flx_v    
@@ -172,11 +178,12 @@ if __name__ == '__main__':
 
 
     scenario_dict = {                    
-                     'BOM_Basic_seep':  [[4]*4,0.5],  
-                     'BOM_no_ice':      [[4]*4,0.5],                  
+                     'BOM_Basic_seep':  [4,4,0.5],  
+                     'BOM_no_ice':      [4,4,0.5],                  
                      'S_Small_bubbles': [[2]*32,0.5],
                      'F_Reduced_flux':  [[4]*3,0.5],
                      'F2_Reduced_flux': [[4]*2,0.5]}   
 
     s = scenario_dict['BOM_Basic_seep']
+    print (s)
     print (make_df_sum(s).head())

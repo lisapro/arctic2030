@@ -257,22 +257,24 @@ if __name__=='__main__':
 
     path = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output'
 
-    path_b_init_in = str(path + r'\baseline-B-init-zero-relax\water.nc')
-    path_b_init_out = str(path +r'\baseline-B-init-zero-relax\Laptev_Baseline_B.nc')
+    path_b_init_in = r'C:\Users\ELP\OneDrive - NIVA\Documents\BROM_linux_output\baseline-B\water.nc' 
+    #str(path + r'\baseline-B-init-zero-relax\water.nc')
+    path_b_init_out = r'Laptev_Baseline_B.nc'
 
-    path_b_in = str(path +r'\baseline-B\water.nc')
+    R'''path_b_in = str(path +r'\baseline-B\water.nc')
     path_b_out = str(path +r'\baseline-B\Laptev_Baseline_B_r.nc')
 
     #path_b_init_in = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\baseline-B-init-zero-relax\water.nc'
     #path_b_init_out = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\baseline-B-init-zero-relax\Laptev_Baseline_B.nc'
 
     path_o_in = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_O\water.nc'
-    path_o_out = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_O\Laptev_Baseline_O.nc'  #'Data\Laptev_baseline.nc'
+    path_o_out = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_O\Laptev_Baseline_O.nc'  #'Data\Laptev_baseline.nc
+    '''
 
     #1 
-    #make_nc_baseline(path_b_init_in,path_b_init_out)
+    make_nc_baseline(path_b_init_in,path_b_init_out)
 
     #2 
-    make_nc_baseline(path_b_in,path_b_out)
+    #make_nc_baseline(path_b_in,path_b_out)
 
     #make_nc_baseline(path_future_in,path_future_out)

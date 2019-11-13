@@ -31,17 +31,17 @@ import pandas as pd
 sns.set()
 size = 30 
 wod_path = r'Data\Laptev_WOD_area_70_150_f_deeper.nc' 
-#brom_path = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_B\Laptev_Baseline_B.nc' 
-brom_path = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\with_capping\baseline-B-new\water.nc'
-
+#brom_path = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\baseline-B\Laptev_Baseline_B.nc' 
+brom_path = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\baseline-B\water.nc'
+#brom_path = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\baseline-B-init-zero-relax\water.nc'
 amk_path = 'Data\seep_data_amk.txt'
         
 def choose_month(ds,m_num,var,clima_var_m,levels,double_int = False,int_num = 1):
     # get 1 month data 
-    month_ds = ds.where(ds.date_time.dt.month == m_num, drop=True)
+    month_ds = ds #.where(ds.date_time.dt.month == m_num, drop=True)
     
     try: # group by depth, find mean
-        month_mean = month_ds.groupby(month_ds['var1']).mean()     
+        month_mean = month_ds.groupby(month_ds['var1']).mean(dim=xr.ALL_DIMS)     
         month_depth = month_mean.var1.values.copy()
         month_df = month_mean.to_dataframe()
         # check for nans 
@@ -82,18 +82,20 @@ def add_brom_plot(dss,axis,varname):
     #dss['depth'] = dss['depth'].T  
 
     # Take only September and October data from BROM simulation
+    dss = dss.where((dss['time.year'] == 1993),drop = True)
     dss = dss.where(
-        ((dss['time.month'] == 9)) , #| (dss['time.month'] == 10)
+        (((dss['time.month'] == 9)  )) , #dss['time.month'] == 10| 
          drop=True)    
     var_brom = funcs[varname]   
 
-    for n in range(0,len(dss.time),2):
+
+    for n in range(2,len(dss.time),2):
         #axis.scatter(dss[var_brom][n],dss.depth,  c ='#de7b5c', 
         #    alpha = 0.5, s  = size-20, zorder = 9) 
-        axis.plot(dss[var_brom][n].values,dss.depth.values,  c ='#de7b5c', linewidth = 0.3, # '#4f542a',
-            alpha = 0.5,  zorder = 8) #, label = 'Sept \nBROM')s  = size-20,
+        axis.plot(dss[var_brom][n].values,dss.depth.values,  c ='#de7b5c', linewidth = 1, # '#4f542a',
+            alpha = 0.1,  zorder = 8) #, label = 'Sept \nBROM')s  = size-20,
          
-    m = dss.groupby(dss.depth).mean()
+    m = dss.groupby(dss.depth).mean(dim=xr.ALL_DIMS)
     axis.plot(m[var_brom].values,m[var_brom].coords['depth'].values,
             'o--', c = '#6d3c2c',markersize  = 2,
             label = 'Sept mean \nBROM',zorder = 9)
@@ -125,7 +127,7 @@ def get_data_wod(ncfile,varname,pl,save,levels,axis,int_num = 1,
     ds = ds.where(ds.date_time.dt.year > 1940, drop = True) 
     ds = ds.where(ds.var6 < 15, drop = True) 
     # group by depth and find mean for each depth 
-    clima_mean = ds.groupby(ds['var1']).mean()    
+    clima_mean = ds.groupby(ds['var1']).mean(dim=xr.ALL_DIMS)    
     clima_depth = clima_mean.var1.values.copy()
     clima_df = clima_mean.to_dataframe()
     

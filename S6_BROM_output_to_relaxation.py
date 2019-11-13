@@ -143,6 +143,11 @@ def make_nc_baseline(path_brom_input,path_brom_output):
     v_no3.units = 'mmol N/m^3'
     v_no3[:] = f_brom.variables['B_NUT_NO3'][:,5:]
 
+    v_nh4 = f1.createVariable('NH4', 'f8', ('time','depth'), zlib=False)
+    v_nh4.long_name = ' ammonium/nitrogen'
+    v_nh4.units = 'mmol N/m^3'
+    v_nh4[:] = f_brom.variables['B_NUT_NH4'][:,5:]
+
     v_no2 = f1.createVariable('NO2', 'f8', ('time','depth'), zlib=False)
     v_no2.long_name = ' nitrite/nitrogen'
     v_no2.units = 'mmol N/m^3'
@@ -183,6 +188,8 @@ def make_nc_baseline(path_brom_input,path_brom_output):
     flux_S =       scen.calculate_scenarios(z,days_1, sc ='SB_Small_bubbles')                                      
     flux_RF =       three_years(scen.calculate_scenarios(z,days_1, sc ='RF_Reduced_flux'))    
     flux_IF =       three_years(scen.calculate_scenarios(z,days_1, sc ='IF_Increased_flux'))    
+    flux_IA =       three_years(scen.calculate_scenarios(z,days_1, sc ='IA_Increased_activity'))    
+    flux_IF_2 =       three_years(scen.calculate_scenarios(z,days_1, sc ='IF_Increased_flux_2'))
 
     # 2 step write it in three years 
     flux_B = three_years(flux_B)
@@ -216,6 +223,15 @@ def make_nc_baseline(path_brom_input,path_brom_output):
     v_IF.units = 'mmol CH4/m^3 sec'
     v_IF[:] = flux_IF
 
+    v_IF_2 = f1.createVariable('Scenario_IF_flux_2', 'f8', ('time','depth'), zlib=False)
+    v_IF_2.long_name = 'Methane inflow scenario IF_Reduced_flux 4000 bubbles 4 mm 50% of time'
+    v_IF_2.units = 'mmol CH4/m^3 sec'
+    v_IF_2[:] = flux_IF_2
+
+    v_IA = f1.createVariable('Scenario_IA_flux', 'f8', ('time','depth'), zlib=False)
+    v_IA.long_name = 'Methane inflow scenario IA_Increased_Activity 4 bubbles 4 mm 100% of time'
+    v_IA.units = 'mmol CH4/m^3 sec'
+    v_IA[:] = flux_IA
 
     import S1_methane_equilibrium  as me
     slb_year = three_years(me.calculate_equilibrium_solubility(days_1))
@@ -237,11 +253,26 @@ def make_nc_baseline(path_brom_input,path_brom_output):
     
 
 if __name__=='__main__':
-    path_b_in = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_B\water.nc'
-    path_b_out = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_B\Laptev_Baseline_B.nc'  #'Data\Laptev_baseline.nc'
+
+
+    path = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output'
+
+    path_b_init_in = str(path + r'\baseline-B-init-zero-relax\water.nc')
+    path_b_init_out = str(path +r'\baseline-B-init-zero-relax\Laptev_Baseline_B.nc')
+
+    path_b_in = str(path +r'\baseline-B\water.nc')
+    path_b_out = str(path +r'\baseline-B\Laptev_Baseline_B_r.nc')
+
+    #path_b_init_in = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\baseline-B-init-zero-relax\water.nc'
+    #path_b_init_out = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\baseline-B-init-zero-relax\Laptev_Baseline_B.nc'
 
     path_o_in = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_O\water.nc'
     path_o_out = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_O\Laptev_Baseline_O.nc'  #'Data\Laptev_baseline.nc'
 
+    #1 
+    #make_nc_baseline(path_b_init_in,path_b_init_out)
+
+    #2 
     make_nc_baseline(path_b_in,path_b_out)
-    make_nc_baseline(path_o_in,path_o_out)
+
+    #make_nc_baseline(path_future_in,path_future_out)

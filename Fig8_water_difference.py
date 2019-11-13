@@ -148,8 +148,9 @@ def make_plot(water_fname,water_base_fname,case,save = True):
         levels_wat = MaxNLocator(nbins=25).tick_values(mm2,mm)
               
         if vname == 'B_CH4_CH4' and mm_tot > 1000:
+            
             #norm = cm.colors.Normalize(vmax=2400, vmin=0)
-            levels_wat = MaxNLocator(nbins=25).tick_values(0,2400) #2400)             
+            #levels_wat = MaxNLocator(nbins=25).tick_values(0,2400) #2400)             
             CS = axis.contourf(X_water,Y_water,v,levels = levels_wat,
                 cmap = cmap_water)  
 
@@ -165,7 +166,8 @@ def make_plot(water_fname,water_base_fname,case,save = True):
             CS = axis.contourf(X_water,Y_water,v,levels = levels_wat,cmap = cmap_water)         
 
         if (mm * mm2) < 0:
-            CS = axis.contourf(X_water,Y_water,v,25,vmin=-mm_tot, vmax=mm_tot,
+            # If changes over 0
+            CS = axis.contourf(X_water,Y_water,v,10,vmin=-mm_tot, vmax=mm_tot,
                 cmap = plt.get_cmap('coolwarm')) 
             CS_1 = axis.contour(X_water,Y_water,v,[0],linewidths=0.2, colors='k')  
 
@@ -200,27 +202,45 @@ def make_plot(water_fname,water_base_fname,case,save = True):
 
 base = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output'
 #base_nocap = r'{}\no_capping'.format(base)
-base_cap = r'{}\with_capping'.format(base)
+#base_cap = r'{}\with_capping'.format(base)
 #base_cap = r'{}\new_diffusion'.format(base)
 
-water_base_b_fname = r'{}\Baseline_B\water.nc'.format(base)
+water_base_b_fname = r'{}\baseline-B\water.nc'.format(base)
+#water_base_b_fname = r'{}\{}\water.nc'.format(base_cap,'baseline-B-new') 
+#water_base_b_fname  = r'{}\{}\water.nc'.format(base_cap,'Baseline-B-new-2') 
 water_base_o_fname = r'{}\Baseline_O\water.nc'.format(base)
+water_base_future = r'{}\Future_Baseline\water.nc'.format(base)
 
-water_B  = r'{}\{}\water.nc'.format(base_cap,'B-Basic-seep')      
-water_FR = r'{}\{}\water.nc'.format(base_cap,'FR-Reduced-flux')
-water_MI = r'{}\{}\water.nc'.format(base_cap,'MI-Increased-horizontal-mixing')       
-water_MR = r'{}\{}\water.nc'.format(base_cap,'MR-Reduced-horizontal-mixing')
-water_OI = r'{}\{}\water.nc'.format(base_cap,'OI-Increased-Oxidation-Rate')
-water_S  = r'{}\{}\water.nc'.format(base_cap,'S-Small-bubbles')      
-water_B_noice  = r'{}\{}\water.nc'.format(base_cap,'B-noice')      
+water_B  = r'{}\{}\water.nc'.format(base,'B-Basic-seep')      
+
+water_FB  = r'{}\{}\water.nc'.format(base,'Future-Baseline')      
+water_FR = r'{}\{}\water.nc'.format(base,'FR-Reduced-flux')
+water_IF= r'{}\{}\water.nc'.format(base,'IF-Increased-flux')
+water_IF_2= r'{}\{}\water.nc'.format(base,'IF2-Increased_flux_2')
+
+water_MI = r'{}\{}\water.nc'.format(base,'MI-Increased-horizontal-mixing')       
+water_MR = r'{}\{}\water.nc'.format(base,'MR-Reduced-horizontal-mixing')
+water_OI = r'{}\{}\water.nc'.format(base,'OI-Increased-Oxidation-Rate')
+water_S  = r'{}\{}\water.nc'.format(base,'S-Small-bubbles')      
+water_B_noice  = r'{}\{}\water.nc'.format(base,'B-no-ice')     
+
+
+
 #water_B_noice_diff  = r'{}\{}\water.nc'.format(base_cap,'B-no-ice-diff')  
 
 if __name__ == '__main__':
+    make_plot(water_B, water_base_b_fname,case = 'B',save = True)
+    #make_plot(water_FB,water_base_b_fname,case = 'FB')
+    #make_plot(water_IF_2,water_base_b_fname,case = 'IF2',save = False)       
+    #make_plot(water_base,water_base_b_fname,case = 'base',save = False)       
+    '''make_plot(water_MR,water_base_b_fname,case = 'MR')      
+    make_plot(water_B, water_base_b_fname,case = 'B')
+
     make_plot(water_FR,water_base_b_fname,case = 'FR')       
-    make_plot(water_B, water_base_b_fname,case = 'B')      
-    make_plot(water_MR,water_base_b_fname,case = 'MR')  
+    make_plot(water_IF,water_base_b_fname,case = 'IF')       
+    make_plot(water_MR,water_base_b_fname,case = 'MR')      
     make_plot(water_MI,water_base_b_fname,case = 'MI')     
     make_plot(water_S, water_base_b_fname,case = 'S')       
     make_plot(water_OI,water_base_o_fname,case = 'OI')
-    make_plot(water_B_noice,water_base_b_fname,case = 'B no ice')    
+    make_plot(water_B_noice,water_base_b_fname,case = 'B no ice')'''
     #make_plot(water_B_noice_diff,water_base_b_fname,case = 'B no ice diff')  

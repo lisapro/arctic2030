@@ -34,7 +34,7 @@ def plot_rad_evol(save = False):
         f  = interpolate.interp1d(group.depth,group.rad_evol)
         new_depth = np.arange(group.depth.min(),group.depth.max(),3)
         rs = f(new_depth) 
-        s_rad = (rs/np.max(rs))*100 
+        s_rad = (rs/7)*90 #np.max(rs)
        
         ax0.plot(group.rad_evol,group.depth,alpha = 0.2,
                 linewidth = 0.5, c='#3a5772')          
@@ -58,15 +58,19 @@ def plot_rad_evol(save = False):
         new_depth = np.arange(group.depth.min(),group.depth.max(),3)
         f  = interpolate.interp1d(group.depth,group.rad_evol)
         rs = f(new_depth) 
-        s_rad = (rs/np.max(rs))*100      
+        s_rad = (rs/7)*90     #np.max(rs)
 
+        '''
+        #mark chosen scen with red and bold lines 
         if rad in [2,4]:  
             linewidth=0.7
             edgecolors='#843516'           
         else:    
             linewidth=0.3
-            edgecolors='#3a5772'  
+            edgecolors='#3a5772'  '''
 
+        linewidth=0.3
+        edgecolors='#3a5772'  
         ax0.plot(group.rad_evol,group.depth,alpha = 0.2,
                 linewidth = 0.5, c='#3a5772')        
         ax0.scatter(rs,new_depth,s = s_rad,alpha = 0.7,linewidth = linewidth,
@@ -91,14 +95,14 @@ def plot_rad_evol(save = False):
             edgecolor='k',color ='#6291bf',
             label = 'dissolves in water')
     
-    ax1.bar(radii3[6],100, width = step,
-            bottom=0,edgecolor='#843516',
-            align='center',color = 'none', linewidth = 0.9,
-            label = 'chosen scenarios')        
+    #ax1.bar(radii3[6],100, width = step,
+    #        bottom=0,edgecolor='#843516',
+    #        align='center',color = 'none', linewidth = 0.9,
+    #        label = 'chosen scenarios')        
 
-    ax1.bar(radii3[14],100, width = step,
-            align='center', linewidth = 0.9,color ='none',
-            edgecolor='#843516') 
+    #ax1.bar(radii3[14],100, width = step,
+    #        align='center', linewidth = 0.9,color ='none',
+    #        edgecolor='#843516') 
 
     ax1.set_ylabel('%')
     ax0.set_ylabel('depth, m')
@@ -124,12 +128,15 @@ def plot_rad_evol(save = False):
     ax1.set_xticks(x_ticks)
 
     if save == True:
-        plt.savefig('Fig/Figure8_Bubbles_Diameters.pdf',
-                    format =  'pdf',
+        plt.savefig('Fig/Figure8_Bubbles_Diameters.png',
+                    format =  'png',
                     transparent = False)
+        """        plt.savefig('Fig/Figure8_Bubbles_Diameters.pdf',
+                        format =  'pdf',
+                        transparent = False)"""
     else:
         plt.show()
 
 
 if __name__ == '__main__':     
-    plot_rad_evol(False)
+    plot_rad_evol(True)

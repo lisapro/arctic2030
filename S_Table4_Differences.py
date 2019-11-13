@@ -84,9 +84,10 @@ base = r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output'
 #base_nocap = r'{}\no_capping'.format(base)
 base_cap = r'{}\with_capping'.format(base)
 
-water_base_b_fname = r'{}\Baseline_B\water.nc'.format(base)
+water_base_b_fname = r'{}\baseline-B\water.nc'.format(base)
+#water_base_b_fname = r'{}\{}\water.nc'.format(base_cap,'baseline-B-new') 
 water_base_o_fname = r'{}\Baseline_O\water.nc'.format(base)
-water_B  = r'{}\{}\water.nc'.format(base_cap,'B-Basic-seep')      
+water_B  = r'{}\{}\water.nc'.format(base,'B-Basic-seep')      
 water_FR = r'{}\{}\water.nc'.format(base_cap,'FR-Reduced-flux')
 water_FR2 = r'{}\{}\water.nc'.format(base_cap,'FR-Reduced-flux')
 water_MI = r'{}\{}\water.nc'.format(base_cap,'MI-Increased-horizontal-mixing')       
@@ -97,10 +98,10 @@ water_S  = r'{}\{}\water.nc'.format(base_cap,'S-Small-bubbles')
 if __name__ == '__main__':
     file = open("differences.txt", "w") 
     make_dif(water_B, water_base_b_fname,case = 'B')        
-    make_dif(water_FR2,water_base_b_fname,case = 'FR2')   ,
+    '''make_dif(water_FR2,water_base_b_fname,case = 'FR2')   ,
     make_dif(water_FR,water_base_b_fname,case = 'FR')           
     make_dif(water_MR,water_base_b_fname,case = 'MR')  
     make_dif(water_MI,water_base_b_fname,case = 'MI')     
     make_dif(water_S, water_base_b_fname,case = 'S')          
-    make_dif(water_OI,water_base_o_fname,case = 'OI')
+    make_dif(water_OI,water_base_o_fname,case = 'OI')'''
     file.close() 

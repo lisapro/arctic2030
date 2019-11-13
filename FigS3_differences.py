@@ -57,7 +57,8 @@ water_base_o_fname = r'{}\Baseline_O\water.nc'.format(base)
 
 water_B  = get_path('B-Basic-seep')      
 water_FR = get_path('FR-Reduced-flux')
-water_FR2 = get_path('FR2-Reduced-flux')
+water_FI = get_path('IF-Increased-flux')
+#water_FR2 = get_path('FR2-Reduced-flux')
 water_MI = get_path('MI-Increased-horizontal-mixing')       
 water_MR = get_path('MR-Reduced-horizontal-mixing')
 water_OI = get_path('OI-Increased-Oxidation-Rate')
@@ -78,8 +79,8 @@ def plot_scen(name,var,ax1,label,col):
     vmin = group2.min().rolling(time=5, center=True).mean(dim = xr.ALL_DIMS) 
     ln = 1 
     ax1.fill_between(group2.groups.keys(),vmin,v,alpha = 0.3,color = col)  
-    ax1.plot(group2.groups.keys(),vmin,color = col,linewidth = ln,label = label,)      
-    ax1.plot(group2.groups.keys(),v,color = col,linewidth = ln)       
+    #ax1.plot(group2.groups.keys(),vmin,color = col,linewidth = ln,label = label,)      
+    #ax1.plot(group2.groups.keys(),v,color = col,linewidth = ln)       
     #ax2.plot(group2.groups.keys(),v,linewidth = 1)
 
 
@@ -96,10 +97,11 @@ if __name__ == '__main__':
         ax2 = plt.subplot(gs[1]) 
         #ax3 = plt.subplot(gs[2]) 
 
-        dfs  = {'OI': water_OI,'B':water_B,'FR2':water_FR2,'MR': water_MR,'MI': water_MI,'S': water_S}
+        dfs  = {'OI': water_OI,'B':water_B,'FR':water_FR,'FI':water_FI,'MR': water_MR,'MI': water_MI,'S': water_S}
 
         plot_scen(dfs['B'],var,ax1,'B','#57689b')   
-        plot_scen(dfs['FR2'],var,ax1,'FR2','#cc584d')
+        plot_scen(dfs['FR'],var,ax1,'FR','#cc584d')
+        plot_scen(dfs['FI'],var,ax1,'FI','#c18dc7')
         plot_scen(dfs['OI'],var,ax1,'OI','#008080')  
 
         plot_scen(dfs['S'],var,ax2,'S','#3f3f3f') 
@@ -129,7 +131,7 @@ if __name__ == '__main__':
 
         colors = ('#008080','#22F148', '#57689b','#cc584d','#e5c100','#3f3f3f')
         names = ('MR','OI','B','FR2','MI','S')
-        dfs  = {'OI': water_OI,'B':water_B,'FR2':water_FR2,'MR': water_MR,'MI': water_MI,'S': water_S}
+        dfs  = {'OI': water_OI,'B':water_B,'FR2':water_FR,'MR': water_MR,'MI': water_MI,'S': water_S}
 
         [plot_scen(dfs[n],var,ax1,n,colors[m]) for m,n in enumerate(names,start = 0)]
 
@@ -164,3 +166,6 @@ if __name__ == '__main__':
     call_all_in_one('B_BIO_Het')  '''
 
     #print (group)
+
+if __name__ == '__main__':
+    print ('1')

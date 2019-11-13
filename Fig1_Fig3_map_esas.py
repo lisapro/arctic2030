@@ -32,8 +32,8 @@ def get_batymnetry():
     etopo1name=r'Data\ETOPO1_Ice_g_gmt4.nc'
     etopo1 = xr.open_dataset(etopo1name)
     #etopo1  = etopo1.where(etopo1.z < 1, drop = True)   
-    etopo1  = etopo1.where(((etopo1.lon > 100) & (etopo1.lon < 150)), drop = True)
-    etopo1  = etopo1.where(((etopo1.lat > 62) & (etopo1.z < 1)), drop = True)    
+    etopo1  = etopo1.where(((etopo1.lon > 6) & (etopo1.lon < 9)), drop = True)
+    etopo1  = etopo1.where(((etopo1.lat > 53.5) & (etopo.lat < 55.2)), drop = True)    
     return etopo1 
 
 def add_bathymetry(etopo1,m,axis,case = 'Laptev'):    

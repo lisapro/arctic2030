@@ -5,7 +5,7 @@ import numpy as np
 import matplotlib.ticker as mtick 
 import seaborn as sns
 sns.set()
-brom_path =  r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\Baseline_B\Laptev_Baseline_B.nc'
+brom_path =  r'C:\Users\elp\OneDrive - NIVA\BROM_linux_output\baseline-B\Laptev_Baseline_B.nc'
 
 #cm = plt.get_cmap('GnBu') #('gist_stern_r') # #('Reds')
 cm = plt.get_cmap('Reds')
@@ -29,8 +29,8 @@ def Fig9_plot_flux_scenario(sc_name,save = False):
     ax.set_facecolor('k')
 
     cs = f.plot(x='time', y = 'depth', ax = ax,
-                add_colorbar = False,levels = 5, 
-            cmap = cm,vmin = 0,vmax = 0.0003) 
+                add_colorbar = False,levels = 7, 
+            cmap = cm,vmin = 0,vmax = 0.00001) 
 
     plt.colorbar(cs,ax = ax,format = format) 
          
@@ -137,7 +137,8 @@ def plot_flux_scenarios(sc_name,sc_name2,save = False):
               
 if __name__ == '__main__':
 
-    Fig9_plot_flux_scenario('Scenario_BOM_Basic_seep_flux',save = True)
+    #Fig9_plot_flux_scenario('Scenario_BOM_Basic_seep_flux',save = True)
+    Fig9_plot_flux_scenario('Scenario_BS_Basic_seep_flux',save =True)
 
     #plot_flux_scenarios('B1_50f','B2_50f',False)
 
